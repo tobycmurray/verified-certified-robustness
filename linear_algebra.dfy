@@ -392,10 +392,92 @@ module LinearAlgebra {
       var nu := Layer(n0, u);
       SpecNormProductIsLipBound(n1, nv, nu, s1);
       assert Distance(NN(n1, nv), NN(n1, nu)) <= Product(s1) * Distance(nv, nu);
-      
-      assume false;
+      var e := Distance(NN(n1, nv), NN(n1, nu));
+      var f := Product(s1);
+      var g := Distance(nv, nu);
+      A4(n1, nv, nu, s1, e, f, g);
+      assert e <= f * g;
+      assert Distance(nv, nu) <= s0 * Distance(v, u);
+      var h := Distance(v, u);
+      A5(nv, nu, s0, v, u, g, h);
+      assert g <= s0 * h;
+      ProductOfPositivesIsPositive(s1);
+      assert f >= 0.0;
+      Increase2(e, f, g, s0, h);
+      assert e <= f * s0 * h;
+      ProductDef(s, f, s0);
+      assert f * s0 == Product(s);
+      var k := Product(s);
+      assert f * s0 == k;
+      MultiplicationSubstitution(e, f, s0, h, k);
+      assert e <= k * h;
+      reveal NN();
+      assert e == Distance(NN(n, v), NN(n, u));
+      assert k == Product(s);
+      assert h == Distance(v, u);
+      Final(e, n, v, u, k, s, h);
+      assert Distance(NN(n, v), NN(n, u)) <= Product(s) * Distance(v, u);
     }
   }
+
+  lemma Final(e: real, n: NeuralNetwork, v: Vector, u: Vector, k: real, s: seq<real>, h: real)
+    requires |v| == |u| == |n[0][0]|
+    requires e == Distance(NN(n, v), NN(n, u))
+    requires |s| >= 1
+    requires k == Product(s)
+    requires h == Distance(v, u)
+    requires e <= k * h
+    ensures Distance(NN(n, v), NN(n, u)) <= Product(s) * Distance(v, u)
+  {}
+
+  lemma MultiplicationSubstitution(e: real, f: real, s0: real, h: real, k: real)
+    requires e <= f * s0 * h
+    requires f * s0 == k
+    ensures e <= k * h
+  {}
+
+  lemma ProductDef(s: seq<real>, f: real, s0: real)
+    requires |s| >= 2
+    requires f == Product(s[1..])
+    requires s0 == s[0]
+    ensures f * s0 == Product(s)
+  {
+    reveal Product();
+  }
+
+  lemma Increase2(e: real, f: real, g: real, s0: real, h: real)
+    requires e <= f * g
+    requires g <= s0 * h
+    requires f >= 0.0
+    ensures e <= f * s0 * h
+  {}
+
+  lemma ProductOfPositivesIsPositive(s: seq<real>)
+    requires forall i | 0 <= i < |s| :: s[i] >= 0.0
+    requires |s| >= 1
+    ensures Product(s) >= 0.0
+  {
+    reveal Product();
+  }
+
+  lemma A5(nv: Vector, nu: Vector, s0: real, v: Vector, u: Vector, g: real, h: real)
+    requires |v| == |u|
+    requires |nv| == |nu|
+    requires Distance(nv, nu) <= s0 * Distance(v, u)
+    requires h == Distance(v, u)
+    requires g == Distance(nv, nu)
+    ensures g <= s0 * h
+  {}
+
+  lemma A4(n1: NeuralNetwork, nv: Vector, nu: Vector, s1: seq<real>, e: real, f: real, g: real)
+    requires |nv| == |nu| == |n1[0][0]|
+    requires e == Distance(NN(n1, nv), NN(n1, nu))
+    requires |s1| >= 1
+    requires f == Product(s1)
+    requires g == Distance(nv, nu)
+    requires Distance(NN(n1, nv), NN(n1, nu)) <= Product(s1) * Distance(nv, nu)
+    ensures e <= f * g
+  {}
 
   lemma A3(a: real, d: real, c: real, n0: Matrix, v: Vector, u: Vector, s: seq<real>)
     requires |v| == |u| == |n0[0]|
