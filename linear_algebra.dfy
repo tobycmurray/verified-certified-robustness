@@ -363,94 +363,150 @@ module LinearAlgebra {
     // v[i]^2 <= u[i]^2 for each i
   }
 
-  lemma SpecNormProductIsLipBound(n: NeuralNetwork, v: Vector, u: Vector,
-      s: seq<real>)
-    requires |v| == |u| == |n[0][0]|
-    requires |s| == |n|
-    requires forall i | 0 <= i < |s| :: IsSpecNorm(s[i], n[i])
-    ensures Distance(NN(n, v), NN(n, u)) <= Product(s) * Distance(v, u)
-  {
-    if |n| == 1 {
-      SpecNormIsLayerLipBound(n[0], v, u, s[0]);
-    } else {
-      var n0 := n[0];
-      var s0 := s[0];
-      SpecNormIsLayerLipBound(n0, v, u, s0);
-      assert Distance(Layer(n0, v), Layer(n0, u)) <= s0 * Distance(v, u);
-      var a := Distance(Layer(n0, v), Layer(n0, u));
-      var c := Distance(v, u);
-      var d := s[0];
-      A2(n0, v, u, s0, a, c);
-      assert a <= s0 * c;
-      A1(a, s0, c, d);
-      assert a <= d * c;
-      A3(a, d, c, n0, v, u, s);
-      assert Distance(Layer(n0, v), Layer(n0, u)) <= s[0] * Distance(v, u);
-      var n1 := n[1..];
-      var s1 := s[1..];
-      var nv := Layer(n0, v); // *
-      var nu := Layer(n0, u);
-      SpecNormProductIsLipBound(n1, nv, nu, s1);
-      assert Distance(NN(n1, nv), NN(n1, nu)) <= Product(s1) * Distance(nv, nu);
-      var e := Distance(NN(n1, nv), NN(n1, nu));
-      var f := Product(s1);
-      var g := Distance(nv, nu);
-      A4(n1, nv, nu, s1, e, f, g);
-      assert e <= f * g;
-      assert Distance(nv, nu) <= s0 * Distance(v, u);
-      var h := Distance(v, u);
-      A5(nv, nu, s0, v, u, g, h);
-      assert g <= s0 * h;
-      ProductOfPositivesIsPositive(s1);
-      assert f >= 0.0;
-      Increase2(e, f, g, s0, h);
-      assert e <= f * s0 * h;
-      ProductDef(s, f, s0);
-      assert f * s0 == Product(s);
-      var k := Product(s);
-      assert f * s0 == k;
-      MultiplicationSubstitution(e, f, s0, h, k);
-      assert e <= k * h;
-      reveal NN();
-      assert e == Distance(NN(n, v), NN(n, u));
-      assert k == Product(s);
-      assert h == Distance(v, u);
-      Final(e, n, v, u, k, s, h);
-      assert Distance(NN(n, v), NN(n, u)) <= Product(s) * Distance(v, u);
-    }
-  }
+  // lemma Z2(s0: real, s: seq<real>, v: Vector, u: Vector)
+  //   requires |s| > 0
+  //   requires s0 == s[0]
+  //   requires |v| == |u|
+  //   ensures s0 * Distance(v, u) == s[0] * Distance(v, u)
+  // {}
 
-  lemma Final(e: real, n: NeuralNetwork, v: Vector, u: Vector, k: real, s: seq<real>, h: real)
-    requires |v| == |u| == |n[0][0]|
-    requires e == Distance(NN(n, v), NN(n, u))
-    requires |s| >= 1
-    requires k == Product(s)
-    requires h == Distance(v, u)
-    requires e <= k * h
-    ensures Distance(NN(n, v), NN(n, u)) <= Product(s) * Distance(v, u)
-  {}
+  // lemma Z3(s1: seq<real>, v: Vector, u: Vector, v': Vector, u': Vector)
+  //   requires |v| == |u|
+  //   requires v' == v
+  //   requires u' == u
+  //   requires |s1| > 0
+  //   ensures Product(s1) * Distance(v', u') == Product(s1) * Distance(v, u)
+  // {}
 
-  lemma MultiplicationSubstitution(e: real, f: real, s0: real, h: real, k: real)
-    requires e <= f * s0 * h
-    requires f * s0 == k
-    ensures e <= k * h
-  {}
+  // lemma Idk(n: NeuralNetwork, v: Vector, u: Vector, s: seq<real>, x: real)
+  //   requires |v| == |u| == |n[0][0]|
+  //   requires |s| > 0
+  //   requires x == s[0]
+  //   requires Distance(Layer(n[0], v), Layer(n[0], u)) <= x * Distance(v, u)
+  //   ensures Distance(Layer(n[0], v), Layer(n[0], u)) <= s[0] * Distance(v, u)
+  // {}
 
-  lemma ProductDef(s: seq<real>, f: real, s0: real)
-    requires |s| >= 2
-    requires f == Product(s[1..])
-    requires s0 == s[0]
-    ensures f * s0 == Product(s)
-  {
-    reveal Product();
-  }
+  // lemma Again(x: real, y: real, z: real, s: seq<real>)
+  //   requires x <= y * z
+  //   requires |s| > 0
+  //   requires s[0] == y
+  //   ensures x <= s[0] * z
+  // {}
 
-  lemma Increase2(e: real, f: real, g: real, s0: real, h: real)
-    requires e <= f * g
-    requires g <= s0 * h
-    requires f >= 0.0
-    ensures e <= f * s0 * h
-  {}
+  // lemma AndAgain(a: real, s: seq<real>, c: real, d: real)
+  //   requires |s| > 0
+  //   requires a <= Product(s) * c
+  //   requires c == d
+  //   ensures a <= Product(s) * d
+  // {}
+
+  // lemma Another(n: NeuralNetwork, v': Vector, u': Vector, b: seq<real>, x: real, d: real)
+  //   requires |b| > 0
+  //   requires |v'| == |u'| == |n[0][0]|
+  //   requires Distance(NN(n, v'), NN(n, u')) <= Product(b) * x
+  //   requires d == x
+  //   ensures Distance(NN(n, v'), NN(n, u')) <= Product(b) * d
+  // {}
+
+  // lemma Boom(s1: seq<real>, nv: Vector, nu: Vector, d: real)
+  //   requires |s1| > 0
+  //   requires |nv| == |nu|
+  //   requires d == Distance(nv, nu)
+  //   ensures Product(s1) * Distance(nv, nu) == Product(s1) * d
+
+  // lemma OtherBoom(s0: real, s1: seq<real>, v: Vector, u: Vector, d: real)
+  //   requires |v| == |u|
+  //   requires |s1| > 0
+  //   requires d <= s0 * Distance(v, u)
+  //   requires Product(s1) >= 0.0
+  //   ensures Product(s1) * d <= Product(s1) * s0 * Distance(v, u)
+
+  // lemma SpecNormProductIsLipBound(n: NeuralNetwork, v: Vector, u: Vector,
+  //     s: seq<real>)
+  //   requires |v| == |u| == |n[0][0]|
+  //   requires |s| == |n|
+  //   requires forall i | 0 <= i < |s| :: IsSpecNorm(s[i], n[i])
+  //   ensures Distance(NN(n, v), NN(n, u)) <= Product(s) * Distance(v, u)
+  // {
+  //   if |n| == 1 {
+  //     SpecNormIsLayerLipBound(n[0], v, u, s[0]);
+  //   } else {
+  //     var s0 := s[0];
+  //     SpecNormIsLayerLipBound(n[0], v, u, s0);
+  //     assert Distance(Layer(n[0], v), Layer(n[0], u)) <= s0 * Distance(v, u);
+  //     var d := Distance(Layer(n[0], v), Layer(n[0], u));
+  //     assert d <= s0 * Distance(v, u);
+      
+  //     var nv := Layer(n[0], v);
+  //     var nu := Layer(n[0], u);
+  //     var s1 := s[1..];
+  //     SpecNormProductIsLipBound(n[1..], nv, nu, s1);
+  //     assert Distance(NN(n[1..], nv), NN(n[1..], nu)) <= Product(s1) * Distance(nv, nu);
+  //     reveal NN();
+
+  //     assert Distance(NN(n, v), NN(n, u)) <= Product(s1) * Distance(nv, nu);
+  //     assert Distance(nv, nu) == Distance(Layer(n[0], v), Layer(n[0], u));
+  //     assert d == Distance(nv, nu);
+  //     Boom(s1, nv, nu, d);
+  //     assert Product(s1) * Distance(nv, nu) == Product(s1) * d;
+  //     assert Distance(NN(n, v), NN(n, u)) <= Product(s1) * d;
+
+  //     ProductOfPositivesIsPositive(s1);
+  //     assert Product(s1) >= 0.0;
+  //     OtherBoom(s0, s1, v, u, d);
+  //     assert Product(s1) * d <= Product(s1) * s0 * Distance(v, u);
+  //     assert Distance(NN(n, v), NN(n, u)) <= Product(s1) * s0 * Distance(v, u);
+  //     WhoKnows(s, s1, s0, Distance(v, u));
+  //     assert Distance(NN(n, v), NN(n, u)) <= Product(s[1..]) * s[0] * Distance(v, u);
+  //     assume false;
+  //   }
+  // }
+
+  // lemma WhoKnows(s: seq<real>, s1: seq<real>, s0: real, x: real)
+  //   requires |s| > 1
+  //   requires s1 == s[1..]
+  //   requires s0 == s[0]
+  //   ensures Product(s1) * s0 * x == Product(s[1..]) * s[0] * x
+  // {}
+
+  // lemma ProductProperty(s: seq<real>)
+  //   requires |s| > 1
+  //   ensures Product(s) == s[0] * Product(s[1..])
+  // {
+  //   reveal Product();
+  // }
+
+  // lemma Final(e: real, n: NeuralNetwork, v: Vector, u: Vector, k: real, s: seq<real>, h: real)
+  //   requires |v| == |u| == |n[0][0]|
+  //   requires e == Distance(NN(n, v), NN(n, u))
+  //   requires |s| >= 1
+  //   requires k == Product(s)
+  //   requires h == Distance(v, u)
+  //   requires e <= k * h
+  //   ensures Distance(NN(n, v), NN(n, u)) <= Product(s) * Distance(v, u)
+  // {}
+
+  // lemma MultiplicationSubstitution(e: real, f: real, s0: real, h: real, k: real)
+  //   requires e <= f * s0 * h
+  //   requires f * s0 == k
+  //   ensures e <= k * h
+  // {}
+
+  // lemma ProductDef(s: seq<real>, f: real, s0: real)
+  //   requires |s| >= 2
+  //   requires f == Product(s[1..])
+  //   requires s0 == s[0]
+  //   ensures f * s0 == Product(s)
+  // {
+  //   reveal Product();
+  // }
+
+  // lemma Increase2(e: real, f: real, g: real, s0: real, h: real)
+  //   requires e <= f * g
+  //   requires g <= s0 * h
+  //   requires f >= 0.0
+  //   ensures e <= f * s0 * h
+  // {}
 
   lemma ProductOfPositivesIsPositive(s: seq<real>)
     requires forall i | 0 <= i < |s| :: s[i] >= 0.0
@@ -460,124 +516,34 @@ module LinearAlgebra {
     reveal Product();
   }
 
-  lemma A5(nv: Vector, nu: Vector, s0: real, v: Vector, u: Vector, g: real, h: real)
-    requires |v| == |u|
-    requires |nv| == |nu|
-    requires Distance(nv, nu) <= s0 * Distance(v, u)
-    requires h == Distance(v, u)
-    requires g == Distance(nv, nu)
-    ensures g <= s0 * h
-  {}
+  /* ============================= NEW LEMMAS ============================== */
 
-  lemma A4(n1: NeuralNetwork, nv: Vector, nu: Vector, s1: seq<real>, e: real, f: real, g: real)
-    requires |nv| == |nu| == |n1[0][0]|
-    requires e == Distance(NN(n1, nv), NN(n1, nu))
-    requires |s1| >= 1
-    requires f == Product(s1)
-    requires g == Distance(nv, nu)
-    requires Distance(NN(n1, nv), NN(n1, nu)) <= Product(s1) * Distance(nv, nu)
-    ensures e <= f * g
-  {}
+  method GenLipBound(n: NeuralNetwork, specNorms: seq<real>,
+    logitSpecNorm: real, logit: int) returns (r: real)
+    requires |specNorms| == |n|-1
+    requires 0 <= logit < |n[|n|-1]|
+    requires forall i | 0 <= i < |specNorms| :: IsSpecNorm(specNorms[i], n[i])
+    requires IsSpecNorm(logitSpecNorm, [n[|n|-1][logit]])
+    ensures IsLogitLipBound(r, n, logit)
+  {
+    if |n| == 1 {
+      assert forall v: Vector | |v| == |[n[|n|-1][logit]][0]| :: L2(MV([n[|n|-1][logit]], v)) <= logitSpecNorm * L2(v);
+      assert forall v: Vector | |v| == |n[|n|-1][logit]| :: L2(MV([n[|n|-1][logit]], v)) <= logitSpecNorm * L2(v);
+      assume false;
+      return logitSpecNorm;
+    }
+    assume false;
+  }
 
-  lemma A3(a: real, d: real, c: real, n0: Matrix, v: Vector, u: Vector, s: seq<real>)
-    requires |v| == |u| == |n0[0]|
-    requires a <= d * c
-    requires |s| >= 1
-    requires a == Distance(Layer(n0, v), Layer(n0, u))
-    requires d == s[0]
-    requires c == Distance(v, u)
-    ensures Distance(Layer(n0, v), Layer(n0, u)) <= s[0] * Distance(v, u)
-  {}
+  ghost predicate IsLogitLipBound(l: real, n: NeuralNetwork, x: int)
+    requires 0 <= x < |n[|n|-1]|
+  {
+    forall v, u: Vector | |v| == |u| == |n[0][0]| ::
+      Abs(NN(n, v)[x] - NN(n, u)[x]) <= Distance(v, u) * l
+  }
 
-  lemma A2(n0: Matrix, v: Vector, u: Vector, s0: real, a: real, c: real)
-    requires |v| == |u| == |n0[0]|
-    requires Distance(Layer(n0, v), Layer(n0, u)) <= s0 * Distance(v, u)
-    requires a == Distance(Layer(n0, v), Layer(n0, u))
-    requires c == Distance(v, u)
-    ensures a <= s0 * c
-  {}
-
-  lemma A1(a: real, b: real, c: real, d: real)
-    requires a <= b * c
-    requires b == d
-    ensures a <= d * c
-  {}
-
-  // lemma SpecNormProductIsLipBound(n: NeuralNetwork, v: Vector, u: Vector,
-  //     s: seq<real>)
-  //   requires |v| == |u| == |n[0][0]|
-  //   requires |s| == |n|
-  //   requires forall i | 0 <= i < |s| :: IsSpecNorm(s[i], n[i])
-  //   ensures L2(Minus(NN(n, v), NN(n, u))) <= Product(s) * L2(Minus(v, u))
-  // {
-  //   if |n| == 1 {
-  //     SpecNormIsLayerLipBound(n[0], v, u, s[0]);
-  //   } else {
-  //     // 1. n(v) == n[1..](R(n[0].v))
-  //     // 2. n(u) == n[1..](R(n[0].u))
-  //     SpecNormIsLayerLipBound(n[0], v, u, s[0]);
-  //     // 3. ||R(n[0].v) - R(n[0].u)|| <= s[0] * ||v - u||
-  //     var nv := ApplyRelu(MV(n[0], v));
-  //     var nu := ApplyRelu(MV(n[0], u));
-  //     assert L2(Minus(nv, nu)) <= s[0] * L2(Minus(v, u));
-  //     SpecNormProductIsLipBound(n[1..], nv, nu, s[1..]);
-  //     // 4. Assume ||n[1..](R(n[0].v)) - n[1..](R(n[0].u))|| <= s[1..] * ||R(n[0].v) - R(n[0].u)||
-  //     assert L2(Minus(NN(n[1..], nv), NN(n[1..], nu))) <= Product(s[1..]) * L2(Minus(nv, nu));
-  //     // 5. n[1..](R(n[0].v)) == n(v)
-  //     assert NN(n[1..], nv) == NN(n, v);
-  //     // 6. n[1..](R(n[0].u)) == n(u)
-  //     assert NN(n[1..], nu) == NN(n, u);
-  //     // 7: From 4, 5, 6: ||n(v) - n(u)|| <= s[1..] * ||R(n[0].v) - R(n[0].u)||
-  //     K1(NN(n[1..], nv), NN(n, v), NN(n[1..], nu), NN(n, u));
-  //     K2(L2(Minus(NN(n[1..], nv), NN(n[1..], nu))), L2(Minus(NN(n, v), NN(n, u))), Product(s[1..]), L2(Minus(nv, nu)));
-  //     assert L2(Minus(NN(n, v), NN(n, u))) <= Product(s[1..]) * L2(Minus(nv, nu));
-  //     K3(L2(Minus(NN(n, v), NN(n, u))), Product(s[1..]), L2(Minus(nv, nu)), s[0], L2(Minus(v, u)));
-  //     // 8: From 3, 7: ||n(v) - n(u)|| <= s[1..] * s[0] * ||v - u||
-  //     assert L2(Minus(NN(n, v), NN(n, u))) <= Product(s[1..]) * s[0] * L2(Minus(v, u));
-  //     // 9: S(n[1..]) * ||n[0]|| == S(n)
-  //     // From 8, 9: ||n(v) - n(u)|| <= S(n) * ||v - u||
-  //     assert L2(Minus(NN(n, v), NN(n, u))) <= Product(s) * L2(Minus(v, u));
-  //   }
-  // }
-
-  // /** 
-  //  * The product of the spectral norms of each layer in a neural network is a
-  //  * Lipschitz bound of the network.
-  //  * ||n(v) - n(u)|| <= S(n) * ||v - u||
-  //  * where:
-  //  * - n(v) applies the vector v to the neural network n
-  //  * - S(n) is the product of the spectral norms of each layer in n
-  //  */
-  // lemma SpecNormProductIsLipBound(n: NeuralNetwork, v: Vector, u: Vector, s)
-  //   requires |n[0][0]| == |v| == |u|
-  //   ensures L2(Minus(ApplyNN(n, v), ApplyNN(n, u))) <= 
-  //     SpecNormProduct(n) * L2(Minus(v, u))
-  // {
-  //   if |n| == 1 {
-  //     // 1. n(v) == R(n[0].v)
-  //     // 2. n(u) == R(n[0].u)
-  //     SpecNormIsLayerLipBound(n[0], v, u);
-  //     // 3. ||R(n[0].v) - R(n[0].u)|| <= ||n[0]|| * ||v - u||
-  //     // From 1, 2, 3: ||n(v) - n(u)|| <= ||n[0]|| * ||v - u||
-  //     // 4. S(n) == ||n[0]||
-  //     // From 3, 4: ||n(v) - n(u)|| <= S(n) * ||v - u||
-  //   } else {
-  //     // 1. n(v) == n[1..](R(n[0].v))
-  //     // 2. n(u) == n[1..](R(n[0].u))
-  //     SpecNormIsLayerLipBound(n[0], v, u);
-  //     // 3. ||R(n[0].v) - R(n[0].u)|| <= ||n[0]|| * ||v - u||
-  //     assert L2(Minus(ApplyRelu(MV(n[0], v)), ApplyRelu(MV(n[0], u)))) <=
-  //       SpecNorm(n[0]) * L2(Minus(v, u));
-  //     var nv := ApplyRelu(MV(n[0], v));
-  //     var nu := ApplyRelu(MV(n[0], u));
-  //     SpecNormProductIsLipBound(n[1..], nv, nu);
-  //     // 4. Assume ||n[1..](R(n[0].v)) - n[1..](R(n[0].u))|| <= S(n[1..]) * ||R(n[0].v) - R(n[0].u)||
-  //     // 5. n[1..](R(n[0].v)) == n(v)
-  //     // 6. n[1..](R(n[0].u)) == n(u)
-  //     // 7: From 4, 5, 6: ||n(v) - n(u)|| <= S(n[1..]) * ||R(n[0].v) - R(n[0].u)||
-  //     // 8: From 3, 7: ||n(v) - n(u)|| <= S(n[1..]) * ||n[0]|| * ||v - u||
-  //     // 9: S(n[1..]) * ||n[0]|| == S(n)
-  //     // From 8, 9: ||n(v) - n(u)|| <= S(n) * ||v - u||
-  //   }
-  // }
+  ghost predicate IsLipBound(l: real, n: NeuralNetwork) {
+    forall v, u: Vector | |v| == |u| == |n[0][0]| ::
+      Distance(NN(n, v), NN(n, u)) <= Distance(v, u) * l
+  }
 }
