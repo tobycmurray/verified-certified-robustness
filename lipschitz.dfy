@@ -207,6 +207,7 @@ module Lipschitz {
    */
   method Certify(v': Vector, e: real, L: seq<real>) returns
       (b: bool)
+    requires forall i | 0 <= i < |L| :: 0.0 <= L[i]
     requires |v'| == |L|
     ensures b ==> forall v: Vector, n: NeuralNetwork |
       CompatibleInput(v, n) && NN(n, v) == v' && AreLipBounds(n, L) ::
@@ -224,18 +225,15 @@ module Lipschitz {
         i := i + 1;
         continue;
       }
-      assert i != x;
       if v'[x] - L[x] * e <= v'[i] + L[i] * e {
         b := false;
         break;
       }
-      assert b ==> forall j | 0 <= j <= i && j != x ::
-        v'[x] - L[x] * e > v'[j] + L[j] * e;
       i := i + 1;
     }
-    assert b ==> forall i | 0 <= i < |v'| && i != x ::
-      v'[x] - L[x] * e > v'[i] + L[i] * e;
-    assume false;
+    if b {
+      ProveRobust(v', e, L, x);
+    }
   }
 
   lemma ProveRobust(v': Vector, e: real, L: seq<real>, x: int)
