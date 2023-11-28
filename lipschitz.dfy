@@ -198,7 +198,176 @@ module Lipschitz {
     |v| == |n[|n|-1]|
   }
 
+  /* ========================= Core Specification ========================== */
+
+  /**
+   * Certifies the output vector v' against the error ball e and Lipschitz
+   * constant l. If certification succeeds (returns true), any input
+   * corresponding to v' is verified robust.
+   */
+  method Certify(v': Vector, e: real, L: seq<real>) returns
+      (b: bool)
+    requires |v'| == |L|
+    ensures b ==> forall v: Vector, n: NeuralNetwork |
+      CompatibleInput(v, n) && NN(n, v) == v' && AreLipBounds(n, L) ::
+      Robust(v, v', e, n)
+  {
+    var x := ArgMax(v');
+    var i := 0;
+    b := true;
+    while i < |v'|
+      invariant 0 <= i <= |v'|
+      invariant b ==> forall j | 0 <= j < i && j != x ::
+        v'[x] - L[x] * e > v'[j] + L[j] * e
+    {
+      if i == x {
+        i := i + 1;
+        continue;
+      }
+      assert i != x;
+      if v'[x] - L[x] * e <= v'[i] + L[i] * e {
+        b := false;
+        break;
+      }
+      assert b ==> forall j | 0 <= j <= i && j != x ::
+        v'[x] - L[x] * e > v'[j] + L[j] * e;
+      i := i + 1;
+    }
+    assert b ==> forall i | 0 <= i < |v'| && i != x ::
+      v'[x] - L[x] * e > v'[i] + L[i] * e;
+    assume false;
+  }
+
+  lemma ProveRobust(v': Vector, e: real, L: seq<real>, x: int)
+    requires forall i | 0 <= i < |L| :: 0.0 <= L[i]
+    requires |v'| == |L|
+    requires x == ArgMax(v')
+    requires forall i | 0 <= i < |v'| && i != x ::
+      v'[x] - L[x] * e > v'[i] + L[i] * e
+    ensures forall v: Vector, n: NeuralNetwork |
+      CompatibleInput(v, n) && NN(n, v) == v' && AreLipBounds(n, L) ::
+      Robust(v, v', e, n)
+  {
+    A1(v', e, L, x);
+    assert forall n: NeuralNetwork, v: Vector, u: Vector |
+      |n[|n|-1]| == |L| && AreLipBounds(n, L) && |v| == |u| &&
+      CompatibleInput(v, n) && Distance(v, u) <= e && v' == NN(n, v) ::
+      NN(n, u)[x] >= v'[x] - L[x] * e &&
+      forall i | 0 <= i < |L| && i != x ::
+      NN(n, u)[i] <= v'[i] + L[i] * e;
+    assert forall n: NeuralNetwork, v: Vector, u: Vector, i |
+      |n[|n|-1]| == |L| && AreLipBounds(n, L) && 0 <= i < |L| && |v| == |u| &&
+      CompatibleInput(v, n) && Distance(v, u) <= e && v' == NN(n, v) &&
+      i != x ::
+      NN(n, u)[i] < NN(n, u)[x];
+  }
+
+  lemma A1(v': Vector, e: real, L: seq<real>, x: int)
+    requires |v'| == |L|
+    requires x == ArgMax(v')
+    requires forall n: NeuralNetwork, v: Vector, u: Vector, i |
+      |n[|n|-1]| == |L| && AreLipBounds(n, L) && 0 <= i < |L| &&
+      |v| == |u| && CompatibleInput(v, n) && Distance(v, u) <= e ::
+      Abs(NN(n, v)[i] - NN(n, u)[i]) <= L[i] * e
+    ensures forall n: NeuralNetwork, v: Vector, u: Vector |
+      |n[|n|-1]| == |L| && AreLipBounds(n, L) &&
+      |v| == |u| && CompatibleInput(v, n) && Distance(v, u) <= e ::
+      Abs(NN(n, v)[x] - NN(n, u)[x]) <= L[x] * e
+  {}
+
+  ghost predicate Robust(v: Vector, v': Vector, e: real, n: NeuralNetwork)
+    requires CompatibleInput(v, n)
+    requires NN(n, v) == v'
+  {
+    forall u: Vector | |v| == |u| && Distance(v, u) <= e ::
+      Classification(v') == Classification(NN(n, u))
+  }
+
+  /**
+   * The classification of an output vector is the index of the maximum logit.
+   */
+  function Classification(v: Vector): int {
+    ArgMax(v)
+  }
+
+  /**
+   * Returns the index of the maximum element in xs.
+   * If there is a tie, the lowest index is returned.
+   * 
+   * Todo: As this is only used in specifications, perhaps it can be declared
+   * ghost and the implementation can be removed.
+   */
+  function ArgMax(xs: Vector): (r: int)
+    // r is a valid index.
+    ensures 0 <= r < |xs|
+    // The element at index r is greater than or equal to all other elements.
+    ensures forall i: int :: 0 <= i < |xs| ==> xs[r] >= xs[i]
+    // When there is a tie, the lowest index is returned.
+    ensures forall i: int :: 0 <= i < |xs| ==> 
+      xs[r] == xs[i] ==> r <= i
+  {
+    ArgMaxHelper(xs).0
+  }
+
+  function ArgMaxHelper(xs: Vector): (r: (int, real))
+    requires |xs| > 0
+    // r.0 is a valid index.
+    ensures 0 <= r.0 < |xs|
+    // r is a corresponding (index, value) pair.
+    ensures xs[r.0] == r.1
+    // r.1 is greater than or equal to all preceding elements.
+    ensures forall i: int :: 0 <= i < |xs| ==> r.1 >= xs[i]
+    // If a tie is found, r.0 is the lowest index amongst the tied indices.
+    ensures forall i: int :: 0 <= i < |xs| ==> r.1 == xs[i] ==> r.0 <= i
+  {
+    if |xs| == 1 || ArgMaxHelper(xs[0..|xs|-1]).1 < xs[|xs|-1]
+    then (|xs|-1, xs[|xs|-1])
+    else ArgMaxHelper(xs[0..|xs|-1])
+  }
+
   /* ========================== Lipschitz Bounds =========================== */
+
+  ghost predicate AreLipBounds(n: NeuralNetwork, L: seq<real>)
+    requires |L| == |n[|n|-1]|
+  {
+    forall i | 0 <= i < |L| :: IsLipBound(n, L[i], i)
+  }
+
+  ghost predicate IsLipBound(n: NeuralNetwork, l: real, i: int)
+    requires 0 <= i < |n[|n|-1]|
+  {
+    forall v, u: Vector | CompatibleInput(v, n) && CompatibleInput(u, n) ::
+      Abs(NN(n, v)[i] - NN(n, u)[i]) <= l * Distance(v, u)
+  }
+
+  // method GenerateLipschitzBound(n: NeuralNetwork, n': Matrix, s: seq<real>,
+  //     s': real, l: int) returns (r: real)
+  //   requires |s| == |n|
+  //   requires forall i | 0 <= i < |s| :: IsSpecNorm(s[i], n[i])
+  //   requires IsSpecNorm(s', n')
+  //   ensures forall v, u: Vector ::
+  //     Abs(Minus(NN(n, v)[l], NN(n, u)[l])) <= r * Distance(v, u)
+  // {
+  //   var new_s := s + [s'];
+  //   var new_n := n + [[n[|n|-1][l]]];
+  //   assert forall i | 0 <= i < new_s :: IsSpecNorm(new_s[i], new_n[i]);
+  //   var prod := Product(new_s);
+  //   SpecNormProductIsLipBound(new_n, v, u)
+
+  // }
+
+  // lemma Test(n: NeuralNetwork, s: seq<real>)
+  //   requires |s| == |n|
+  //   requires forall i | 0 <= i < |s| :: IsSpecNorm(s[i], n[i])
+  //   ensures forall v, u: Vector |
+  //     CompatibleInput(v, n) && CompatibleInput(u, n) ::
+  //     Distance(NN(n, v), NN(n, u)) <= Product(s) * Distance(v, u)
+  // {
+  //   var v: Vector :| assume CompatibleInput(v, n);
+  //   var u: Vector :| assume CompatibleInput(u, n);
+  //   assert |v| == |u|;
+  //   SpecNormProductIsLipBound(n, v, u, s);
+  // }
 
   lemma SpecNormProductIsLipBound(n: NeuralNetwork, v: Vector, u: Vector,
       s: seq<real>)
