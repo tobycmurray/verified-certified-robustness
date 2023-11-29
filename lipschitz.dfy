@@ -351,7 +351,6 @@ module Lipschitz {
   //   assert forall i | 0 <= i < new_s :: IsSpecNorm(new_s[i], new_n[i]);
   //   var prod := Product(new_s);
   //   SpecNormProductIsLipBound(new_n, v, u)
-
   // }
 
   // lemma Test(n: NeuralNetwork, s: seq<real>)

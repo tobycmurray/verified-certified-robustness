@@ -1,4 +1,5 @@
 module StringUtils {
+
   /**
    * Returns the real (non-negative) number represented by xs.
    * For example, ParseReal('4.01') == 4.01.
