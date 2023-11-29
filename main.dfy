@@ -13,8 +13,13 @@ module MainModule {
     /* ===================== Generate Lipschitz bounds ===================== */
 
     var neuralNetStr: string := ReadFromFile("Input/neural_network.txt");
-    // var neuralNet: NeuralNetwork := ParseNeuralNetwork(neuralNetStr);
-    // var lipBounds: seq<real> := GenerateLipschitzBounds();
+    var maybeNeuralNet: (bool, NeuralNetwork) := ParseNeuralNet(neuralNetStr);
+    expect maybeNeuralNet.0, "Failed to parse neural network.";
+    var neuralNet: NeuralNetwork := maybeNeuralNet.1;
+    var lipBounds: seq<real> := *; // := GenerateLipschitzBounds(...);
+    assume |lipBounds| == |neuralNet[|neuralNet|-1]|;
+    assume forall i | 0 <= i < |lipBounds| :: 0.0 <= lipBounds[i];
+    assume AreLipBounds(neuralNet, lipBounds);
 
     /* ================= Repeatedly certify output vectors ================= */
 
@@ -61,13 +66,20 @@ module MainModule {
 
       /* ======================= Certify Robustness ======================== */
 
-      // todo
-
+      if |outputVector| != |lipBounds| {
+        print "Error: Expected a vector of size ", |lipBounds|,
+          ", but got ", |outputVector|, ".\n";
+        continue;
+      }
+      var robust: bool := Certify(outputVector, errorMargin, lipBounds);
+      assert robust ==> forall v: Vector |
+        CompatibleInput(v, neuralNet) && NN(neuralNet, v) == outputVector ::
+        Robust(v, outputVector, errorMargin, neuralNet);
+      print robust;
     }
-
   }
 
-  method ParseNeuralNetwork(xs: string) returns (t: (bool, NeuralNetwork))
+  method ParseNeuralNet(xs: string) returns (t: (bool, NeuralNetwork))
     // Todo: Verify
   {
     var matrices: seq<Matrix> := [];
