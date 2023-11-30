@@ -17,10 +17,7 @@ module MainModule {
     expect maybeNeuralNet.0, "Failed to parse neural network.";
     var neuralNet: NeuralNetwork := maybeNeuralNet.1;
     var specNorms: seq<real> := GenerateSpecNorms(neuralNet);
-    var lipBounds: seq<real> := *; // := GenLipBounds(...);
-    assume |lipBounds| == |neuralNet[|neuralNet|-1]|;
-    assume forall i | 0 <= i < |lipBounds| :: 0.0 <= lipBounds[i];
-    assume AreLipBounds(neuralNet, lipBounds);
+    var lipBounds: seq<real> := GenLipBounds(neuralNet, specNorms);
 
     /* ================= Repeatedly certify output vectors ================= */
 
@@ -76,7 +73,7 @@ module MainModule {
       assert robust ==> forall v: Vector |
         CompatibleInput(v, neuralNet) && NN(neuralNet, v) == outputVector ::
         Robust(v, outputVector, errorMargin, neuralNet);
-      print robust;
+      print robust, '\n';
     }
   }
 

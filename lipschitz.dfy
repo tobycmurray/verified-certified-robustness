@@ -378,9 +378,7 @@ module Lipschitz {
       invariant forall j | 0 <= j < i ::
         0.0 <= r[j] && IsLipBound(n, r[j], j)
     {
-      var bound := *; // := GenLipBound(n, i, s);
-      assume IsLipBound(n, bound, i);
-      assume bound >= 0.0;
+      var bound := GenLipBound(n, i, s);
       r := r + [bound];
       i := i + 1;
     }
