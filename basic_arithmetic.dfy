@@ -1,32 +1,18 @@
 module BasicArithmetic {
 
-  /** Square root (external implementation). */
+  /** The ReLu activation function. */
+  ghost opaque function Relu(x: real): (r: real)
+    ensures x >= 0.0 ==> r == x
+    ensures x < 0.0 ==> r == 0.0
+  {
+    if x >= 0.0 then x else 0.0
+  }
+
+  /** Positive square root (external implementation). */
   ghost opaque function {:axiom} Sqrt(x: real): (r: real)
     requires x >= 0.0
     ensures r >= 0.0
     ensures r * r == x
-
-  lemma SqrtOfSquare()
-    ensures forall x: real :: Sqrt(Square(x)) == Abs(x)
-  {
-    assert forall x: real ::
-      Sqrt(Square(x)) * Sqrt(Square(x)) == Abs(x) * Abs(x);
-    forall x: real {
-      PositiveSquaresEquality(Sqrt(Square(x)), Abs(x));
-    }
-  }
-
-  lemma PositiveSquaresEquality(x: real, y: real)
-    requires x >= 0.0 && y >= 0.0
-    requires x * x == y * y
-    ensures x == y
-  {
-    if x > y {
-      IncreaseSquare(x, y);
-    } else if x < y {
-      IncreaseSquare(y, x);
-    }
-  } 
 
   /** Absolute value of the given number. */
   ghost function Abs(x: real): real
@@ -39,6 +25,33 @@ module BasicArithmetic {
   {
     x * x
   }
+
+  /** 
+   * The Sqrt function used in this file returns the positive square root.
+   * Therefore, Sqrt(x^2) == |x|.
+   */
+  lemma SqrtOfSquare()
+    ensures forall x: real :: Sqrt(Square(x)) == Abs(x)
+  {
+    assert forall x: real ::
+      Sqrt(Square(x)) * Sqrt(Square(x)) == Abs(x) * Abs(x);
+    forall x: real {
+      PositiveSquaresEquality(Sqrt(Square(x)), Abs(x));
+    }
+  }
+
+  /** For non-negative reals x and y, if x^2 == y^2 then x == y. */
+  lemma PositiveSquaresEquality(x: real, y: real)
+    requires x >= 0.0 && y >= 0.0
+    requires x * x == y * y
+    ensures x == y
+  {
+    if x > y {
+      IncreaseSquare(x, y);
+    } else if x < y {
+      IncreaseSquare(y, x);
+    }
+  } 
 
   /** For reals x and y, and some real z > 0, if x > y then x * z > y * z. */
   lemma Increase(x: real, y: real, z: real)
@@ -70,6 +83,7 @@ module BasicArithmetic {
     }
   }
 
+  /** For non-negative reals x and y, if y < x then y^2 < x^2. */
   lemma IncreaseSquare(x: real, y: real)
     requires 0.0 <= y < x
     ensures y * y < x * x
@@ -124,13 +138,5 @@ module BasicArithmetic {
     AbsoluteSquare(y);
     // 3: |y|^2 == y^2
     // From 1, 2, 3: x^2 <= y^2
-  }
-
-  /** The ReLu activation function. */
-  ghost opaque function Relu(x: real): (r: real)
-    ensures x >= 0.0 ==> r == x
-    ensures x < 0.0 ==> r == 0.0
-  {
-    if x >= 0.0 then x else 0.0
   }
 }

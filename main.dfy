@@ -12,31 +12,37 @@ module MainModule {
   {
     /* ===================== Generate Lipschitz bounds ===================== */
 
+    // Parse neural network from file (unverified).
     var neuralNetStr: string := ReadFromFile("Input/neural_network.txt");
     var maybeNeuralNet: (bool, NeuralNetwork) := ParseNeuralNet(neuralNetStr);
     expect maybeNeuralNet.0, "Failed to parse neural network.";
     var neuralNet: NeuralNetwork := maybeNeuralNet.1;
+    // Generate spectral norms for the matrices comprising the neural net.
+    // We currently assume an external implementation for generating these.
     var specNorms: seq<real> := GenerateSpecNorms(neuralNet);
+    // Generate the Lipschitz bounds for each logit in the output vector.
     var lipBounds: seq<real> := GenLipBounds(neuralNet, specNorms);
 
     /* ================= Repeatedly certify output vectors ================= */
 
     while true
+      // This tells Dafny that we don't intend for this loop to terminate.
       decreases *
     {
       /* ===================== Parse input from stdin ====================== */
 
-      // Read from stdin.
+      // Read from stdin. Currently, input must be terminated with an EOF char.
       print "> ";
       var inputStr: string := ReadFromFile("/dev/stdin");
       print '\n';
-      // Extract output vector and error margin, which are separated by spaces.
+      // Extract output vector and error margin, which are space-separated.
       var inputSeq: seq<string> := StringUtils.Split(inputStr, ' ');
       if |inputSeq| != 2 {
         print "Error: Expected 1 space in input. Got ", |inputSeq| - 1, ".\n";
         continue;
       }
-      // Parse output vector into reals.
+      
+      // Parse output vector.
       if inputSeq[0] == "" {
         print "Error: The given output vector was found to be empty.\n";
         continue;
@@ -48,6 +54,7 @@ module MainModule {
         continue;
       }
       var outputVector := ParseReals(realsStr);
+      
       // Parse error margin.
       if inputSeq[1] == "" {
         print "Error: The given error margin was found to be empty.\n";
@@ -59,17 +66,25 @@ module MainModule {
         continue;
       }
       var errorMargin := StringUtils.ParseReal(inputSeq[1]);
+
+      // Print parse results.
       print "Received output vector:\n", outputVector, '\n';
       print "Received error margin:\n", errorMargin, '\n';
 
       /* ======================= Certify Robustness ======================== */
 
+      // The given output vector must be compatible with the neural network.
       if |outputVector| != |lipBounds| {
         print "Error: Expected a vector of size ", |lipBounds|,
           ", but got ", |outputVector|, ".\n";
         continue;
       }
+      // Use the generated Lipschitz bounds to certify robustness.
       var robust: bool := Certify(outputVector, errorMargin, lipBounds);
+      /* Verification guarantees that 'true' is only printed when for all input
+      vectors v where applying the neural network to v results in the given
+      output vector, this input-output pair of vectors is robust with respect
+      to the given error margin. */
       assert robust ==> forall v: Vector |
         CompatibleInput(v, neuralNet) && NN(neuralNet, v) == outputVector ::
         Robust(v, outputVector, errorMargin, neuralNet);
