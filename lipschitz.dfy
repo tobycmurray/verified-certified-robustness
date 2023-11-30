@@ -171,7 +171,6 @@ module Lipschitz {
     ensures |r| == |n|
     ensures forall i | 0 <= i < |n| :: IsSpecNorm(r[i], n[i])
   {
-    assume false;
     var i := 0;
     r := [];
     while i < |n|
@@ -365,11 +364,12 @@ module Lipschitz {
   }
 
   method GenLipBounds(n: NeuralNetwork, s: seq<real>) returns (r: seq<real>)
+    requires |s| == |n|
+    requires forall i | 0 <= i < |s| :: IsSpecNorm(s[i], n[i])
     ensures |r| == |n[|n|-1]|
     ensures forall i | 0 <= i < |r| :: 0.0 <= r[i]
     ensures AreLipBounds(n, r)
   {
-    assume false;
     r := [];
     var i := 0;
     while i < |n[|n|-1]|
@@ -382,6 +382,7 @@ module Lipschitz {
       r := r + [bound];
       i := i + 1;
     }
+    assert AreLipBounds(n, r);
   }
 
   method GenLipBound(n: NeuralNetwork, l: int, s: seq<real>) returns (r: real)
@@ -389,6 +390,7 @@ module Lipschitz {
     requires 0 <= l < |n[|n|-1]|
     requires forall i | 0 <= i < |s| :: IsSpecNorm(s[i], n[i])
     ensures IsLipBound(n, r, l)
+    ensures r >= 0.0
   {
     // Trim the neural network
     var trimmedLayer := [n[|n|-1][l]];
@@ -398,6 +400,7 @@ module Lipschitz {
     assert forall i | 0 <= i < |s'| :: IsSpecNorm(s'[i], n'[i]);
     // Get its spec norm product
     r := Product(s');
+    PositiveProduct(s');
     forall v: Vector, u: Vector | |v| == |u| && CompatibleInput(v, n') {
       SpecNormProductIsLipBound(n', v, u, s');
     }
