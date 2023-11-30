@@ -35,7 +35,7 @@ module Lipschitz {
   /* ============================= Operations ============================== */
 
   /** Product of all vector elements. */
-  ghost opaque function Product(s: seq<real>): (r: real)
+  opaque function Product(s: seq<real>): (r: real)
   {
     if |s| == 0 then 1.0 else Product(s[..|s|-1]) * s[|s|-1]
   }
@@ -91,6 +91,15 @@ module Lipschitz {
   ghost opaque function L2(v: Vector): real
   {
     Sqrt(Sum(Apply(v, Square)))
+  }
+
+  lemma NormOfOneDimensionIsAbs()
+    ensures forall v: Vector | |v| == 1 :: L2(v) == Abs(v[0])
+  {
+    reveal L2();
+    reveal Sum();
+    assert forall v: Vector | |v| == 1 :: Sum(Apply(v, Square)) == v[0] * v[0];
+    SqrtOfSquare();
   }
 
   /** 
@@ -156,6 +165,23 @@ module Lipschitz {
     ensures forall i: int :: 0 <= i < |r| ==> Abs(r[i]) <= Abs(v[i])
   {
     Apply(v, Relu)
+  }
+
+  method GenerateSpecNorms(n: NeuralNetwork) returns (r: seq<real>)
+    ensures |r| == |n|
+    ensures forall i | 0 <= i < |n| :: IsSpecNorm(r[i], n[i])
+  {
+    assume false;
+    var i := 0;
+    r := [];
+    while i < |n|
+      invariant 0 <= i == |r| <= |n|
+      invariant forall j | 0 <= j < i :: IsSpecNorm(r[j], n[j])
+    {
+      var specNorm := SpecNorm(n[i]);
+      r := r + [specNorm];
+      i := i + 1;
+    }
   }
 
   /** Spectral norm of the given matrix (external implementation). */
@@ -338,33 +364,49 @@ module Lipschitz {
       Abs(NN(n, v)[i] - NN(n, u)[i]) <= l * Distance(v, u)
   }
 
-  // method GenerateLipschitzBound(n: NeuralNetwork, n': Matrix, s: seq<real>,
-  //     s': real, l: int) returns (r: real)
-  //   requires |s| == |n|
-  //   requires forall i | 0 <= i < |s| :: IsSpecNorm(s[i], n[i])
-  //   requires IsSpecNorm(s', n')
-  //   ensures forall v, u: Vector ::
-  //     Abs(Minus(NN(n, v)[l], NN(n, u)[l])) <= r * Distance(v, u)
-  // {
-  //   var new_s := s + [s'];
-  //   var new_n := n + [[n[|n|-1][l]]];
-  //   assert forall i | 0 <= i < new_s :: IsSpecNorm(new_s[i], new_n[i]);
-  //   var prod := Product(new_s);
-  //   SpecNormProductIsLipBound(new_n, v, u)
-  // }
+  method GenLipBounds(n: NeuralNetwork, s: seq<real>) returns (r: seq<real>)
+    ensures |r| == |n[|n|-1]|
+    ensures forall i | 0 <= i < |r| :: 0.0 <= r[i]
+    ensures AreLipBounds(n, r)
+  {
+    assume false;
+    r := [];
+    var i := 0;
+    while i < |n[|n|-1]|
+      invariant 0 <= i <= |n[|n|-1]|
+      invariant |r| == i
+      invariant forall j | 0 <= j < i ::
+        0.0 <= r[j] && IsLipBound(n, r[j], j)
+    {
+      var bound := *; // := GenLipBound(n, i, s);
+      assume IsLipBound(n, bound, i);
+      assume bound >= 0.0;
+      r := r + [bound];
+      i := i + 1;
+    }
+  }
 
-  // lemma Test(n: NeuralNetwork, s: seq<real>)
-  //   requires |s| == |n|
-  //   requires forall i | 0 <= i < |s| :: IsSpecNorm(s[i], n[i])
-  //   ensures forall v, u: Vector |
-  //     CompatibleInput(v, n) && CompatibleInput(u, n) ::
-  //     Distance(NN(n, v), NN(n, u)) <= Product(s) * Distance(v, u)
-  // {
-  //   var v: Vector :| assume CompatibleInput(v, n);
-  //   var u: Vector :| assume CompatibleInput(u, n);
-  //   assert |v| == |u|;
-  //   SpecNormProductIsLipBound(n, v, u, s);
-  // }
+  method GenLipBound(n: NeuralNetwork, l: int, s: seq<real>) returns (r: real)
+    requires |s| == |n|
+    requires 0 <= l < |n[|n|-1]|
+    requires forall i | 0 <= i < |s| :: IsSpecNorm(s[i], n[i])
+    ensures IsLipBound(n, r, l)
+  {
+    // Trim the neural network
+    var trimmedLayer := [n[|n|-1][l]];
+    var trimmedSpecNorm := SpecNorm(trimmedLayer);
+    var n' := n[..|n|-1] + [trimmedLayer];
+    var s' := s[..|s|-1] + [trimmedSpecNorm];
+    assert forall i | 0 <= i < |s'| :: IsSpecNorm(s'[i], n'[i]);
+    // Get its spec norm product
+    r := Product(s');
+    forall v: Vector, u: Vector | |v| == |u| && CompatibleInput(v, n') {
+      SpecNormProductIsLipBound(n', v, u, s');
+    }
+    forall v: Vector, u: Vector | |v| == |u| && CompatibleInput(v, n') {
+      LogitLipBounds(n, n', v, u, l);
+    }
+  }
 
   lemma SpecNormProductIsLipBound(n: NeuralNetwork, v: Vector, u: Vector,
       s: seq<real>)
@@ -429,15 +471,16 @@ module Lipschitz {
   lemma LogitLipBounds(n: NeuralNetwork, n': NeuralNetwork, v: Vector,
       u: Vector, l: int)
     requires |v| == |u|
-    requires 1 < |n| == |n'|
+    requires |n| == |n'|
     requires CompatibleInput(v, n)
     requires CompatibleInput(u, n)
     requires 0 <= l < |n[|n|-1]|
     requires n' == n[..|n|-1] + [[n[|n|-1][l]]]
-    requires Distance(NN(n', v), NN(n', u)) == Abs(NN(n, v)[l] - NN(n, u)[l])
+    ensures Distance(NN(n', v), NN(n', u)) == Abs(NN(n, v)[l] - NN(n, u)[l])
   {
     TrimmedNN(n, n', v, l);
     TrimmedNN(n, n', u, l);
+    NormOfOneDimensionIsAbs();
   }
 
   /**
@@ -449,7 +492,7 @@ module Lipschitz {
   lemma TrimmedNN(n: NeuralNetwork, n': NeuralNetwork, v: Vector, l: int)
     requires 0 <= l < |n[|n|-1]|
     requires CompatibleInput(v, n) && CompatibleInput(v, n')
-    requires 1 < |n| == |n'|
+    requires |n| == |n'|
     requires n' == n[..|n|-1] + [[n[|n|-1][l]]]
     ensures NN(n', v) == [NN(n, v)[l]]
   {

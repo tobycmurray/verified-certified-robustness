@@ -6,6 +6,28 @@ module BasicArithmetic {
     ensures r >= 0.0
     ensures r * r == x
 
+  lemma SqrtOfSquare()
+    ensures forall x: real :: Sqrt(Square(x)) == Abs(x)
+  {
+    assert forall x: real ::
+      Sqrt(Square(x)) * Sqrt(Square(x)) == Abs(x) * Abs(x);
+    forall x: real {
+      PositiveSquaresEquality(Sqrt(Square(x)), Abs(x));
+    }
+  }
+
+  lemma PositiveSquaresEquality(x: real, y: real)
+    requires x >= 0.0 && y >= 0.0
+    requires x * x == y * y
+    ensures x == y
+  {
+    if x > y {
+      IncreaseSquare(x, y);
+    } else if x < y {
+      IncreaseSquare(y, x);
+    }
+  } 
+
   /** Absolute value of the given number. */
   ghost function Abs(x: real): real
   {

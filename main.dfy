@@ -16,7 +16,8 @@ module MainModule {
     var maybeNeuralNet: (bool, NeuralNetwork) := ParseNeuralNet(neuralNetStr);
     expect maybeNeuralNet.0, "Failed to parse neural network.";
     var neuralNet: NeuralNetwork := maybeNeuralNet.1;
-    var lipBounds: seq<real> := *; // := GenerateLipschitzBounds(...);
+    var specNorms: seq<real> := GenerateSpecNorms(neuralNet);
+    var lipBounds: seq<real> := *; // := GenLipBounds(...);
     assume |lipBounds| == |neuralNet[|neuralNet|-1]|;
     assume forall i | 0 <= i < |lipBounds| :: 0.0 <= lipBounds[i];
     assume AreLipBounds(neuralNet, lipBounds);
