@@ -21,8 +21,8 @@ module Lipschitz {
     [0.0]
   }
 
-  /* A neural network is a non-empty sequence of layers, which are (functionally)
-  weight matrices, and whose product must be defined. */
+  /* A neural network is a non-empty sequence of layers, which are
+  (functionally) weight matrices, and whose product must be defined. */
   type NeuralNetwork = n: seq<Matrix> | |n| > 0 && 
     forall i: int :: 0 <= i < |n| - 1 ==> |n[i]| == |n[i + 1][0]|
     witness [NonEmptyMatrix()]
@@ -562,9 +562,9 @@ module Lipschitz {
   /* =============================== End New =============================== */
 
   /**
-   * A neural network layer consists of matrix-vector multiplication, followed by
-   * an application of the ReLu activation function. A Lipschitz bound of a layer
-   * with matrix m is the spectral norm of that matrix.
+   * A neural network layer consists of matrix-vector multiplication, followed
+   * by an application of the ReLu activation function. A Lipschitz bound of a
+   * layer with matrix m is the spectral norm of that matrix.
    * ||R(m.v) - R(m.u)|| <= ||m|| * ||v - u||
    * where R applies the ReLu activation function.
    */
@@ -630,9 +630,9 @@ module Lipschitz {
   }
 
   /**
-   * The distance between two vectors can only be decreased when the ReLu function
-   * is applied to each one. This is equivalent to stating that the spectral norm
-   * of the ReLu layer is 1.
+   * The distance between two vectors can only be decreased when the ReLu
+   * function is applied to each one. This is equivalent to stating that the
+   * spectral norm of the ReLu layer is 1.
    * ||R(v) - R(u)|| <= ||v - u|| where R applies the ReLu activation function.
    */
   lemma SmallerRelu(v: Vector, u: Vector)
@@ -658,9 +658,9 @@ module Lipschitz {
   }
 
   /**
-   * If each element in vector v has a lower absolute value than its counterpart
-   * in u, then the square of each element in v is lower than the square of its
-   * counterpart in u.
+   * If each element in vector v has a lower absolute value than its
+   * counterpart in u, then the square of each element in v is lower than the
+   * square of its counterpart in u.
    */
   lemma SmallerApplySquare(v: Vector, u: Vector)
     requires |v| == |u|
