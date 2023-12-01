@@ -11,7 +11,7 @@ module MainModule {
     decreases *
   {
     /* ===================== Generate Lipschitz bounds ===================== */
-
+    print "Generating Lipschitz bounds...\n";
     // Parse neural network from file (unverified).
     var neuralNetStr: string := ReadFromFile("Input/neural_network.txt");
     var maybeNeuralNet: (bool, NeuralNetwork) := ParseNeuralNet(neuralNetStr);
@@ -22,6 +22,7 @@ module MainModule {
     var specNorms: seq<real> := GenerateSpecNorms(neuralNet);
     // Generate the Lipschitz bounds for each logit in the output vector.
     var lipBounds: seq<real> := GenLipBounds(neuralNet, specNorms);
+    print "Bounds generated: ", lipBounds, "\n\n";
 
     /* ================= Repeatedly certify output vectors ================= */
 
@@ -68,8 +69,9 @@ module MainModule {
       var errorMargin := StringUtils.ParseReal(inputSeq[1]);
 
       // Print parse results.
-      print "Received output vector:\n", outputVector, '\n';
-      print "Received error margin:\n", errorMargin, '\n';
+      print '\n';
+      print "Received output vector:\n", outputVector, "\n\n";
+      print "Received error margin:\n", errorMargin, "\n\n";
 
       /* ======================= Certify Robustness ======================== */
 
@@ -88,7 +90,7 @@ module MainModule {
       assert robust ==> forall v: Vector |
         CompatibleInput(v, neuralNet) && NN(neuralNet, v) == outputVector ::
         Robust(v, outputVector, errorMargin, neuralNet);
-      print robust, '\n';
+      print "Certification:\n", robust, "\n\n";
     }
   }
 
