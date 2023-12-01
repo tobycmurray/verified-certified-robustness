@@ -58,7 +58,8 @@ module StringUtils {
     IsDigit(xs[|xs|-1]) &&
     '.' in xs &&
     !(exists i :: 0 <= i < |xs| && !IsDigit(xs[i]) && xs[i] != '.') &&
-    !(exists i, j :: 0 <= i < |xs| && 0 <= j < |xs| && i != j && xs[i] == '.' && xs[j] == '.')
+    !(exists i, j :: 0 <= i < |xs| && 0 <= j < |xs| && i != j &&
+        xs[i] == '.' && xs[j] == '.')
   }
 
   /**
@@ -73,8 +74,8 @@ module StringUtils {
    * Splits xs at every occurrence of the delimiter x.
    * The returned substrings maintain their original order in the sequence and
    * do not contain x.
-   * The size of the returned sequence is equal to the number of occurrences of x
-   * in xs, plus one.
+   * The size of the returned sequence is equal to the number of occurrences of
+   * x in xs, plus one.
    * Example output:
    * Split("", ',') == [""]
    * Split(",", ',') == ["", ""]
@@ -125,7 +126,8 @@ module StringUtils {
     // There is no x in xs whose index is not in r.
     ensures forall i: int :: 0 <= i < |xs| && xs[i] == x ==> i in r
     // All indices are unique.
-    ensures forall i, j: int :: 0 <= i < |r| && 0 <= j < |r| && i != j ==> r[i] != r[j]
+    ensures forall i, j: int :: 0 <= i < |r| && 0 <= j < |r| && i != j ==>
+      r[i] != r[j]
     // Indices are in ascending order.
     ensures forall i, j: int :: 0 <= i < j < |r| ==> r[i] < r[j]
   {

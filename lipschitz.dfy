@@ -664,13 +664,15 @@ module Lipschitz {
    */
   lemma SmallerApplySquare(v: Vector, u: Vector)
     requires |v| == |u|
-    requires forall i: int :: 0 <= i < |v| ==> Abs(v[i]) <= Abs(u[i])
-    ensures forall i: int :: 0 <= i < |v| ==>  Apply(v, Square)[i] <= Apply(u, Square)[i]
+    requires forall i: int | 0 <= i < |v| :: Abs(v[i]) <= Abs(u[i])
+    ensures forall i: int | 0 <= i < |v| ::
+      Apply(v, Square)[i] <= Apply(u, Square)[i]
   {
     var i := 0;
     while i < |v|
       invariant i <= |v|
-      invariant forall j: int :: 0 <= j < i ==> Apply(v, Square)[j] <= Apply(u, Square)[j]
+      invariant forall j: int | 0 <= j < i ::
+        Apply(v, Square)[j] <= Apply(u, Square)[j]
     {
       MonotonicSquare(v[i], u[i]);
       i := i + 1;
