@@ -40,6 +40,7 @@ module Lipschitz {
     if |s| == 0 then 1.0 else Product(s[..|s|-1]) * s[|s|-1]
   }
 
+  /** The product of non-negative reals is non-negative. */
   lemma PositiveProduct(s: seq<real>)
     requires forall i | 0 <= i < |s| :: 0.0 <= s[i]
     ensures 0.0 <= Product(s)
@@ -47,6 +48,7 @@ module Lipschitz {
     reveal Product();
   }
 
+  /** The product of S is equal to the product of S[..|S|-1] times S[|S|-1]. */
   lemma ProductDef(s: seq<real>, s0: seq<real>, s': real)
     requires |s| > 0
     requires s0 == s[..|s|-1]
@@ -93,6 +95,7 @@ module Lipschitz {
     Sqrt(Sum(Apply(v, Square)))
   }
 
+  /** The norm of a vector with one element d is the absolute value of d. */
   lemma NormOfOneDimensionIsAbs()
     ensures forall v: Vector | |v| == 1 :: L2(v) == Abs(v[0])
   {
@@ -122,7 +125,7 @@ module Lipschitz {
   }
 
   /**
-   * The distance between two vectors is the norm of their difference-vector.
+   * The 'distance' between two vectors is the norm of their difference-vector.
    */
   ghost function Distance(v: Vector, u: Vector): real
     requires |v| == |u|
@@ -167,6 +170,7 @@ module Lipschitz {
     Apply(v, Relu)
   }
 
+  /** Generates the spectral norm for each matrix in n. */
   method GenerateSpecNorms(n: NeuralNetwork) returns (r: seq<real>)
     ensures |r| == |n|
     ensures forall i | 0 <= i < |n| :: IsSpecNorm(r[i], n[i])
@@ -187,19 +191,17 @@ module Lipschitz {
   method {:extern} SpecNorm(m: Matrix) returns (r: real)
     ensures IsSpecNorm(r, m)
 
-  lemma SpecNormLemma(m: Matrix, v: Vector, s: real)
-    requires IsSpecNorm(s, m)
-    requires |v| == |m[0]|
-    ensures L2(MV(m, v)) <= s * L2(v)
-  {}
-
+  /**
+   * This is one definition of the spectral norm s of matrix m and is our
+   * desired property for using it to compute Lipschitz bounds.
+   */
   ghost predicate IsSpecNorm(s: real, m: Matrix) {
     s >= 0.0 && forall v: Vector | |v| == |m[0]| :: L2(MV(m, v)) <= s * L2(v)
   }
 
-  /** 
-   * Function representing the assumed behaviour of the neural network. Models how
-   * the neural network transforms input vectors into output vectors.
+  /**
+   * Function representing the assumed behaviour of the neural network. Models
+   * how the neural network transforms input vectors into output vectors.
    */
   ghost opaque function NN(n: NeuralNetwork, v: Vector): (r: Vector)
     requires CompatibleInput(v, n)
@@ -209,16 +211,22 @@ module Lipschitz {
     if |n| == 1 then Layer(n[0], v) else Layer(n[|n|-1], NN(n[..|n|-1], v))
   }
 
+  /**
+   * The assumed functionality of a neural network layer. Applies matrix-vector
+   * multiplication, followed by the relu activation function.
+   */
   ghost function Layer(m: Matrix, v: Vector): (r: Vector)
     requires |v| == |m[0]|
   {
     ApplyRelu(MV(m, v))
   }
 
+  /** True iff the size of v is compatible as an input-vector to n. */
   ghost predicate CompatibleInput(v: Vector, n: NeuralNetwork) {
     |v| == |n[0][0]|
   }
 
+  /** True iff the size of v is compatible as an output-vector of n. */
   ghost predicate CompatibleOutput(v: Vector, n: NeuralNetwork) {
     |v| == |n[|n|-1]|
   }
@@ -261,6 +269,13 @@ module Lipschitz {
     }
   }
 
+  /**
+   * Given an output vector v', error ball e and Lipschitz bounds L, if the
+   * dominant logit x of v' is reduced by L[x] * e, and all other logits i are
+   * increased by L[i] * e, and the dominant logit remains x, then v' is
+   * robust. This follows from the fact that the maximum change in any logit i
+   * is L[i] * e.
+   */
   lemma ProveRobust(v': Vector, e: real, L: seq<real>, x: int)
     requires forall i | 0 <= i < |L| :: 0.0 <= L[i]
     requires |v'| == |L|
@@ -271,7 +286,7 @@ module Lipschitz {
       CompatibleInput(v, n) && NN(n, v) == v' && AreLipBounds(n, L) ::
       Robust(v, v', e, n)
   {
-    A1(v', e, L, x);
+    ProveRobustHelper(v', e, L, x);
     assert forall n: NeuralNetwork, v: Vector, u: Vector |
       |n[|n|-1]| == |L| && AreLipBounds(n, L) && |v| == |u| &&
       CompatibleInput(v, n) && Distance(v, u) <= e && v' == NN(n, v) ::
@@ -285,7 +300,12 @@ module Lipschitz {
       NN(n, u)[i] < NN(n, u)[x];
   }
 
-  lemma A1(v': Vector, e: real, L: seq<real>, x: int)
+  /**
+   * Sometimes Dafny needs a separate lemma to prove the obvious. In short,
+   * this lemma proves that if this (rather verbose) property holds for all i
+   * in S, and x is in S, then it also holds specifically for x.
+   */
+  lemma ProveRobustHelper(v': Vector, e: real, L: seq<real>, x: int)
     requires |v'| == |L|
     requires x == ArgMax(v')
     requires forall n: NeuralNetwork, v: Vector, u: Vector, i |
@@ -298,6 +318,13 @@ module Lipschitz {
       Abs(NN(n, v)[x] - NN(n, u)[x]) <= L[x] * e
   {}
 
+  /**
+   * The robustness property is the key specification for the project. An
+   * input-output pair of vectors (v, v') for a neural network n is robust
+   * with respect to an error ball e if for all input vectors u within a
+   * distance e from v, the classification (i.e., argmax) of the output
+   * corresponding to u is equal to the classification of v'.
+   */
   ghost predicate Robust(v: Vector, v': Vector, e: real, n: NeuralNetwork)
     requires CompatibleInput(v, n)
     requires NN(n, v) == v'
@@ -314,11 +341,8 @@ module Lipschitz {
   }
 
   /**
-   * Returns the index of the maximum element in xs.
-   * If there is a tie, the lowest index is returned.
-   * 
-   * Todo: As this is only used in specifications, perhaps it can be declared
-   * ghost and the implementation can be removed.
+   * Returns the index of the maximum element in xs. If there is a tie, the
+   * lowest index is returned.
    */
   function ArgMax(xs: Vector): (r: int)
     // r is a valid index.
@@ -332,6 +356,7 @@ module Lipschitz {
     ArgMaxHelper(xs).0
   }
 
+  /** Recursive helper function for ArgMax. */
   function ArgMaxHelper(xs: Vector): (r: (int, real))
     requires |xs| > 0
     // r.0 is a valid index.
@@ -350,12 +375,17 @@ module Lipschitz {
 
   /* ========================== Lipschitz Bounds =========================== */
 
+  /** True iff every L[i] is a Lipschitz bound of the matrix n[i]. */
   ghost predicate AreLipBounds(n: NeuralNetwork, L: seq<real>)
     requires |L| == |n[|n|-1]|
   {
     forall i | 0 <= i < |L| :: IsLipBound(n, L[i], i)
   }
 
+  /**
+   * A real number l is a Lipschitz bound of an output logit i iff l is an
+   * upper bound on the change in i per change in distance of the input vector.
+   */
   ghost predicate IsLipBound(n: NeuralNetwork, l: real, i: int)
     requires 0 <= i < |n[|n|-1]|
   {
@@ -363,6 +393,10 @@ module Lipschitz {
       Abs(NN(n, v)[i] - NN(n, u)[i]) <= l * Distance(v, u)
   }
 
+  /**
+   * Generates the Lipschitz bound for each logit in the output of the neural
+   * network n. See GenLipBound for details.
+   */
   method GenLipBounds(n: NeuralNetwork, s: seq<real>) returns (r: seq<real>)
     requires |s| == |n|
     requires forall i | 0 <= i < |s| :: IsSpecNorm(s[i], n[i])
@@ -385,6 +419,12 @@ module Lipschitz {
     assert AreLipBounds(n, r);
   }
 
+  /**
+   * Generates the Lipschitz bound of logit l. This is achieved by taking the
+   * product of the spectral norms of the first |n|-1 layers, and multiplying
+   * this by the spectral norm of the matrix [v], where v is the vector
+   * corresponding to the l'th row of the final layer of n.
+   */
   method GenLipBound(n: NeuralNetwork, l: int, s: seq<real>) returns (r: real)
     requires |s| == |n|
     requires 0 <= l < |n[|n|-1]|
@@ -392,13 +432,10 @@ module Lipschitz {
     ensures IsLipBound(n, r, l)
     ensures r >= 0.0
   {
-    // Trim the neural network
     var trimmedLayer := [n[|n|-1][l]];
     var trimmedSpecNorm := SpecNorm(trimmedLayer);
     var n' := n[..|n|-1] + [trimmedLayer];
     var s' := s[..|s|-1] + [trimmedSpecNorm];
-    assert forall i | 0 <= i < |s'| :: IsSpecNorm(s'[i], n'[i]);
-    // Get its spec norm product
     r := Product(s');
     PositiveProduct(s');
     forall v: Vector, u: Vector | |v| == |u| && CompatibleInput(v, n') {
@@ -409,6 +446,10 @@ module Lipschitz {
     }
   }
 
+  /**
+   * The product of the spectral norms of each matrix of a neural network n is
+   * a Lipschitz bound on the l2 norm of the output vector of n.
+   */
   lemma SpecNormProductIsLipBound(n: NeuralNetwork, v: Vector, u: Vector,
       s: seq<real>)
     requires |v| == |u| && |s| == |n|
@@ -417,10 +458,10 @@ module Lipschitz {
     ensures Distance(NN(n, v), NN(n, u)) <= Product(s) * Distance(v, u)
   {
     if |n| == 1 {
-      BaseCase(n, v, u, s);
+      SpecNormIsLayerLipBound(n[0], v, u, s[0]);
       reveal Product();
     } else {
-      BaseCase(n, v, u, s);
+      SpecNormIsLayerLipBound(n[0], v, u, s[0]);
 
       var n0 := n[..|n|-1];
       var s0 := s[..|s|-1];
@@ -442,6 +483,7 @@ module Lipschitz {
     }
   }
 
+  /** An obvious helper-lemma to SpecNormProductIsLipBound. */
   lemma MultiplyBothSides(s: seq<real>, s0: seq<real>, s': real, v: Vector,
       u: Vector)
     requires |v| == |u|
@@ -449,6 +491,7 @@ module Lipschitz {
     ensures Product(s) * Distance(v, u) == s' * Product(s0) * Distance(v, u)
   {}
 
+  /** An obvious helper-lemma to SpecNormProductIsLipBound. */
   lemma MultiplicationInequality(n: NeuralNetwork, v: Vector, u: Vector,
       v': Vector, u': Vector, s0: seq<real>, s': real)
     requires |v| == |u|
@@ -460,15 +503,13 @@ module Lipschitz {
     ensures Distance(NN(n, v), NN(n, u)) <= s' * Product(s0) * Distance(v, u)
   {}
 
-  lemma BaseCase(n: NeuralNetwork, v: Vector, u: Vector, s: seq<real>)
-    requires |v| == |u| && |s| == |n|
-    requires CompatibleInput(v, n) && CompatibleInput(u, n)
-    requires IsSpecNorm(s[0], n[0])
-    ensures Distance(Layer(n[0], v), Layer(n[0], u)) <= s[0] * Distance(v, u)
-  {
-    SpecNormIsLayerLipBound(n[0], v, u, s[0]);
-  }
-
+  /** 
+   * As seen in the method GenLipBound, computing a Lipschitz bound on logit l
+   * for a neural network n involves 'trimming' all rows out of the final layer
+   * of n except for row l, and computing the spectral norm of this new neural
+   * network n'. This lemma relates a Lipschitz bound on the output vector of
+   * n' to a Lipschitz bound on the logit l in n.
+   */
   lemma LogitLipBounds(n: NeuralNetwork, n': NeuralNetwork, v: Vector,
       u: Vector, l: int)
     requires |v| == |u|
@@ -488,7 +529,6 @@ module Lipschitz {
    * Let n' be the neural network n with all rows except row l removed.
    * Formally, n' == n[..|n|-1] + [[n[|n|-1][l]]].
    * Show that NN(n', v) == [NN(n, v)[l]].
-   * Hence, NN(n', v)[0] == NN(n, v)[l].
    */
   lemma TrimmedNN(n: NeuralNetwork, n': NeuralNetwork, v: Vector, l: int)
     requires 0 <= l < |n[|n|-1]|
