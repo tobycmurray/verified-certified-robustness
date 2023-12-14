@@ -52,3 +52,36 @@ character `^D` rather than a newline. Additionally, the size of the given
 output vector must be compatible with the given neural network.
 
 An example of stdin input is: `3.0,3.0,4.0 0.49^D`.
+
+## Further Development
+
+Currently, the spectral norms required to compute Lipschitz bounds are
+hard-coded as 1.0. An 'assume' statement is implemented here in order to
+convince Dafny that these are real spectral norms, hence the verification is
+currently unsound. To finish the project, a spectral norm function needs to be
+implemented and verified.
+
+Generating spectral norms requires iterative methods that converge on a
+solution. To date, the most common and efficient way to generate spectral norms
+is the power method. It doesn't guarantee a constant rate of convergence, but
+does guarantee that each iteration decreases the distance between the derived
+value and the actual spectral norm. This guarantee lends itself to two
+verification strategies for the power method.
+
+The most precise method is to partition the vector space on each iteration by
+ruling out all the vectors that cannot possibly be the spectral norm. Suppose we
+begin with a starting vector [2,2] and on the next iteration we get [4,0]. Then
+we can rule out all vectors above the line defined by y = x - 2. We can keep
+triangulating this way until we encircle a point. This gives us our error
+margin.
+
+A less-precise but easier method is to add a bit of noise to the vector and note
+the direction it moves on the next iteration. For example, if we modify a vector
+by adding 0.1 to each dimension, and the next iteration decreases every
+dimension of this modified vector, then its norm is an upper bound on the
+spectral norm. One of the problems here is that, as the number of dimensions
+increases, there is a fast increase in the difference in norm of the modified
+vector and the old vector. Intuitively, the gap between the outside of a sphere
+and the corner of an encompassing cube is larger than the gap between the corner
+of a circle and an encompassing square. This may result in an over-conservative
+estimation for vectors of high dimension.
