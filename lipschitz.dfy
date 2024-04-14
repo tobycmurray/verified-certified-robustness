@@ -59,7 +59,7 @@ module Lipschitz {
   }
 
   /** Sum of all vector elements. */
-  ghost opaque function Sum(s: seq<real>): (r: real)
+  opaque function Sum(s: seq<real>): (r: real)
     ensures (forall i | 0 <= i < |s| :: 0.0 <= s[i]) ==> r >= 0.0
   {
     if |s| == 0 then 0.0 else Sum(s[..|s|-1]) + s[|s|-1]
@@ -90,7 +90,7 @@ module Lipschitz {
    * L2 norm of the given vector.
    * L2([v_1, v_2,..., v_n]) = sqrt(v_1^2 + v_2^2 + ... + v_n^2)
    */
-  ghost opaque function L2(v: Vector): real
+  ghost opaque function L2(v: Vector): (r: real)
   {
     Sqrt(Sum(Apply(v, Square)))
   }
@@ -137,7 +137,7 @@ module Lipschitz {
    * Applies the given function to all elements of the given vector.
    * Similar to Haskell's 'map' function.
    */
-  ghost opaque function Apply(v: Vector, f: real -> real): (r: Vector)
+  opaque function Apply(v: Vector, f: real -> real): (r: Vector)
     ensures |v| == |r|
     ensures forall i: int :: 0 <= i < |r| ==> r[i] == f(v[i])
   {
@@ -145,14 +145,14 @@ module Lipschitz {
   }
 
   /** Dot product. */
-  ghost opaque function Dot(v: Vector, u: Vector): real
+  opaque function Dot(v: Vector, u: Vector): real
     requires |v| == |u|
   {
     if |v| == 1 then v[0] * u[0] else v[0] * u[0] + Dot(v[1..], u[1..])
   }
 
   /** Matrix vector product. */
-  ghost opaque function MV(m: Matrix, v: Vector): (r: Vector)
+  opaque function MV(m: Matrix, v: Vector): (r: Vector)
     requires |m[0]| == |v|
     ensures |r| == |m|
     ensures forall i: int :: 0 <= i < |r| ==> r[i] == Dot(m[i], v)
@@ -173,35 +173,172 @@ module Lipschitz {
   /** Generates the spectral norm for each matrix in n. */
   method GenerateSpecNorms(n: NeuralNetwork) returns (r: seq<real>)
     ensures |r| == |n|
-    ensures forall i | 0 <= i < |n| :: IsSpecNorm(r[i], n[i])
+    ensures forall i | 0 <= i < |n| :: IsSpecNormUpperBound(r[i], n[i])
   {
+    var GRAM_ITERATIONS := 10;
+
     var i := 0;
     r := [];
     while i < |n|
       invariant 0 <= i == |r| <= |n|
-      invariant forall j | 0 <= j < i :: IsSpecNorm(r[j], n[j])
+      invariant forall j | 0 <= j < i :: IsSpecNormUpperBound(r[j], n[j])
     {
-      var specNorm := SpecNorm(n[i]);
+      var specNorm := GramIterationSimple(n[i], GRAM_ITERATIONS);
+      assert specNorm >= SpecNorm(n[i]);
       r := r + [specNorm];
       i := i + 1;
     }
   }
 
-  /** Spectral norm of the given matrix (external implementation). */
-  method SpecNorm(m: Matrix) returns (r: real)
-    ensures IsSpecNorm(r, m)
+  /* ============================ Gram Iteration =========================== */
+
+  function SumPositiveMatrix(m: Matrix): (r: real)
+    requires forall i, j | 0 <= i < |m| && 0 <= j < |m[0]| :: 0.0 <= m[i][j]
+    ensures 0.0 <= r
   {
-    r := 1.0;
-    assume {:axiom} IsSpecNorm(r, m); // TODO
+    if |m| == 1 then SumPositive(m[0])
+    else SumPositive(m[0]) + SumPositiveMatrix(m[1..])
   }
 
-  /**
-   * This is one definition of the spectral norm s of matrix m and is our
-   * desired property for using it to compute Lipschitz bounds.
-   */
-  ghost predicate IsSpecNorm(s: real, m: Matrix) {
+  function SumPositive(v: Vector): (r: real)
+    requires forall i | 0 <= i < |v| :: 0.0 <= v[i]
+    ensures 0.0 <= r
+  {
+    if |v| == 1 then v[0] else v[0] + SumPositive(v[1..])
+  }
+
+  function SquareMatrixElements(m: Matrix): (r: Matrix)
+    ensures forall i, j | 0 <= i < |r| && 0 <= j < |r[0]| :: 0.0 <= r[i][j]
+  {
+    if |m| == 1 then [Apply(m[0], Square)]
+    else [Apply(m[0], Square)] + SquareMatrixElements(m[1..])
+  }
+
+  ghost function FrobeniusNorm(m: Matrix): real
+  {
+    Sqrt(SumPositiveMatrix(SquareMatrixElements(m)))
+  }
+
+  method FrobeniusNormUpperBound(m: Matrix) returns (r: real)
+    ensures r >= FrobeniusNorm(m)
+  {
+    r := SqrtUpperBound(SumPositiveMatrix(SquareMatrixElements(m)));
+  }
+
+  function GetFirstColumn(m: Matrix): (r: Vector)
+    ensures |r| == |m|
+  {
+    if |m| == 1 then [m[0][0]]
+    else [m[0][0]] + GetFirstColumn(m[1..])
+  }
+
+  function RemoveFirstColumn(m: Matrix): (r: Matrix)
+    requires |m[0]| > 1
+    ensures |r| == |m|
+  {
+    if |m| == 1 then [m[0][1..]]
+    else [m[0][1..]] + RemoveFirstColumn(m[1..])
+  }
+
+  function Transpose(m: Matrix): (r: Matrix)
+    decreases |m[0]|
+  {
+    if |m[0]| == 1 then [GetFirstColumn(m)]
+    else [GetFirstColumn(m)] + Transpose(RemoveFirstColumn(m))
+  }
+
+  function MM(m: Matrix, n: Matrix): Matrix
+    requires |m[0]| == |n|
+  {
+    if |m| == 1 then [MMGetRow(m[0], n)]
+    else [MMGetRow(m[0], n)] + MM(m[1..], n)
+  }
+
+  function MMGetRow(v: Vector, n: Matrix): (r: Vector)
+    requires |v| == |n|
+    ensures |r| == |n[0]|
+    decreases |n[0]|
+  {
+    if |n[0]| == 1 then [Dot(v, GetFirstColumn(n))]
+    else [Dot(v, GetFirstColumn(n))] + MMGetRow(v, RemoveFirstColumn(n))
+  }
+
+  // ASSUMPTIONS
+  lemma {:axiom} Assumption1(m: Matrix)
+    ensures SpecNorm(m) <= Sqrt(SpecNorm(MM(Transpose(m), m)))
+
+  lemma {:axiom} Assumption2(m: Matrix)
+    ensures SpecNorm(m) <= FrobeniusNorm(m)
+
+  /* We only need these for rescaling */
+
+  // lemma {:axiom} Assumption3(m: Matrix, x: real)
+  //   requires 0.0 < x
+  //   ensures SpecNorm(m) <= SpecNorm(MatrixDiv(m, x)) * x
+
+  // function MatrixDiv(m: Matrix, x: real): (r: Matrix)
+  //   requires 0.0 < x
+  //   ensures |r| == |m| && |r[0]| == |m[0]|
+  // {
+  //   if |m| == 1 then [VectorDiv(m[0], x)]
+  //   else [VectorDiv(m[0], x)] + MatrixDiv(m[1..], x)
+  // }
+
+  // function VectorDiv(v: Vector, x: real): (r: Vector)
+  //   requires 0.0 < x
+  //   ensures |r| == |v|
+  // {
+  //   if |v| == 1 then [v[0] / x] else [v[0] / x] + VectorDiv(v[1..], x)
+  // }
+
+  method GramIterationSimple(G: Matrix, N: int) returns (s: real)
+    requires 0 <= N
+    ensures IsSpecNormUpperBound(s, G)
+  {
+    var i := 0;
+    var G' := G;
+    while i != N
+      invariant 0 <= i <= N
+      invariant SpecNorm(G) <= Power2Root(SpecNorm(G'), i)
+    {
+      Assumption1(G');
+      Power2RootMonotonic(SpecNorm(G'), Sqrt(SpecNorm(MM(Transpose(G'), G'))), i);
+      G' := MM(Transpose(G'), G');
+      Power2RootDef(SpecNorm(G'), i);
+      i := i + 1;
+    }
+    Assumption2(G');
+    Power2RootMonotonic(SpecNorm(G'), FrobeniusNorm(G'), N);
+    s := FrobeniusNormUpperBound(G');
+    Power2RootMonotonic(FrobeniusNorm(G'), s, N);
+    s := Power2RootUpperBound(s, N);
+    SpecNormUpperBoundProperty(s, G);
+  }
+
+  ghost function SpecNorm(m: Matrix): (r: real)
+    ensures r >= 0.0
+    ensures IsSpecNormUpperBound(r, m)
+    ensures !exists x: real :: x < r && IsSpecNormUpperBound(x, m)
+
+  lemma SpecNormUpperBoundProperty(s: real, m: Matrix)
+    requires s >= SpecNorm(m)
+    ensures s >= 0.0
+    ensures IsSpecNormUpperBound(s, m)
+  {
+    PositiveL2();
+  }
+
+  lemma PositiveL2()
+    ensures forall v: Vector :: L2(v) >= 0.0
+  {
+    reveal L2();
+  }
+
+  ghost predicate IsSpecNormUpperBound(s: real, m: Matrix) {
     s >= 0.0 && forall v: Vector | |v| == |m[0]| :: L2(MV(m, v)) <= s * L2(v)
   }
+
+  /* ========================== End Gram Iteration ========================= */
 
   /**
    * Function representing the assumed behaviour of the neural network. Models
@@ -403,7 +540,7 @@ module Lipschitz {
    */
   method GenLipBounds(n: NeuralNetwork, s: seq<real>) returns (r: seq<real>)
     requires |s| == |n|
-    requires forall i | 0 <= i < |s| :: IsSpecNorm(s[i], n[i])
+    requires forall i | 0 <= i < |s| :: IsSpecNormUpperBound(s[i], n[i])
     ensures |r| == |n[|n|-1]|
     ensures forall i | 0 <= i < |r| :: 0.0 <= r[i]
     ensures AreLipBounds(n, r)
@@ -432,12 +569,14 @@ module Lipschitz {
   method GenLipBound(n: NeuralNetwork, l: int, s: seq<real>) returns (r: real)
     requires |s| == |n|
     requires 0 <= l < |n[|n|-1]|
-    requires forall i | 0 <= i < |s| :: IsSpecNorm(s[i], n[i])
+    requires forall i | 0 <= i < |s| :: IsSpecNormUpperBound(s[i], n[i])
     ensures IsLipBound(n, r, l)
     ensures r >= 0.0
   {
+    var GRAM_ITERATIONS := 10; // fixme: multiple instances of this variable exist
+
     var trimmedLayer := [n[|n|-1][l]];
-    var trimmedSpecNorm := SpecNorm(trimmedLayer);
+    var trimmedSpecNorm := GramIterationSimple(trimmedLayer, GRAM_ITERATIONS);
     var n' := n[..|n|-1] + [trimmedLayer];
     var s' := s[..|s|-1] + [trimmedSpecNorm];
     r := Product(s');
@@ -458,7 +597,7 @@ module Lipschitz {
       s: seq<real>)
     requires |v| == |u| && |s| == |n|
     requires CompatibleInput(v, n) && CompatibleInput(u, n)
-    requires forall i | 0 <= i < |s| :: IsSpecNorm(s[i], n[i])
+    requires forall i | 0 <= i < |s| :: IsSpecNormUpperBound(s[i], n[i])
     ensures Distance(NN(n, v), NN(n, u)) <= Product(s) * Distance(v, u)
   {
     if |n| == 1 {
@@ -574,7 +713,7 @@ module Lipschitz {
    */
   lemma SpecNormIsLayerLipBound(m: Matrix, v: Vector, u: Vector, s: real)
     requires |m[0]| == |v| == |u|
-    requires IsSpecNorm(s, m)
+    requires IsSpecNormUpperBound(s, m)
     ensures Distance(Layer(m, v), Layer(m, u)) <= s * Distance(v, u)
   {
     SpecNormIsMvLipBound(m, v, u, s);
@@ -587,7 +726,7 @@ module Lipschitz {
    */
   lemma SpecNormIsMvLipBound(m: Matrix, v: Vector, u: Vector, s: real)
     requires |v| == |u| == |m[0]|
-    requires IsSpecNorm(s, m)
+    requires IsSpecNormUpperBound(s, m)
     ensures Distance(MV(m, v), MV(m, u)) <= s * Distance(v, u)
   {
     SpecNormPropertyHoldsForDifferenceVectors(m, s, v, u);
@@ -600,7 +739,7 @@ module Lipschitz {
   lemma SpecNormPropertyHoldsForDifferenceVectors(m: Matrix, s: real,
       v: Vector, u: Vector)
     requires |v| == |u| == |m[0]|
-    requires IsSpecNorm(s, m)
+    requires IsSpecNormUpperBound(s, m)
     ensures L2(MV(m, Minus(v, u))) <= s * Distance(v, u)
   {}
 

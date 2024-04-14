@@ -8,11 +8,51 @@ module BasicArithmetic {
     if x >= 0.0 then x else 0.0
   }
 
-  /** Positive square root (external implementation). */
+  /** Positive square root (abstract). */
   ghost opaque function {:axiom} Sqrt(x: real): (r: real)
     requires x >= 0.0
     ensures r >= 0.0
     ensures r * r == x
+
+  /** Positive 2^i'th root (abstract). */
+  ghost function Power2Root(x: real, i: nat): (r: real)
+    requires x >= 0.0
+  {
+    if i == 0 then x else Sqrt(Power2Root(x, i - 1))
+  }
+
+  /** Computes an upper bound on the positive square root of x. */
+  method SqrtUpperBound(x: real) returns (r: real)
+    requires x >= 0.0
+    ensures r >= Sqrt(x)
+  {
+    r := 1.0;
+    assume r >= Sqrt(x); // todo
+  }
+
+  /** Computes an upper bound on the positive square root of x. */
+  method Power2RootUpperBound(x: real, i: nat) returns (r: real)
+    requires x >= 0.0
+    ensures r >= Power2Root(x, i)
+  {
+    r := 1.0;
+    assume r >= Power2Root(x, i); // todo
+  }
+
+  lemma Power2RootDef(x: real, i: nat)
+    requires x >= 0.0
+    ensures Power2Root(x, i + 1) == Power2Root(Sqrt(x), i)
+  {}
+
+  lemma Power2RootMonotonic(x: real, y: real, i: nat)
+    requires 0.0 <= x <= y
+    ensures Power2Root(x, i) <= Power2Root(y, i)
+  {
+    if i != 0 {
+      Power2RootMonotonic(x, y, i - 1);
+      MonotonicSqrt(Power2Root(x, i - 1), Power2Root(y, i - 1));
+    }
+  }
 
   /** Absolute value of the given number. */
   ghost function Abs(x: real): real
@@ -21,7 +61,8 @@ module BasicArithmetic {
   }
 
   /** Square of the given number. */
-  ghost function Square(x: real): real
+  function Square(x: real): (r: real)
+    ensures r >= 0.0
   {
     x * x
   }
@@ -118,7 +159,9 @@ module BasicArithmetic {
   lemma MonotonicSquarePositive(x: real, y: real)
     requires 0.0 <= x <= y
     ensures Square(x) <= Square(y)
-  {}
+  {
+    assert 0.0 <= y;
+  }
 
   /** For any real number x, we have |x|^2 == x^2. */
   lemma AbsoluteSquare(x: real)
