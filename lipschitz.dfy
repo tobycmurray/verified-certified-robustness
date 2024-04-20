@@ -318,7 +318,7 @@ module Lipschitz {
   ghost function SpecNorm(m: Matrix): (r: real)
     ensures r >= 0.0
     ensures IsSpecNormUpperBound(r, m)
-    ensures !exists x: real :: x < r && IsSpecNormUpperBound(x, m)
+    ensures !exists x: real :: 0.0 <= x < r && IsSpecNormUpperBound(x, m)
 
   lemma SpecNormUpperBoundProperty(s: real, m: Matrix)
     requires s >= SpecNorm(m)

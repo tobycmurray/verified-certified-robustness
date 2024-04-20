@@ -22,12 +22,19 @@ module BasicArithmetic {
   }
 
   /** Computes an upper bound on the positive square root of x. */
-  method SqrtUpperBound(x: real) returns (r: real)
-    requires x >= 0.0
-    ensures r >= Sqrt(x)
+  method SqrtUpperBound(a: real) returns (r: real)
+    requires a >= 0.0
+    ensures r >= Sqrt(a)
   {
-    r := 1.0;
-    assume r >= Sqrt(x); // todo
+    r := 0.5 * (a + 1.0);
+    var i := 1;
+    while i < 10 // fixme: we'd like to stop when r * r <= a + e for some e
+      invariant r >= Sqrt(a) && r > 0.0
+    {
+      assert Square((r - Sqrt(a))) >= 0.0;
+      r := 0.5 * (r + a / r);
+      i := i + 1;
+    }
   }
 
   /** Computes an upper bound on the positive square root of x. */
