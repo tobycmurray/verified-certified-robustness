@@ -3,6 +3,8 @@ include "basic_arithmetic.dfy"
 module Lipschitz {
   import opened BasicArithmetic
 
+  const SQRT_ERROR_MARGIN := 0.000000000000000000000001
+
   /* ================================ Types ================================ */
 
   /* A vector is a non-empty sequence of reals. */
@@ -222,7 +224,7 @@ module Lipschitz {
   method FrobeniusNormUpperBound(m: Matrix) returns (r: real)
     ensures r >= FrobeniusNorm(m)
   {
-    r := SqrtUpperBound(SumPositiveMatrix(SquareMatrixElements(m)));
+    r := SqrtUpperBound(SumPositiveMatrix(SquareMatrixElements(m)), SQRT_ERROR_MARGIN);
   }
 
   function GetFirstColumn(m: Matrix): (r: Vector)
@@ -299,7 +301,7 @@ module Lipschitz {
     var G' := G;
     while i != N
       invariant 0 <= i <= N
-      invariant SpecNorm(G) <= RepeatSqrt(SpecNorm(G'), i)
+      invariant SpecNorm(G) <= Power2Root(SpecNorm(G'), i)
     {
       Assumption1(G');
       Power2RootMonotonic(SpecNorm(G'), Sqrt(SpecNorm(MM(Transpose(G'), G'))), i);
@@ -315,7 +317,7 @@ module Lipschitz {
     SpecNormUpperBoundProperty(s, G);
   }
 
-  ghost function SpecNorm(m: Matrix): (r: real)
+  ghost function {:axiom} SpecNorm(m: Matrix): (r: real)
     ensures r >= 0.0
     ensures IsSpecNormUpperBound(r, m)
     ensures !exists x: real :: 0.0 <= x < r && IsSpecNormUpperBound(x, m)
