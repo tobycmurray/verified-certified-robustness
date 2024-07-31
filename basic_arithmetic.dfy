@@ -21,13 +21,21 @@ module BasicArithmetic {
     if i == 0 then x else Sqrt(Power2Root(x, i - 1))
   }
 
-  /** Computes an upper bound on the positive square root of x. */
-  method Power2RootUpperBound(x: real, i: nat) returns (r: real)
+  method Power2RootUpperBound(x: real, i: nat, e: real) returns (r: real)
+    requires e > 0.0
     requires x >= 0.0
     ensures r >= Power2Root(x, i)
   {
-    r := 1.0;
-    assume {:axiom} r >= Power2Root(x, i); // todo
+    var j := i;
+    r := x;
+    while j > 0
+      invariant 0 <= j <= i
+      invariant r >= Power2Root(x, i - j)
+    {
+      MonotonicSqrt(Power2Root(x, i - j), r);
+      r := SqrtUpperBound(r, e);
+      j := j - 1;
+    }
   }
 
   lemma Power2RootDef(x: real, i: nat)
