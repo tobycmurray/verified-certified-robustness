@@ -108,31 +108,14 @@ module BasicArithmetic {
         calc {
           R - r;
           ==
-          calc {
+          calc == {
             r;
-            ==
-            0.5 * (R + x / R);
-            ==
             (R + x / R) / 2.0;
           }
           R - (R + x / R) / 2.0;
           >=
-          calc {
-            R + x / R;
-            <=
-            calc {
-              R;
-              >=
-              Sqrt(x);
-            }
-            {
-              SmallerDenominator(x, Sqrt(x), R);
-            }
-            R + x / Sqrt(x);
-          }
+          { SmallerDenominator(x, Sqrt(x), R); }
           R - (R + x / Sqrt(x)) / 2.0;
-          ==
-          R - (R + Sqrt(x)) / 2.0;
           ==
           (R - Sqrt(x)) / 2.0;
           >=
@@ -142,11 +125,9 @@ module BasicArithmetic {
         }
         assert R - r >= e / 2.0;
         assert 2.0 * R - 2.0 * r >= e;
-        assert (1.0 / e) * 2.0 * R - (1.0 / e) * 2.0 * r >= (1.0 / e) * e;
         assert 2.0 / e * R - 2.0 / e * r >= 1.0;
       }
     }
-    assert r < e || (r - e) * (r - e) <= x;
     if (r >= e) {
       PositiveSquare(r - e);
       MonotonicSqrt(r - e, Sqrt(x));
