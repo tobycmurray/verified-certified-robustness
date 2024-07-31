@@ -299,7 +299,7 @@ module Lipschitz {
     var G' := G;
     while i != N
       invariant 0 <= i <= N
-      invariant SpecNorm(G) <= Power2Root(SpecNorm(G'), i)
+      invariant SpecNorm(G) <= RepeatSqrt(SpecNorm(G'), i)
     {
       Assumption1(G');
       Power2RootMonotonic(SpecNorm(G'), Sqrt(SpecNorm(MM(Transpose(G'), G'))), i);
@@ -376,11 +376,10 @@ module Lipschitz {
 
   /**
    * Certifies the output vector v' against the error ball e and Lipschitz
-   * constant l. If certification succeeds (returns true), any input
+   * constants L. If certification succeeds (returns true), any input
    * corresponding to v' is verified robust.
    */
-  method Certify(v': Vector, e: real, L: seq<real>) returns
-      (b: bool)
+  method Certify(v': Vector, e: real, L: seq<real>) returns (b: bool)
     requires forall i | 0 <= i < |L| :: 0.0 <= L[i]
     requires |v'| == |L|
     ensures b ==> forall v: Vector, n: NeuralNetwork |
