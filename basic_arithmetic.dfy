@@ -61,8 +61,6 @@ module BasicArithmetic {
     ensures 0.0 <= x * x
   {}
 
-  // ===========================================================================
-
   method SqrtUpperBound(x: real, e: real) returns (r: real)
     requires x >= 0.0
     requires e > 0.0
@@ -79,7 +77,7 @@ module BasicArithmetic {
     {
       ghost var R := r;
 
-      // lower bounds on R
+      // lower bound on R, necessary for termination proof
       assert R >= Sqrt(x) + e by {
         assert (r - e) * (r - e) > x;
         PositiveSquare(r - e);
@@ -88,7 +86,7 @@ module BasicArithmetic {
         assert R >= Sqrt(x) + e;
       }
 
-      // maintain upper bound
+      // proof for the update of r
       assert Sqrt(x) <= 0.5 * (r + x / r) by {
         PositiveSquare(r - Sqrt(x));
         assert 0.0 <= (r - Sqrt(x)) * (r - Sqrt(x)); // 0.0 <= any square
@@ -105,22 +103,17 @@ module BasicArithmetic {
       
       // termination
       assert 2.0 / e * R - 2.0 / e * r >= 1.0 by {
-        calc {
+        calc >= {
           R - r;
-          ==
-          calc == {
+          calc {
             r;
             (R + x / R) / 2.0;
           }
           R - (R + x / R) / 2.0;
-          >=
           { SmallerDenominator(x, Sqrt(x), R); }
           R - (R + x / Sqrt(x)) / 2.0;
-          ==
           (R - Sqrt(x)) / 2.0;
-          >=
           (Sqrt(x) + e - Sqrt(x)) / 2.0;
-          ==
           e / 2.0;
         }
         assert R - r >= e / 2.0;
@@ -132,7 +125,5 @@ module BasicArithmetic {
       PositiveSquare(r - e);
       MonotonicSqrt(r - e, Sqrt(x));
     }
-    assert r - e <= Sqrt(x);
-    assert r <= Sqrt(x) + e;
   }
 }
