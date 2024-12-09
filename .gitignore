@@ -1,4 +1,11 @@
 main.cs
 main.dll
 main.runtimeconfig.json
+main-cs.dtr
+main.csproj
+main.deps.json
+main.pdb
+main
+obj/
+ref/
 .DS_Store

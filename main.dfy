@@ -1,28 +1,37 @@
 include "IO/FileIO.dfy"
 include "string_utils.dfy"
 include "lipschitz.dfy"
+include "basic_arithmetic.dfy"
 
 module MainModule {
   import FileIO
   import StringUtils
   import opened Lipschitz
+  import BasicArithmetic
 
   method Main(args: seq<string>)
     decreases *
   {
     /* ===================== Generate Lipschitz bounds ===================== */
-    print "Generating Lipschitz bounds...\n";
     // Parse neural network from file (unverified).
+    print "Parsing...\n";
     var neuralNetStr: string := ReadFromFile("Input/neural_network.txt");
     var maybeNeuralNet: (bool, NeuralNetwork) := ParseNeuralNet(neuralNetStr);
     expect maybeNeuralNet.0, "Failed to parse neural network.";
     var neuralNet: NeuralNetwork := maybeNeuralNet.1;
     // Generate spectral norms for the matrices comprising the neural net.
     // We currently assume an external implementation for generating these.
+    print "Generating spectral norms...\n";
     var specNorms: seq<real> := GenerateSpecNorms(neuralNet);
     // Generate the Lipschitz bounds for each logit in the output vector.
+    print "Generating Lipschitz bounds...\n";
     var lipBounds: seq<real> := GenLipBounds(neuralNet, specNorms);
-    print "Bounds generated: ", lipBounds, "\n\n";
+    print "Bounds generated:\n";
+    for i: nat := 0 to |lipBounds| {
+      // BasicArithmetic.PrintReal(lipBounds[i], 20);
+      print lipBounds[i];
+      print "\n\n";
+    }
 
     /* ================= Repeatedly certify output vectors ================= */
 
@@ -97,11 +106,13 @@ module MainModule {
   method ParseNeuralNet(xs: string) returns (t: (bool, NeuralNetwork))
     // Todo: Verify
   {
+    var err: string := "";
     var matrices: seq<Matrix> := [];
     var i := 0;
     while i < |xs| {
       // Expect matrix
       if i >= |xs| - 1 || xs[i..i+2] != "[[" {
+        print "One";
         return (false, [[[0.0]]]);
       }
       var j := i + 2;
@@ -110,6 +121,7 @@ module MainModule {
         decreases |xs| - j
       {
         if j >= |xs| {
+          print "Two";
           return (false, [[[0.0]]]);
         }
         j := j + 1;
@@ -122,6 +134,7 @@ module MainModule {
       while k < |ys| {
         // Expect vector
         if ys[k] != '[' {
+          print "Three";
           return (false, [[[0.0]]]);
         }
         var l := k;
@@ -130,6 +143,7 @@ module MainModule {
           decreases |ys| - l
         {
           if l + 1 >= |ys| {
+            print "Four";
             return (false, [[[0.0]]]);
           }
           l := l + 1;
@@ -140,6 +154,7 @@ module MainModule {
         var realsStr: seq<string> := StringUtils.Split(zs, ',');
         var areReals: bool := AreReals(realsStr);
         if !areReals {
+          print "Five\n";
           return (false, [[[0.0]]]);
         }
         var v: seq<real> := ParseReals(realsStr);
@@ -152,14 +167,27 @@ module MainModule {
       }
       var matrixWellFormed := IsMatrixWellFormed(vectors);
       if !matrixWellFormed {
+        print "Six";
         return (false, [[[0.0]]]);
       }
       var matrix: Matrix := vectors;
-      matrices := matrices + [matrix];
+      matrices := matrices + [Transpose(matrix)]; // need to transpose for comptability with python output
       i := j + 1; // xs[j] == ',' or EOF
     }
     var neuralNetWellFormed := IsNeuralNetWellFormed(matrices);
     if !neuralNetWellFormed {
+      print "Seven\n";
+      print |matrices|, "\n";
+      if |matrices| == 2 {
+        print |matrices[0]|, "\n";
+        if |matrices[0]| > 0 {
+          print |matrices[0][0]|, "\n";
+        }
+        print |matrices[1]|, "\n";
+        if |matrices[1]| > 0 {
+          print |matrices[1][0]|, "\n";
+        }
+      }
       return (false, [[[0.0]]]);
     }
     var neuralNet: NeuralNetwork := matrices;
@@ -219,6 +247,8 @@ module MainModule {
     {
       var isReal := StringUtils.IsReal(realsStr[i]);
       if !isReal {
+        print realsStr[i];
+        print "\n";
         return false;
       }
     }

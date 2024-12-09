@@ -3,8 +3,6 @@ include "basic_arithmetic.dfy"
 module Lipschitz {
   import opened BasicArithmetic
 
-  const SQRT_ERROR_MARGIN := 0.000000000000000000000001
-
   /* ================================ Types ================================ */
 
   /* A vector is a non-empty sequence of reals. */
@@ -177,7 +175,7 @@ module Lipschitz {
     ensures |r| == |n|
     ensures forall i | 0 <= i < |n| :: IsSpecNormUpperBound(r[i], n[i])
   {
-    var GRAM_ITERATIONS := 10;
+    var GRAM_ITERATIONS := 50;
 
     var i := 0;
     r := [];
@@ -224,7 +222,7 @@ module Lipschitz {
   method FrobeniusNormUpperBound(m: Matrix) returns (r: real)
     ensures r >= FrobeniusNorm(m)
   {
-    r := SqrtUpperBound(SumPositiveMatrix(SquareMatrixElements(m)), SQRT_ERROR_MARGIN);
+    r := SqrtUpperBound(SumPositiveMatrix(SquareMatrixElements(m)));
   }
 
   function GetFirstColumn(m: Matrix): (r: Vector)
@@ -316,6 +314,48 @@ module Lipschitz {
     s := Power2RootUpperBound(s, N);
     SpecNormUpperBoundProperty(s, G);
   }
+
+
+
+
+  // method GramIterationSimple(G0: Matrix, N: int) returns (r: real)
+  //   requires N >= 0
+  //   ensures r >= SpecNorm(G0)
+  // {
+  //   var i := 0;
+  //   var G := G0;
+  //   while i != N
+  //     invariant 0 <= i <= N
+  //     invariant SpecNorm(G0) <= Power2Root(SpecNorm(G), i)
+  //   {
+  //     Assumption1(G);
+  //     Power2RootMonotonic(SpecNorm(G), Sqrt(SpecNorm(MM(Transpose(G), G))), i);
+  //     G := MM(Transpose(G), G);
+  //     Power2RootDef(SpecNorm(G), i);
+  //     i := i + 1;
+  //   }
+  //   Assumption2(G);
+  //   Power2RootMonotonic(SpecNorm(G), FrobeniusNorm(G), N);
+  //   assert SpecNorm(G0) <= Power2Root(SpecNorm(G), i);
+  //   assert SpecNorm(G0) <= Power2Root(FrobeniusNorm(G), i);
+  //   r := FrobeniusNormUpperBound(G);
+  //   Power2RootMonotonic(FrobeniusNorm(G), r, N);
+  //   assert r >= 0.0;
+  //   assert SpecNorm(G0) <= Power2Root(r, i);
+  //   while i != 0
+  //     invariant 0 <= i <= N
+  //     invariant SpecNorm(G0) <= Power2Root(r, i)
+  //   {
+  //     r := SqrtUpperBound(r, SQRT_ERROR_MARGIN);
+  //     i := i - 1;
+  //   }
+  //   assert SpecNorm(G0) <= Power2Root(r, 0);
+  //   assert SpecNorm(G0) <= r;
+  //   SpecNormUpperBoundProperty(r, G0);
+  // }
+
+
+
 
   ghost function {:axiom} SpecNorm(m: Matrix): (r: real)
     ensures r >= 0.0
@@ -458,7 +498,8 @@ module Lipschitz {
       |n[|n|-1]| == |L| && AreLipBounds(n, L) &&
       |v| == |u| && CompatibleInput(v, n) && Distance(v, u) <= e ::
       Abs(NN(n, v)[x] - NN(n, u)[x]) <= L[x] * e
-  {}
+  {
+  }
 
   /**
    * The robustness property is the key specification for the project. An
@@ -557,6 +598,10 @@ module Lipschitz {
       var bound := GenLipBound(n, i, s);
       r := r + [bound];
       i := i + 1;
+      assert forall j | 0 <= j < i :: IsLipBound(n, r[j], j) by {
+        assert forall j | 0 <= j < i - 1 :: IsLipBound(n, r[j], j);
+        assert IsLipBound(n, r[i-1], i-1);
+      }
     }
     assert AreLipBounds(n, r);
   }
@@ -574,7 +619,7 @@ module Lipschitz {
     ensures IsLipBound(n, r, l)
     ensures r >= 0.0
   {
-    var GRAM_ITERATIONS := 10; // fixme: multiple instances of this variable exist
+    var GRAM_ITERATIONS := 50; // fixme: multiple instances of this variable exist
 
     var trimmedLayer := [n[|n|-1][l]];
     var trimmedSpecNorm := GramIterationSimple(trimmedLayer, GRAM_ITERATIONS);
@@ -633,7 +678,8 @@ module Lipschitz {
     requires |v| == |u|
     requires Product(s) == s' * Product(s0)
     ensures Product(s) * Distance(v, u) == s' * Product(s0) * Distance(v, u)
-  {}
+  {
+  }
 
   /** An obvious helper-lemma to SpecNormProductIsLipBound. */
   lemma MultiplicationInequality(n: NeuralNetwork, v: Vector, u: Vector,
@@ -645,7 +691,8 @@ module Lipschitz {
     requires Distance(NN(n, v), NN(n, u)) <= s' * Distance(v', u')
     requires Distance(v', u') <= Product(s0) * Distance(v, u)
     ensures Distance(NN(n, v), NN(n, u)) <= s' * Product(s0) * Distance(v, u)
-  {}
+  {
+  }
 
   /** 
    * As seen in the method GenLipBound, computing a Lipschitz bound on logit l
@@ -742,7 +789,8 @@ module Lipschitz {
     requires |v| == |u| == |m[0]|
     requires IsSpecNormUpperBound(s, m)
     ensures L2(MV(m, Minus(v, u))) <= s * Distance(v, u)
-  {}
+  {
+  }
 
   /** 
    * Matrix-vector products distribute over subtraction: 

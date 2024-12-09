@@ -1,29 +1,36 @@
 module StringUtils {
 
   /**
-   * Returns the real (non-negative) number represented by xs.
-   * For example, ParseReal('4.01') == 4.01.
-   * 
+   * Returns the real number represented by s.
    * Note: This method is not verified.
    */
-  method ParseReal(xs: string) returns (r: real)
-    requires IsReal(xs)
+  method ParseReal(s: string) returns (r: real)
+    requires IsReal(s)
   {
-    r := ParseDigit(xs[0]) as real;
-    var i := 1;
+    var neg: bool := false;
+    var i: int := 0;
+    if s[i] == '-' {
+      neg := true;
+      i := i + 1;
+    }
+    r := ParseDigit(s[i]) as real;
+    i := i + 1;
     var periodIndex: int := 1;
-    while i < |xs| {
-      if IsDigit(xs[i]) {
-        r := r * 10.0 + (ParseDigit(xs[i]) as real);
+    while i < |s| {
+      if IsDigit(s[i]) {
+        r := r * 10.0 + (ParseDigit(s[i]) as real);
       } else {
         periodIndex := i;
       }
       i := i + 1;
     }
     i := 0;
-    while i < |xs| - periodIndex - 1 {
+    while i < |s| - periodIndex - 1 {
       r := r / 10.0;
       i := i + 1;
+    }
+    if neg {
+      r := r * (-1.0);
     }
   }
 
@@ -49,17 +56,14 @@ module StringUtils {
   }
 
   /**
-   * Returns true iff xs represents a (non-negative) real number.
-   * Todo: Add support for negative numbers (?).
+   * Returns true iff s represents a real number.
    */
-  predicate IsReal(xs: string) {
-    xs != "" &&
-    IsDigit(xs[0]) &&
-    IsDigit(xs[|xs|-1]) &&
-    '.' in xs &&
-    !(exists i :: 0 <= i < |xs| && !IsDigit(xs[i]) && xs[i] != '.') &&
-    !(exists i, j :: 0 <= i < |xs| && 0 <= j < |xs| && i != j &&
-        xs[i] == '.' && xs[j] == '.')
+  predicate IsReal(s: string) {
+    |s| >= 3
+    && (IsDigit(s[0]) || (s[0] == '-' && IsDigit(s[1])))
+    && IsDigit(s[|s|-1])
+    && exists i :: 0 <= i < |s| && s[i] == '.'
+    && forall j :: 1 <= j < |s| && j != i ==> IsDigit(s[j])
   }
 
   /**

@@ -21,8 +21,7 @@ module BasicArithmetic {
     if i == 0 then x else Sqrt(Power2Root(x, i - 1))
   }
 
-  method Power2RootUpperBound(x: real, i: nat, e: real) returns (r: real)
-    requires e > 0.0
+  method Power2RootUpperBound(x: real, i: nat) returns (r: real)
     requires x >= 0.0
     ensures r >= Power2Root(x, i)
   {
@@ -33,7 +32,7 @@ module BasicArithmetic {
       invariant r >= Power2Root(x, i - j)
     {
       MonotonicSqrt(Power2Root(x, i - j), r);
-      r := SqrtUpperBound(r, e);
+      r := SqrtUpperBound(r);
       j := j - 1;
     }
   }
@@ -119,22 +118,22 @@ module BasicArithmetic {
     }
   }
 
-  /** For reals x and y where 0 <= y, if x^2 <= y^2 then x <= y. */
-  lemma MonotonicSqrt2(x: real, y: real)
-    requires 0.0 <= y
-    requires x * x <= y * y
-    ensures x <= y
-  {
-    if x > y {
-      if y == 0.0 {
-        Increase(x, 0.0, x);
-      } else {
-        Increase(x, y, x);
-        Increase(x, y, y);
-      }
-      assert false;
-    }
-  }
+  // /** For reals x and y where 0 <= y, if x^2 <= y^2 then x <= y. */
+  // lemma MonotonicSqrt2(x: real, y: real)
+  //   requires 0.0 <= y
+  //   requires x * x <= y * y
+  //   ensures x <= y
+  // {
+  //   if x > y {
+  //     if y == 0.0 {
+  //       Increase(x, 0.0, x);
+  //     } else {
+  //       Increase(x, y, x);
+  //       Increase(x, y, y);
+  //     }
+  //     assert false;
+  //   }
+  // }
 
   /** For reals x and y, and some real z > 0, if x > y then x * z > y * z. */
   lemma Increase(x: real, y: real, z: real)
@@ -144,27 +143,27 @@ module BasicArithmetic {
   {}
 
   /** For any real number x, if x * x == 0 then x == 0. */
-  lemma Zero(x: real)
-    requires x * x == 0.0
-    ensures x == 0.0
-  {
-    // Assume the conclusion is false
-    if x != 0.0 {
-      // Case 1: x > 0
-      if x > 0.0 {
-        // Then x * x > x * 0
-        Increase(x, 0.0, x);
-        // This violates the requires clause
-        assert false;
-      // Case 2: x < 0
-      } else if x < 0.0 {
-        // Then -x * -x > -x * 0
-        Increase(-x, 0.0, -x);
-        // This violates the requires clause
-        assert false;
-      }
-    }
-  }
+  // lemma Zero(x: real)
+  //   requires x * x == 0.0
+  //   ensures x == 0.0
+  // {
+  //   // Assume the conclusion is false
+  //   if x != 0.0 {
+  //     // Case 1: x > 0
+  //     if x > 0.0 {
+  //       // Then x * x > x * 0
+  //       Increase(x, 0.0, x);
+  //       // This violates the requires clause
+  //       assert false;
+  //     // Case 2: x < 0
+  //     } else if x < 0.0 {
+  //       // Then -x * -x > -x * 0
+  //       Increase(-x, 0.0, -x);
+  //       // This violates the requires clause
+  //       assert false;
+  //     }
+  //   }
+  // }
 
   /** For non-negative reals x and y, if y < x then y^2 < x^2. */
   lemma IncreaseSquare(x: real, y: real)
@@ -222,69 +221,83 @@ module BasicArithmetic {
     ensures 0.0 <= x * x
   {}
 
-  method SqrtUpperBound(x: real, e: real) returns (r: real)
+  /**
+   * Applies the Babylonian method N times to yield an upper bound on the
+   * square root of x.
+   */
+  method SqrtUpperBound(x: real) returns (r: real)
     requires x >= 0.0
-    requires e > 0.0
-    ensures Sqrt(x) <= r <= Sqrt(x) + e
+    ensures r >= Sqrt(x)
   {
+    var N := 100;
     if x == 0.0 {
       SqrtZeroIsZero();
       return 0.0;
     }
     r := if x < 1.0 then 1.0 else x;
-    while r >= e && (r - e) * (r - e) > x
-      invariant 0.0 < Sqrt(x) <= r
-      decreases 2.0 / e * r
+    var i := 0;
+    while i < N
+      invariant r >= Sqrt(x) >= 0.0
     {
-      ghost var R := r;
-
-      // lower bound on R, necessary for termination proof
-      assert R >= Sqrt(x) + e by {
-        assert (r - e) * (r - e) > x;
-        PositiveSquare(r - e);
-        MonotonicSqrt2(Sqrt(x), r - e);
-        assert r - e >= Sqrt(x);
-        assert R >= Sqrt(x) + e;
-      }
-
-      // proof for the update of r
-      assert Sqrt(x) <= 0.5 * (r + x / r) by {
-        PositiveSquare(r - Sqrt(x));
+      assert Sqrt(x) <= (r + x / r) / 2.0 by {
         assert 0.0 <= (r - Sqrt(x)) * (r - Sqrt(x)); // 0.0 <= any square
         assert 0.0 <= r * r - 2.0 * r * Sqrt(x) + x; // distribute
         assert 0.0 <= (r * r - 2.0 * r * Sqrt(x) + x) / r; // divide by r
-        assert 0.0 <=  r     - 2.0 * Sqrt(x)     + x / r; // simplify
+        assert 0.0 <= r - 2.0 * Sqrt(x) + x / r; // simplify
         assert 2.0 * Sqrt(x) <= r + x / r; // rearrange
-        assert Sqrt(x) <= 0.5 * (r + x / r); // divide by 2
+        assert Sqrt(x) <= (r + x / r) / 2.0; // divide by 2
       }
-      
-      // update r
-      r := 0.5 * (r + x / r);
-      assert Sqrt(x) <= r;
-      
-      // termination
-      assert 2.0 / e * R - 2.0 / e * r >= 1.0 by {
-        calc >= {
-          R - r;
-          calc {
-            r;
-            (R + x / R) / 2.0;
-          }
-          R - (R + x / R) / 2.0;
-          { SmallerDenominator(x, Sqrt(x), R); }
-          R - (R + x / Sqrt(x)) / 2.0;
-          (R - Sqrt(x)) / 2.0;
-          (Sqrt(x) + e - Sqrt(x)) / 2.0;
-          e / 2.0;
-        }
-        assert R - r >= e / 2.0;
-        assert 2.0 * R - 2.0 * r >= e;
-        assert 2.0 / e * R - 2.0 / e * r >= 1.0;
-      }
+      r := RoundUp((r + x / r) / 2.0);
+      i := i + 1;
     }
-    if (r >= e) {
-      PositiveSquare(r - e);
-      MonotonicSqrt2(r - e, Sqrt(x));
+  }
+
+  /**
+   * Rounds up x to 64 decimal places.
+   */
+  method RoundUp(x: real) returns (r: real)
+    requires x >= 0.0
+    ensures r >= x
+  {
+    var N := 64;
+    var i := 0;
+    r := x;
+    while r != r.Floor as real && i < N
+      decreases N - i
+      invariant r == x * Pow(10.0, i)
+    {
+      r := r * 10.0;
+      i := i + 1;
     }
+    if r != r.Floor as real {
+      r := r + 1.0;
+    }
+    // this line must be executed even if r == r.Floor because otherwise Dafny
+    // will continue to store trailing zeros after the decimal point in r
+    r := r.Floor as real;
+    while i > 0
+      invariant r >= x * Pow(10.0, i)
+    {
+      r := r / 10.0;
+      i := i - 1;
+    }
+  }
+
+  ghost function Pow(x: real, y: nat): real {
+    if y == 0 then 1.0 else x * Pow(x, y - 1)
+  }
+
+  method PrintReal(x: real, n: nat) {
+    var z: int := x.Floor;
+    print z;
+    print '.';
+    var y: real := x;
+    var i: nat := 0;
+    while i < n {
+      y := y * 10.0;
+      z := z * 10;
+      i := i + 1;
+    }
+    print y.Floor - z;
   }
 }
