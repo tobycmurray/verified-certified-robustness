@@ -15,7 +15,7 @@ module MainModule {
     /* ===================== Generate Lipschitz bounds ===================== */
     // Parse neural network from file (unverified).
     print "Parsing...\n";
-    var neuralNetStr: string := ReadFromFile("Input/neural_network.txt");
+    var neuralNetStr: string := ReadFromFile("Input/neural_network_3.txt");
     var maybeNeuralNet: (bool, NeuralNetwork) := ParseNeuralNet(neuralNetStr);
     expect maybeNeuralNet.0, "Failed to parse neural network.";
     var neuralNet: NeuralNetwork := maybeNeuralNet.1;
