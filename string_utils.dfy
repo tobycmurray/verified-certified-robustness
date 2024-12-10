@@ -59,11 +59,11 @@ module StringUtils {
    * Returns true iff s represents a real number.
    */
   predicate IsReal(s: string) {
-    |s| >= 3
-    && (IsDigit(s[0]) || (s[0] == '-' && IsDigit(s[1])))
-    && IsDigit(s[|s|-1])
-    && exists i :: 0 <= i < |s| && s[i] == '.'
-    && forall j :: 1 <= j < |s| && j != i ==> IsDigit(s[j])
+    |s| >= 3 &&
+    (IsDigit(s[0]) || (s[0] == '-' && IsDigit(s[1]))) &&
+    IsDigit(s[|s|-1]) &&
+    exists i :: 0 <= i < |s| && s[i] == '.' &&
+      forall j :: 1 <= j < |s| && j != i ==> IsDigit(s[j])
   }
 
   /**

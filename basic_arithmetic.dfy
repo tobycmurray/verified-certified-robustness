@@ -1,5 +1,10 @@
 module BasicArithmetic {
 
+  const ROUNDING_PRECISION := 8
+  const SQRT_ITERATIONS := 1000
+
+  /* =========================== Ghost Functions =========================== */
+
   /** The ReLu activation function. */
   ghost opaque function Relu(x: real): (r: real)
     ensures x >= 0.0 ==> r == x
@@ -21,6 +26,32 @@ module BasicArithmetic {
     if i == 0 then x else Sqrt(Power2Root(x, i - 1))
   }
 
+  /** Absolute value of the given number. */
+  ghost function Abs(x: real): real
+  {
+    if x >= 0.0 then x else -x
+  }
+
+  /** Represents x^y. */
+  ghost function Pow(x: real, y: nat): real {
+    if y == 0 then 1.0 else x * Pow(x, y - 1)
+  }
+
+  /* ========================= Concrete Functions ========================== */
+
+  /** Square of the given number. */
+  function Square(x: real): (r: real)
+    ensures r >= 0.0
+  {
+    x * x
+  }
+
+  /* =============================== Methods =============================== */
+
+  /**
+   * Computes an upper bound on the 2^i'th root of x by repeatedly taking its
+   * square root.
+   */
   method Power2RootUpperBound(x: real, i: nat) returns (r: real)
     requires x >= 0.0
     ensures r >= Power2Root(x, i)
@@ -37,6 +68,87 @@ module BasicArithmetic {
     }
   }
 
+  /**
+   * Applies the Babylonian method SQRT_ITERATIONS times to yield an upper bound
+   * on the square root of x.
+   */
+  method SqrtUpperBound(x: real) returns (r: real)
+    requires x >= 0.0
+    ensures r >= Sqrt(x)
+  {
+    if x == 0.0 {
+      SqrtZeroIsZero();
+      return 0.0;
+    }
+    r := if x < 1.0 then 1.0 else x;
+    var i := 0;
+    while i < SQRT_ITERATIONS
+      invariant r >= Sqrt(x) > 0.0
+    {
+      var old_r := r;
+      assert Sqrt(x) <= (r + x / r) / 2.0 by {
+        assert 0.0 <= (r - Sqrt(x)) * (r - Sqrt(x)); // 0.0 <= any square
+        assert 0.0 <= r * r - 2.0 * r * Sqrt(x) + x; // distribute
+        assert 0.0 <= (r * r - 2.0 * r * Sqrt(x) + x) / r; // divide by r
+        assert 0.0 <= r - 2.0 * Sqrt(x) + x / r; // simplify
+        assert 2.0 * Sqrt(x) <= r + x / r; // rearrange
+        assert Sqrt(x) <= (r + x / r) / 2.0; // divide by 2
+      }
+      r := RoundUp((r + x / r) / 2.0);
+      i := i + 1;
+      if (old_r - r < 0.000000001) { break; }
+    }
+  }
+
+  /**
+   * Rounds up x to ROUNDING_PRECISION decimal places.
+   */
+  method RoundUp(x: real) returns (r: real)
+    requires x >= 0.0
+    ensures r >= x
+  {
+    var i := 0;
+    r := x;
+    while r != r.Floor as real && i < ROUNDING_PRECISION
+      decreases ROUNDING_PRECISION - i
+      invariant r == x * Pow(10.0, i)
+    {
+      r := r * 10.0;
+      i := i + 1;
+    }
+    if r != r.Floor as real {
+      r := r + 1.0;
+    }
+    // this line must be executed even if r == r.Floor because otherwise Dafny
+    // will continue to store trailing zeros after the decimal point in r
+    r := r.Floor as real;
+    while i > 0
+      invariant r >= x * Pow(10.0, i)
+    {
+      r := r / 10.0;
+      i := i - 1;
+    }
+  }
+
+  /**
+   * Prints the first n digits of x.
+   */
+  method PrintReal(x: real, n: nat) {
+    var z: int := x.Floor;
+    print z;
+    print '.';
+    var y: real := x;
+    var i: nat := 0;
+    while i < n {
+      y := y * 10.0;
+      z := z * 10;
+      i := i + 1;
+    }
+    print y.Floor - z;
+  }
+
+  /* =============================== Lemmas ================================ */
+
   lemma Power2RootDef(x: real, i: nat)
     requires x >= 0.0
     ensures Power2Root(x, i + 1) == Power2Root(Sqrt(x), i)
@@ -50,19 +162,6 @@ module BasicArithmetic {
       Power2RootMonotonic(x, y, i - 1);
       MonotonicSqrt(Power2Root(x, i - 1), Power2Root(y, i - 1));
     }
-  }
-
-  /** Absolute value of the given number. */
-  ghost function Abs(x: real): real
-  {
-    if x >= 0.0 then x else -x
-  }
-
-  /** Square of the given number. */
-  function Square(x: real): (r: real)
-    ensures r >= 0.0
-  {
-    x * x
   }
 
   /** 
@@ -118,52 +217,12 @@ module BasicArithmetic {
     }
   }
 
-  // /** For reals x and y where 0 <= y, if x^2 <= y^2 then x <= y. */
-  // lemma MonotonicSqrt2(x: real, y: real)
-  //   requires 0.0 <= y
-  //   requires x * x <= y * y
-  //   ensures x <= y
-  // {
-  //   if x > y {
-  //     if y == 0.0 {
-  //       Increase(x, 0.0, x);
-  //     } else {
-  //       Increase(x, y, x);
-  //       Increase(x, y, y);
-  //     }
-  //     assert false;
-  //   }
-  // }
-
   /** For reals x and y, and some real z > 0, if x > y then x * z > y * z. */
   lemma Increase(x: real, y: real, z: real)
     requires z > 0.0
     requires x > y
     ensures x * z > y * z
   {}
-
-  /** For any real number x, if x * x == 0 then x == 0. */
-  // lemma Zero(x: real)
-  //   requires x * x == 0.0
-  //   ensures x == 0.0
-  // {
-  //   // Assume the conclusion is false
-  //   if x != 0.0 {
-  //     // Case 1: x > 0
-  //     if x > 0.0 {
-  //       // Then x * x > x * 0
-  //       Increase(x, 0.0, x);
-  //       // This violates the requires clause
-  //       assert false;
-  //     // Case 2: x < 0
-  //     } else if x < 0.0 {
-  //       // Then -x * -x > -x * 0
-  //       Increase(-x, 0.0, -x);
-  //       // This violates the requires clause
-  //       assert false;
-  //     }
-  //   }
-  // }
 
   /** For non-negative reals x and y, if y < x then y^2 < x^2. */
   lemma IncreaseSquare(x: real, y: real)
@@ -209,97 +268,5 @@ module BasicArithmetic {
     AbsoluteSquare(y);
     // 3: |y|^2 == y^2
     // From 1, 2, 3: x^2 <= y^2
-  }
-
-  lemma SmallerDenominator(x: real, y: real, z: real)
-    requires 0.0 <= x
-    requires 0.0 < y <= z
-    ensures x / z <= x / y
-  {}
-
-  lemma PositiveSquare(x: real)
-    ensures 0.0 <= x * x
-  {}
-
-  /**
-   * Applies the Babylonian method N times to yield an upper bound on the
-   * square root of x.
-   */
-  method SqrtUpperBound(x: real) returns (r: real)
-    requires x >= 0.0
-    ensures r >= Sqrt(x)
-  {
-    var N := 1000;
-    if x == 0.0 {
-      SqrtZeroIsZero();
-      return 0.0;
-    }
-    r := if x < 1.0 then 1.0 else x;
-    var i := 0;
-    while i < N
-      invariant r >= Sqrt(x) >= 0.0
-    {
-      var old_r := r;
-      assert Sqrt(x) <= (r + x / r) / 2.0 by {
-        assert 0.0 <= (r - Sqrt(x)) * (r - Sqrt(x)); // 0.0 <= any square
-        assert 0.0 <= r * r - 2.0 * r * Sqrt(x) + x; // distribute
-        assert 0.0 <= (r * r - 2.0 * r * Sqrt(x) + x) / r; // divide by r
-        assert 0.0 <= r - 2.0 * Sqrt(x) + x / r; // simplify
-        assert 2.0 * Sqrt(x) <= r + x / r; // rearrange
-        assert Sqrt(x) <= (r + x / r) / 2.0; // divide by 2
-      }
-      r := RoundUp((r + x / r) / 2.0);
-      i := i + 1;
-      if (old_r - r < 0.000000001) { break; }
-    }
-  }
-
-  /**
-   * Rounds up x to 64 decimal places.
-   */
-  method RoundUp(x: real) returns (r: real)
-    requires x >= 0.0
-    ensures r >= x
-  {
-    var N := 64;
-    var i := 0;
-    r := x;
-    while r != r.Floor as real && i < N
-      decreases N - i
-      invariant r == x * Pow(10.0, i)
-    {
-      r := r * 10.0;
-      i := i + 1;
-    }
-    if r != r.Floor as real {
-      r := r + 1.0;
-    }
-    // this line must be executed even if r == r.Floor because otherwise Dafny
-    // will continue to store trailing zeros after the decimal point in r
-    r := r.Floor as real;
-    while i > 0
-      invariant r >= x * Pow(10.0, i)
-    {
-      r := r / 10.0;
-      i := i - 1;
-    }
-  }
-
-  ghost function Pow(x: real, y: nat): real {
-    if y == 0 then 1.0 else x * Pow(x, y - 1)
-  }
-
-  method PrintReal(x: real, n: nat) {
-    var z: int := x.Floor;
-    print z;
-    print '.';
-    var y: real := x;
-    var i: nat := 0;
-    while i < n {
-      y := y * 10.0;
-      z := z * 10;
-      i := i + 1;
-    }
-    print y.Floor - z;
   }
 }
