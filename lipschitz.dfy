@@ -175,7 +175,7 @@ module Lipschitz {
     ensures |r| == |n|
     ensures forall i | 0 <= i < |n| :: IsSpecNormUpperBound(r[i], n[i])
   {
-    var GRAM_ITERATIONS := 50;
+    var GRAM_ITERATIONS := 8;
 
     var i := 0;
     r := [];
@@ -619,7 +619,7 @@ module Lipschitz {
     ensures IsLipBound(n, r, l)
     ensures r >= 0.0
   {
-    var GRAM_ITERATIONS := 50; // fixme: multiple instances of this variable exist
+    var GRAM_ITERATIONS := 8; // fixme: multiple instances of this variable exist
 
     var trimmedLayer := [n[|n|-1][l]];
     var trimmedSpecNorm := GramIterationSimple(trimmedLayer, GRAM_ITERATIONS);

@@ -229,7 +229,7 @@ module BasicArithmetic {
     requires x >= 0.0
     ensures r >= Sqrt(x)
   {
-    var N := 100;
+    var N := 1000;
     if x == 0.0 {
       SqrtZeroIsZero();
       return 0.0;
@@ -239,6 +239,7 @@ module BasicArithmetic {
     while i < N
       invariant r >= Sqrt(x) >= 0.0
     {
+      var old_r := r;
       assert Sqrt(x) <= (r + x / r) / 2.0 by {
         assert 0.0 <= (r - Sqrt(x)) * (r - Sqrt(x)); // 0.0 <= any square
         assert 0.0 <= r * r - 2.0 * r * Sqrt(x) + x; // distribute
@@ -249,6 +250,7 @@ module BasicArithmetic {
       }
       r := RoundUp((r + x / r) / 2.0);
       i := i + 1;
+      if (old_r - r < 0.000000001) { break; }
     }
   }
 
