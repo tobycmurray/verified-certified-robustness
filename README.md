@@ -26,7 +26,8 @@ real numbers (used in proofs) to floating point numbers (used at compile time).
 Verify all files:
 `./verify_all.sh`\
 Build & run:
-`dafny run --unicode-char:false --target:cs main.dfy --input IO/FileIO.cs`
+`dafny build --unicode-char:false --target:cs main.dfy IO/FileIO.cs`
+`./main`
 
 The program expects a neural network schema located at
 `Input/neural_network.txt`. This file must strictly contain only the following

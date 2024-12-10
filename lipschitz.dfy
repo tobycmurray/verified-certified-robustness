@@ -3,6 +3,9 @@ include "basic_arithmetic.dfy"
 module Lipschitz {
   import opened BasicArithmetic
 
+  // maximum number of iterations to run the gram-iteration algorithm for
+  const GRAM_ITERATIONS := 8
+
   /* ================================ Types ================================ */
 
   /* A vector is a non-empty sequence of reals. */
@@ -175,15 +178,14 @@ module Lipschitz {
     ensures |r| == |n|
     ensures forall i | 0 <= i < |n| :: IsSpecNormUpperBound(r[i], n[i])
   {
-    var GRAM_ITERATIONS := 8;
-
     var i := 0;
     r := [];
     while i < |n|
       invariant 0 <= i == |r| <= |n|
       invariant forall j | 0 <= j < i :: IsSpecNormUpperBound(r[j], n[j])
     {
-      var specNorm := GramIterationSimple(n[i], GRAM_ITERATIONS);
+      print "Generating spectral norm ", i, " of ", |n|, "...\n";
+      var specNorm := GramIterationSimple(n[i]);
       assert specNorm >= SpecNorm(n[i]);
       r := r + [specNorm];
       i := i + 1;
@@ -222,6 +224,7 @@ module Lipschitz {
   method FrobeniusNormUpperBound(m: Matrix) returns (r: real)
     ensures r >= FrobeniusNorm(m)
   {
+    print "Computing frobenius norm upper bound for matrix of size ", |m|, "x", |m[0]|, "\n";
     r := SqrtUpperBound(SumPositiveMatrix(SquareMatrixElements(m)));
   }
 
@@ -291,32 +294,33 @@ module Lipschitz {
   //   if |v| == 1 then [v[0] / x] else [v[0] / x] + VectorDiv(v[1..], x)
   // }
 
-  method GramIterationSimple(G: Matrix, N: int) returns (s: real)
-    requires 0 <= N
+  method GramIterationSimple(G: Matrix) returns (s: real)
     ensures IsSpecNormUpperBound(s, G)
   {
     var i := 0;
     var G' := G;
-    while i != N
-      invariant 0 <= i <= N
+    while i != GRAM_ITERATIONS
+      invariant 0 <= i <= GRAM_ITERATIONS
       invariant SpecNorm(G) <= Power2Root(SpecNorm(G'), i)
     {
+      print "Gram iteration for matrix of size ", |G|, "x", |G[0]|, ". Iteration ", i+1, " of ", GRAM_ITERATIONS, "\n";
       Assumption1(G');
       Power2RootMonotonic(SpecNorm(G'), Sqrt(SpecNorm(MM(Transpose(G'), G'))), i);
       G' := MM(Transpose(G'), G');
       Power2RootDef(SpecNorm(G'), i);
       i := i + 1;
     }
+    print "Gram iteration done iterating\n";
     Assumption2(G');
-    Power2RootMonotonic(SpecNorm(G'), FrobeniusNorm(G'), N);
+    Power2RootMonotonic(SpecNorm(G'), FrobeniusNorm(G'), GRAM_ITERATIONS);
+    print "Gram iteration computing frobenius norm upper bound...\n";
     s := FrobeniusNormUpperBound(G');
-    Power2RootMonotonic(FrobeniusNorm(G'), s, N);
-    s := Power2RootUpperBound(s, N);
+    Power2RootMonotonic(FrobeniusNorm(G'), s, GRAM_ITERATIONS);
+    print "Gram iteration computing square root upper bound...\n";
+    s := Power2RootUpperBound(s, GRAM_ITERATIONS);
     SpecNormUpperBoundProperty(s, G);
+    print "Gram iteration done\n";
   }
-
-
-
 
   // method GramIterationSimple(G0: Matrix, N: int) returns (r: real)
   //   requires N >= 0
@@ -353,9 +357,6 @@ module Lipschitz {
   //   assert SpecNorm(G0) <= r;
   //   SpecNormUpperBoundProperty(r, G0);
   // }
-
-
-
 
   ghost function {:axiom} SpecNorm(m: Matrix): (r: real)
     ensures r >= 0.0
@@ -619,10 +620,8 @@ module Lipschitz {
     ensures IsLipBound(n, r, l)
     ensures r >= 0.0
   {
-    var GRAM_ITERATIONS := 8; // fixme: multiple instances of this variable exist
-
     var trimmedLayer := [n[|n|-1][l]];
-    var trimmedSpecNorm := GramIterationSimple(trimmedLayer, GRAM_ITERATIONS);
+    var trimmedSpecNorm := GramIterationSimple(trimmedLayer);
     var n' := n[..|n|-1] + [trimmedLayer];
     var s' := s[..|s|-1] + [trimmedSpecNorm];
     r := Product(s');

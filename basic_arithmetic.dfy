@@ -1,9 +1,15 @@
 module BasicArithmetic {
 
+  // number of decimal places to round reals to, for efficiency purposes
   const ROUNDING_PRECISION := 8
+  // maximum number of iterations to run the square-root algorithm for
   const SQRT_ITERATIONS := 1000
+  // satisfactory error margin for square roots, to optimise the algorithm
+  const SQRT_ERR_MARGIN := 0.001
 
+  /* ======================================================================= */
   /* =========================== Ghost Functions =========================== */
+  /* ======================================================================= */
 
   /** The ReLu activation function. */
   ghost opaque function Relu(x: real): (r: real)
@@ -37,7 +43,9 @@ module BasicArithmetic {
     if y == 0 then 1.0 else x * Pow(x, y - 1)
   }
 
+  /* ======================================================================= */
   /* ========================= Concrete Functions ========================== */
+  /* ======================================================================= */
 
   /** Square of the given number. */
   function Square(x: real): (r: real)
@@ -46,7 +54,9 @@ module BasicArithmetic {
     x * x
   }
 
+  /* ======================================================================= */
   /* =============================== Methods =============================== */
+  /* ======================================================================= */
 
   /**
    * Computes an upper bound on the 2^i'th root of x by repeatedly taking its
@@ -62,6 +72,7 @@ module BasicArithmetic {
       invariant 0 <= j <= i
       invariant r >= Power2Root(x, i - j)
     {
+      print "Power2RootUpperBound iteration ", i-j+1, " of ", i, "\n";
       MonotonicSqrt(Power2Root(x, i - j), r);
       r := SqrtUpperBound(r);
       j := j - 1;
@@ -85,6 +96,7 @@ module BasicArithmetic {
     while i < SQRT_ITERATIONS
       invariant r >= Sqrt(x) > 0.0
     {
+      // print "SqrtUpperBound iteration ", i, " of ", SQRT_ITERATIONS-1, "\n";
       var old_r := r;
       assert Sqrt(x) <= (r + x / r) / 2.0 by {
         assert 0.0 <= (r - Sqrt(x)) * (r - Sqrt(x)); // 0.0 <= any square
@@ -96,8 +108,9 @@ module BasicArithmetic {
       }
       r := RoundUp((r + x / r) / 2.0);
       i := i + 1;
-      if (old_r - r < 0.000000001) { break; }
+      if (old_r - r < SQRT_ERR_MARGIN) { return; }
     }
+    print "Warning: Sqrt algorithm terminated early after reaching", SQRT_ITERATIONS, "iterations.\n";
   }
 
   /**
@@ -147,7 +160,9 @@ module BasicArithmetic {
     print y.Floor - z;
   }
 
+  /* ======================================================================= */
   /* =============================== Lemmas ================================ */
+  /* ======================================================================= */
 
   lemma Power2RootDef(x: real, i: nat)
     requires x >= 0.0
