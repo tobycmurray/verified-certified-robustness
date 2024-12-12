@@ -16,9 +16,9 @@ module MainModule {
     // Parse neural network from file (unverified).
     print "Parsing...\n";
     var neuralNetStr: string := ReadFromFile("Input/neural_network_3.txt");
-    var maybeNeuralNet: (bool, NeuralNetwork) := ParseNeuralNet(neuralNetStr);
-    expect maybeNeuralNet.0, "Failed to parse neural network.";
-    var neuralNet: NeuralNetwork := maybeNeuralNet.1;
+    var maybeNeuralNet: Maybe<NeuralNetwork> := ParseNeuralNet(neuralNetStr);
+    expect maybeNeuralNet.Some?, "Failed to parse neural network.";
+    var neuralNet: NeuralNetwork := maybeNeuralNet.val;
     // Generate spectral norms for the matrices comprising the neural net.
     // We currently assume an external implementation for generating these.
     print "Generating spectral norms...\n";
