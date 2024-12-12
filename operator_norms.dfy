@@ -8,6 +8,8 @@ import opened LinearAlgebra
 // maximum number of iterations to run the gram-iteration algorithm for
 const GRAM_ITERATIONS := 6
 
+/* ============================ Ghost Functions ============================= */
+
 ghost function FrobeniusNorm(m: Matrix): real {
   Sqrt(SumPositiveMatrix(SquareMatrixElements(m)))
 }
@@ -21,59 +23,61 @@ ghost predicate IsSpecNormUpperBound(s: real, m: Matrix) {
   s >= 0.0 && forall v: Vector | |v| == |m[0]| :: L2(MV(m, v)) <= s * L2(v)
 }
 
+/* ================================ Methods ================================= */
+
 /** Generates the spectral norm for each matrix in n. */
-  method GenerateSpecNorms(n: NeuralNetwork) returns (r: seq<real>)
-    ensures |r| == |n|
-    ensures forall i | 0 <= i < |n| :: IsSpecNormUpperBound(r[i], n[i])
+method GenerateSpecNorms(n: NeuralNetwork) returns (r: seq<real>)
+  ensures |r| == |n|
+  ensures forall i | 0 <= i < |n| :: IsSpecNormUpperBound(r[i], n[i])
+{
+  var i := 0;
+  r := [];
+  while i < |n|
+    invariant 0 <= i == |r| <= |n|
+    invariant forall j | 0 <= j < i :: IsSpecNormUpperBound(r[j], n[j])
   {
-    var i := 0;
-    r := [];
-    while i < |n|
-      invariant 0 <= i == |r| <= |n|
-      invariant forall j | 0 <= j < i :: IsSpecNormUpperBound(r[j], n[j])
-    {
-      if DEBUG { print "Generating spectral norm ", i, " of ", |n|, "...\n"; }
-      var specNorm := GramIterationSimple(n[i]);
-      assert specNorm >= SpecNorm(n[i]);
-      r := r + [specNorm];
-      i := i + 1;
-    }
+    if DEBUG { print "Generating spectral norm ", i, " of ", |n|, "...\n"; }
+    var specNorm := GramIterationSimple(n[i]);
+    assert specNorm >= SpecNorm(n[i]);
+    r := r + [specNorm];
+    i := i + 1;
   }
+}
 
-  method FrobeniusNormUpperBound(m: Matrix) returns (r: real)
-    ensures r >= FrobeniusNorm(m)
-  {
-    if DEBUG { print "Computing frobenius norm upper bound for matrix of size ", |m|, "x", |m[0]|, "\n"; }
-    r := SqrtUpperBound(SumPositiveMatrix(SquareMatrixElements(m)));
-  }
+method FrobeniusNormUpperBound(m: Matrix) returns (r: real)
+  ensures r >= FrobeniusNorm(m)
+{
+  if DEBUG { print "Computing frobenius norm upper bound for matrix of size ", |m|, "x", |m[0]|, "\n"; }
+  r := SqrtUpperBound(SumPositiveMatrix(SquareMatrixElements(m)));
+}
 
-  method GramIterationSimple(G: Matrix) returns (s: real)
-    ensures IsSpecNormUpperBound(s, G)
+method GramIterationSimple(G: Matrix) returns (s: real)
+  ensures IsSpecNormUpperBound(s, G)
+{
+  var i := 0;
+  var G' := G;
+  while i != GRAM_ITERATIONS
+    invariant 0 <= i <= GRAM_ITERATIONS
+    invariant SpecNorm(G) <= Power2Root(SpecNorm(G'), i)
   {
-    var i := 0;
-    var G' := G;
-    while i != GRAM_ITERATIONS
-      invariant 0 <= i <= GRAM_ITERATIONS
-      invariant SpecNorm(G) <= Power2Root(SpecNorm(G'), i)
-    {
-      if DEBUG { print "Gram iteration for matrix of size ", |G|, "x", |G[0]|, ". Iteration ", i+1, " of ", GRAM_ITERATIONS, "\n"; }
-      Assumption1(G');
-      Power2RootMonotonic(SpecNorm(G'), Sqrt(SpecNorm(MM(Transpose(G'), G'))), i);
-      G' := MM(Transpose(G'), G');
-      Power2RootDef(SpecNorm(G'), i);
-      i := i + 1;
-    }
-    if DEBUG { print "Gram iteration done iterating\n"; }
-    Assumption2(G');
-    Power2RootMonotonic(SpecNorm(G'), FrobeniusNorm(G'), GRAM_ITERATIONS);
-    if DEBUG { print "Gram iteration computing frobenius norm upper bound...\n"; }
-    s := FrobeniusNormUpperBound(G');
-    Power2RootMonotonic(FrobeniusNorm(G'), s, GRAM_ITERATIONS);
-    if DEBUG { print "Gram iteration computing square root upper bound...\n"; }
-    s := Power2RootUpperBound(s, GRAM_ITERATIONS);
-    SpecNormUpperBoundProperty(s, G);
-    if DEBUG { print "Gram iteration done\n"; }
+    if DEBUG { print "Gram iteration for matrix of size ", |G|, "x", |G[0]|, ". Iteration ", i+1, " of ", GRAM_ITERATIONS, "\n"; }
+    Assumption1(G');
+    Power2RootMonotonic(SpecNorm(G'), Sqrt(SpecNorm(MM(Transpose(G'), G'))), i);
+    G' := MM(Transpose(G'), G');
+    Power2RootDef(SpecNorm(G'), i);
+    i := i + 1;
   }
+  if DEBUG { print "Gram iteration done iterating\n"; }
+  Assumption2(G');
+  Power2RootMonotonic(SpecNorm(G'), FrobeniusNorm(G'), GRAM_ITERATIONS);
+  if DEBUG { print "Gram iteration computing frobenius norm upper bound...\n"; }
+  s := FrobeniusNormUpperBound(G');
+  Power2RootMonotonic(FrobeniusNorm(G'), s, GRAM_ITERATIONS);
+  if DEBUG { print "Gram iteration computing square root upper bound...\n"; }
+  s := Power2RootUpperBound(s, GRAM_ITERATIONS);
+  SpecNormUpperBoundProperty(s, G);
+  if DEBUG { print "Gram iteration done\n"; }
+}
 
   // method GramIterationSimple(G0: Matrix, N: int) returns (r: real)
   //   requires N >= 0

@@ -277,41 +277,39 @@ lemma DotIsDistributive(v: Vector, u: Vector, w: Vector)
   }
 }
 
+/** The norm of a vector with one element d is the absolute value of d. */
+lemma NormOfOneDimensionIsAbs()
+  ensures forall v: Vector | |v| == 1 :: L2(v) == Abs(v[0])
+{
+  reveal L2();
+  reveal Sum();
+  assert forall v: Vector | |v| == 1 :: Sum(Apply(v, Square)) == v[0] * v[0];
+  SqrtOfSquare();
+}
 
-
-  /** The norm of a vector with one element d is the absolute value of d. */
-  lemma NormOfOneDimensionIsAbs()
-    ensures forall v: Vector | |v| == 1 :: L2(v) == Abs(v[0])
+/** 
+ * If each element in vector v has a lower absolute value than its
+ * counterpart in vector u, then ||v|| < ||u||.
+ */
+lemma MonotonicL2(v: Vector, u: Vector)
+  requires |v| == |u|
+  requires forall i: int | 0 <= i < |v| :: Abs(v[i]) <= Abs(u[i])
+  ensures L2(v) <= L2(u)
+{
+  reveal L2();
+  for i := 0 to |v|
+    invariant forall j: int | 0 <= j < i :: Square(v[j]) <= Square(u[j])
   {
-    reveal L2();
-    reveal Sum();
-    assert forall v: Vector | |v| == 1 :: Sum(Apply(v, Square)) == v[0] * v[0];
-    SqrtOfSquare();
+    MonotonicSquare(v[i], u[i]);
   }
+  MonotonicSum(Apply(v, Square), Apply(u, Square));
+  MonotonicSqrt(Sum(Apply(v, Square)), Sum(Apply(u, Square)));
+}
 
-  /** 
-   * If each element in vector v has a lower absolute value than its
-   * counterpart in vector u, then ||v|| < ||u||.
-   */
-  lemma MonotonicL2(v: Vector, u: Vector)
-    requires |v| == |u|
-    requires forall i: int | 0 <= i < |v| :: Abs(v[i]) <= Abs(u[i])
-    ensures L2(v) <= L2(u)
-  {
-    reveal L2();
-    for i := 0 to |v|
-      invariant forall j: int | 0 <= j < i :: Square(v[j]) <= Square(u[j])
-    {
-      MonotonicSquare(v[i], u[i]);
-    }
-    MonotonicSum(Apply(v, Square), Apply(u, Square));
-    MonotonicSqrt(Sum(Apply(v, Square)), Sum(Apply(u, Square)));
-  }
 
-  
-  lemma PositiveL2()
-    ensures forall v: Vector :: L2(v) >= 0.0
-  {
-    reveal L2();
-  }
+lemma PositiveL2()
+  ensures forall v: Vector :: L2(v) >= 0.0
+{
+  reveal L2();
+}
 }
