@@ -26,7 +26,7 @@ ghost predicate IsSpecNormUpperBound(s: real, m: Matrix) {
 /* ================================ Methods ================================= */
 
 /** Generates the spectral norm for each matrix in n. */
-method GenerateSpecNorms(n: NeuralNetwork) returns (r: seq<real>)
+method GenerateSpecNorms(n: seq<Matrix>) returns (r: seq<real>)
   ensures |r| == |n|
   ensures forall i | 0 <= i < |n| :: IsSpecNormUpperBound(r[i], n[i])
 {
@@ -48,7 +48,13 @@ method FrobeniusNormUpperBound(m: Matrix) returns (r: real)
   ensures r >= FrobeniusNorm(m)
 {
   if DEBUG { print "Computing frobenius norm upper bound for matrix of size ", |m|, "x", |m[0]|, "\n"; }
-  r := SqrtUpperBound(SumPositiveMatrix(SquareMatrixElements(m)));
+  r := 0.0;
+  for i := 0 to |m| {
+    for j := 0 to |m[i]| {
+      r := r + m[i][j] * m[i][j];
+    }
+  }
+  r := SqrtUpperBound(r);
 }
 
 method GramIterationSimple(G: Matrix) returns (s: real)
@@ -63,7 +69,8 @@ method GramIterationSimple(G: Matrix) returns (s: real)
     if DEBUG { print "Gram iteration for matrix of size ", |G|, "x", |G[0]|, ". Iteration ", i+1, " of ", GRAM_ITERATIONS, "\n"; }
     Assumption1(G');
     Power2RootMonotonic(SpecNorm(G'), Sqrt(SpecNorm(MM(Transpose(G'), G'))), i);
-    G' := MM(Transpose(G'), G');
+    var G_transpose := TransposeImpl(G');
+    G' := MMImpl(G_transpose, G');
     Power2RootDef(SpecNorm(G'), i);
     i := i + 1;
   }
@@ -115,69 +122,56 @@ method GramIterationSimple(G: Matrix) returns (s: real)
   //   SpecNormUpperBoundProperty(r, G0);
   // }
 
+/* ================================= Lemmas ================================= */
 
 // ASSUMPTIONS
-  lemma {:axiom} Assumption1(m: Matrix)
-    ensures SpecNorm(m) <= Sqrt(SpecNorm(MM(Transpose(m), m)))
+lemma {:axiom} Assumption1(m: Matrix)
+  ensures SpecNorm(m) <= Sqrt(SpecNorm(MM(Transpose(m), m)))
 
-  lemma {:axiom} Assumption2(m: Matrix)
-    ensures SpecNorm(m) <= FrobeniusNorm(m)
+lemma {:axiom} Assumption2(m: Matrix)
+  ensures SpecNorm(m) <= FrobeniusNorm(m)
 
-  /* We only need these for rescaling gram iteration */
+/* We only need these for rescaling gram iteration */
 
-  // lemma {:axiom} Assumption3(m: Matrix, x: real)
-  //   requires 0.0 < x
-  //   ensures SpecNorm(m) <= SpecNorm(MatrixDiv(m, x)) * x
+// lemma {:axiom} Assumption3(m: Matrix, x: real)
+//   requires 0.0 < x
+//   ensures SpecNorm(m) <= SpecNorm(MatrixDiv(m, x)) * x
 
-  // function MatrixDiv(m: Matrix, x: real): (r: Matrix)
-  //   requires 0.0 < x
-  //   ensures |r| == |m| && |r[0]| == |m[0]|
-  // {
-  //   if |m| == 1 then [VectorDiv(m[0], x)]
-  //   else [VectorDiv(m[0], x)] + MatrixDiv(m[1..], x)
-  // }
+// function MatrixDiv(m: Matrix, x: real): (r: Matrix)
+//   requires 0.0 < x
+//   ensures |r| == |m| && |r[0]| == |m[0]|
+// {
+//   if |m| == 1 then [VectorDiv(m[0], x)]
+//   else [VectorDiv(m[0], x)] + MatrixDiv(m[1..], x)
+// }
 
-  // function VectorDiv(v: Vector, x: real): (r: Vector)
-  //   requires 0.0 < x
-  //   ensures |r| == |v|
-  // {
-  //   if |v| == 1 then [v[0] / x] else [v[0] / x] + VectorDiv(v[1..], x)
-  // }
+// function VectorDiv(v: Vector, x: real): (r: Vector)
+//   requires 0.0 < x
+//   ensures |r| == |v|
+// {
+//   if |v| == 1 then [v[0] / x] else [v[0] / x] + VectorDiv(v[1..], x)
+// }
 
-  lemma SpecNormUpperBoundProperty(s: real, m: Matrix)
-    requires s >= SpecNorm(m)
-    ensures s >= 0.0
-    ensures IsSpecNormUpperBound(s, m)
-  {
-    PositiveL2();
-  }
+lemma SpecNormUpperBoundProperty(s: real, m: Matrix)
+  requires s >= SpecNorm(m)
+  ensures s >= 0.0
+  ensures IsSpecNormUpperBound(s, m)
+{
+  PositiveL2();
+}
 
-  /**
-   * The distance between two vectors can only be decreased when the ReLu
-   * function is applied to each one. This is equivalent to stating that the
-   * spectral norm of the ReLu layer is 1.
-   * ||R(v) - R(u)|| <= ||v - u|| where R applies the ReLu activation function.
-   */
-  lemma SmallerRelu(v: Vector, u: Vector)
-    requires |v| == |u|
-    ensures Distance(ApplyRelu(v), ApplyRelu(u)) <= Distance(v, u)
-  {
-    SmallerL2Norm(Minus(ApplyRelu(v), ApplyRelu(u)), Minus(v, u));
-  }
-
-  /** 
-   * If each element in v has a lower absolute value than its counterpart in u,
-   * then ||v|| <= ||u||.
-   */
-  lemma SmallerL2Norm(v: Vector, u: Vector)
-    requires |v| == |u|
-    requires forall i: int :: 0 <= i < |v| ==> Abs(v[i]) <= Abs(u[i])
-    ensures L2(v) <= L2(u)
-  {
-    reveal L2();
-    SmallerApplySquare(v, u);
-    MonotonicSum(Apply(v, Square), Apply(u, Square));
-    MonotonicSqrt(Sum(Apply(v, Square)), Sum(Apply(u, Square)));
-  }
-
+/** 
+ * If each element in v has a lower absolute value than its counterpart in u,
+ * then ||v|| <= ||u||.
+ */
+lemma SmallerL2Norm(v: Vector, u: Vector)
+  requires |v| == |u|
+  requires forall i: int :: 0 <= i < |v| ==> Abs(v[i]) <= Abs(u[i])
+  ensures L2(v) <= L2(u)
+{
+  reveal L2();
+  SmallerApplySquare(v, u);
+  MonotonicSum(Apply(v, Square), Apply(u, Square));
+  MonotonicSqrt(Sum(Apply(v, Square)), Sum(Apply(u, Square)));
+}
 }

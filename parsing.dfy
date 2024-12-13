@@ -1,7 +1,11 @@
 include "basic_arithmetic.dfy"
+include "linear_algebra.dfy"
+include "neural_networks.dfy"
 
 module Parsing {
 import opened BasicArithmetic
+import opened LinearAlgebra
+import opened NeuralNetworks
 
 datatype Maybe<T> = None | Some(val: T)
 
@@ -28,7 +32,7 @@ ghost predicate G_IsPositiveReal(s: string) {
 
 // Real ::== PositiveReal | "-" PositiveReal
 ghost predicate G_IsReal(s: string) {
-  G_IsPositiveReal(s) || (|s| > 1 && s[0] == "-" && G_IsPositiveReal(s[1..]))
+  G_IsPositiveReal(s) || (|s| > 1 && s[0] == '-' && G_IsPositiveReal(s[1..]))
 }
 
 // RealList ::== Real | Real "," RealList
@@ -61,15 +65,15 @@ ghost predicate G_IsNeuralNet(s: string) {
 ghost function G_ToDigit(c: char): real
   requires G_IsDigit(c)
 {
-  if x == '0' then 0.0
-  else if x == '1' then 1.0
-  else if x == '2' then 2.0
-  else if x == '3' then 3.0
-  else if x == '4' then 4.0
-  else if x == '5' then 5.0
-  else if x == '6' then 6.0
-  else if x == '7' then 7.0
-  else if x == '8' then 8.0
+  if c == '0' then 0.0
+  else if c == '1' then 1.0
+  else if c == '2' then 2.0
+  else if c == '3' then 3.0
+  else if c == '4' then 4.0
+  else if c == '5' then 5.0
+  else if c == '6' then 6.0
+  else if c == '7' then 7.0
+  else if c == '8' then 8.0
   else 9.0
 }
 
@@ -83,14 +87,14 @@ ghost predicate G_IsPositiveRealOf(x: real, s: string)
   requires G_IsPositiveReal(s)
 {
   exists s1: string, s2: string :: s == s1 + "." + s2 && G_IsDigits(s1) && G_IsDigits(s2) &&
-    x == G_ToNat(s1) + (G_ToNat(s2) / Pow(10, |s2|))
+    x == G_ToNat(s1) + (G_ToNat(s2) / Pow(10.0, |s2|))
 }
 
 ghost predicate G_IsRealOf(x: real, s: string)
   requires G_IsReal(s)
 {
   (G_IsPositiveReal(s) && G_IsPositiveRealOf(x, s)) || 
-  (|s| > 1 && s[0] == "-" && G_IsPositiveReal(s[1..]) && exists y: real :: G_IsPositiveRealOf(y, s[1..]) && x == -y)
+  (|s| > 1 && s[0] == '-' && G_IsPositiveReal(s[1..]) && exists y: real :: G_IsPositiveRealOf(y, s[1..]) && x == -y)
 }
 
 ghost predicate G_IsVectorOfRealList(v: Vector, s: string)
@@ -194,7 +198,7 @@ method ParseNeuralNet(xs: string) returns (t: Maybe<NeuralNetwork>) {
       // ys[k..l] == "[r1,r2,...,rn"
       var zs := ys[k+1..l];
       // zs == "r1,r2,...,rn"
-      var realsStr: seq<string> := StringUtils.Split(zs, ',');
+      var realsStr: seq<string> := Split(zs, ',');
       var areReals: bool := AreReals(realsStr);
       if !areReals {
         return None;
@@ -212,7 +216,8 @@ method ParseNeuralNet(xs: string) returns (t: Maybe<NeuralNetwork>) {
       return None;
     }
     var matrix: Matrix := vectors;
-    matrices := matrices + [Transpose(matrix)]; // need to transpose for comptability with python output
+    matrix := TransposeImpl(matrix); // need to transpose for comptability with python output
+    matrices := matrices + [matrix];
     i := j + 1; // xs[j] == ',' or EOF
   }
   var neuralNetWellFormed := IsNeuralNetWellFormed(matrices);
@@ -269,12 +274,12 @@ method IsMatrixWellFormed(m: seq<seq<real>>) returns (b: bool)
 
 
 method AreReals(realsStr: seq<string>) returns (b: bool)
-  ensures b ==> forall i | 0 <= i < |realsStr| :: StringUtils.IsReal(realsStr[i])
+  ensures b ==> forall i | 0 <= i < |realsStr| :: IsReal(realsStr[i])
 {
   for i := 0 to |realsStr|
-    invariant forall j | 0 <= j < i :: StringUtils.IsReal(realsStr[j])
+    invariant forall j | 0 <= j < i :: IsReal(realsStr[j])
   {
-    var isReal := StringUtils.IsReal(realsStr[i]);
+    var isReal := IsReal(realsStr[i]);
     if !isReal {
       print realsStr[i];
       print "\n";
@@ -285,15 +290,14 @@ method AreReals(realsStr: seq<string>) returns (b: bool)
 }
 
 method ParseReals(realsStr: seq<string>) returns (reals: seq<real>)
-  requires forall i | 0 <= i < |realsStr| :: StringUtils.IsReal(realsStr[i])
+  requires forall i | 0 <= i < |realsStr| :: IsReal(realsStr[i])
 {
   reals := [];
   for i := 0 to |realsStr| {
-    var r := StringUtils.ParseReal(realsStr[i]);
+    var r := ParseReal(realsStr[i]);
     reals := reals + [r];
   }
 }
-
 
 /**
  * Returns the real number represented by s.

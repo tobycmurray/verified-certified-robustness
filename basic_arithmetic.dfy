@@ -57,6 +57,8 @@ ghost opaque function Sum(s: seq<real>): (r: real)
 }
 
 ghost function ArgMax(v: seq<real>): (r: nat)
+  requires |v| > 0
+  ensures 0 <= ArgMax(v) < |v|
 {
   if |v| == 1 then 0
   else if v[ArgMax(v[..|v|-1])] >= v[|v|-1] then ArgMax(v[..|v|-1])
@@ -77,32 +79,48 @@ function Square(x: real): (r: real)
 method ProductImpl(s: seq<real>) returns (r: real)
   ensures r == Product(s)
 {
+  reveal Product();
   r := 1.0;
-  for i := 0 to |s| {
+  for i := 0 to |s|
+    invariant r == Product(s[..i])
+  {
+    assert s[..i+1][..i] == s[..i];
     r := r * s[i];
   }
+  assert s[..|s|] == s;
 }
 
 method SumImpl(s: seq<real>) returns (r: real)
   ensures r == Sum(s)
 {
-  r := 0;
-  for i := 0 to |s| {
+  reveal Sum();
+  r := 0.0;
+  for i := 0 to |s|
+    invariant r == Sum(s[..i])
+  {
+    assert s[..i+1][..i] == s[..i];
     r := r + s[i];
   }
+  assert s[..|s|] == s;
 }
 
-method ArgMaxImpl(v: Vector) returns (r: nat)
-  ensures r == ArgMax(v)
+method ArgMaxImpl(s: seq<real>) returns (r: nat)
+  requires |s| > 0
+  ensures r == ArgMax(s)
 {
-  var r := 0;
-  var max := v[0];
-  for i := 1 to |v| {
-    if v[i] > max {
+  r := 0;
+  var max := s[0];
+  for i := 1 to |s|
+    invariant s[ArgMax(s[..i])] == max
+    invariant r == ArgMax(s[..i])
+  {
+    assert s[..i+1][..i] == s[..i];
+    if s[i] > max {
       r := i;
-      max := v[i];
+      max := s[i];
     }
   }
+  assert s[..|s|] == s;
 }
 
 // /**

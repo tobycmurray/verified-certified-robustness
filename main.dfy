@@ -1,13 +1,17 @@
 include "IO/FileIO.dfy"
-include "string_utils.dfy"
-include "lipschitz.dfy"
-include "basic_arithmetic.dfy"
+include "parsing.dfy"
+include "linear_algebra.dfy"
+include "neural_networks.dfy"
+include "operator_norms.dfy"
+include "robustness_certification.dfy"
 
 module MainModule {
   import FileIO
-  import StringUtils
-  import opened Lipschitz
-  import BasicArithmetic
+  import opened Parsing
+  import opened LinearAlgebra
+  import opened NeuralNetworks
+  import opened OperatorNorms
+  import opened RobustnessCertification
 
   method Main(args: seq<string>)
     decreases *
@@ -46,7 +50,7 @@ module MainModule {
       var inputStr: string := ReadFromFile("/dev/stdin");
       print '\n';
       // Extract output vector and error margin, which are space-separated.
-      var inputSeq: seq<string> := StringUtils.Split(inputStr, ' ');
+      var inputSeq: seq<string> := Split(inputStr, ' ');
       if |inputSeq| != 2 {
         print "Error: Expected 1 space in input. Got ", |inputSeq| - 1, ".\n";
         continue;
@@ -57,7 +61,7 @@ module MainModule {
         print "Error: The given output vector was found to be empty.\n";
         continue;
       }
-      var realsStr: seq<string> := StringUtils.Split(inputSeq[0], ',');
+      var realsStr: seq<string> := Split(inputSeq[0], ',');
       var areReals: bool := AreReals(realsStr);
       if !areReals {
         print "Error: The given output vector contained non-real values.\n";
@@ -70,12 +74,12 @@ module MainModule {
         print "Error: The given error margin was found to be empty.\n";
         continue;
       }
-      var isReal: bool := StringUtils.IsReal(inputSeq[1]);
+      var isReal: bool := IsReal(inputSeq[1]);
       if !isReal {
         print "Error: The given error margin is not of type real.\n";
         continue;
       }
-      var errorMargin := StringUtils.ParseReal(inputSeq[1]);
+      var errorMargin := ParseReal(inputSeq[1]);
 
       // Print parse results.
       print '\n';

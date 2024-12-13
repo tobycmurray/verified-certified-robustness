@@ -95,6 +95,21 @@ ghost function Distance(v: Vector, u: Vector): real
   L2(Minus(v, u))
 }
 
+ghost function SumPositiveMatrix(m: Matrix): (r: real)
+  requires forall i, j | 0 <= i < |m| && 0 <= j < |m[0]| :: 0.0 <= m[i][j]
+  ensures 0.0 <= r
+{
+  if |m| == 1 then SumPositive(m[0])
+  else SumPositive(m[0]) + SumPositiveMatrix(m[1..])
+}
+
+ghost function SumPositive(v: Vector): (r: real)
+  requires forall i | 0 <= i < |v| :: 0.0 <= v[i]
+  ensures 0.0 <= r
+{
+  if |v| == 1 then v[0] else v[0] + SumPositive(v[1..])
+}
+
 ghost function SquareMatrixElements(m: Matrix): (r: Matrix)
   ensures forall i, j | 0 <= i < |r| && 0 <= j < |r[0]| :: 0.0 <= r[i][j]
 {
@@ -146,7 +161,7 @@ method DotImpl(v: Vector, u: Vector) returns (r: real)
   requires |v| == |u|
   ensures r == Dot(v, u)
 {
-  r := 0;
+  r := 0.0;
   for i := 0 to |v| {
     r := r + v[i] * u[i];
   }
@@ -160,7 +175,7 @@ method MVImpl(m: Matrix, v: Vector) returns (r: Vector)
   r := [x];
   for i := 1 to |m| {
     x := DotImpl(m[i], v);
-    r := r + [x]
+    r := r + [x];
   }
 }
 
@@ -175,9 +190,9 @@ method MMImpl(m: Matrix, n: Matrix) returns (r: Matrix)
     for j := 0 to Cols(n) {
       var c: seq<real> := ColumnImpl(j, n);
       var x: real := DotImpl(m[i], c);
-      v := v + [x]
+      v := v + [x];
     }
-    s := s + [v]
+    s := s + [v];
   }
   r := s;
 }
@@ -185,19 +200,35 @@ method MMImpl(m: Matrix, n: Matrix) returns (r: Matrix)
 method ApplyImpl(v: Vector, f: real -> real) returns (r: Vector)
   ensures r == Apply(v, f)
 {
-  r := v;
-  for i := 0 to |r| {
-    r[i] := f(r[i]);
+  var s: seq<real> := [];
+  for i := 0 to |v| {
+    s := s + [f(v[i])];
   }
+  r := s;
 }
 
 method SquareMatrixElementsImpl(m: Matrix) returns (r: Matrix)
   ensures r == SquareMatrixElements(m)
 {
-  r := m;
-  for i := 0 to |r| {
-    for j := 0 to |r[i]| {
-      r[i][j] := r[i][j] * r[i][j]
+  var s: seq<seq<real>> := [];
+  for i := 0 to |m| {
+    var s': seq<real> := [];
+    for j := 0 to |m[i]| {
+      s' := s' + [m[i][j] * m[i][j]];
+    }
+    s := s + [s'];
+  }
+  r := s;
+}
+
+method SumPositiveMatrixImpl(m: Matrix) returns (r: real)
+  requires forall i, j | 0 <= i < |m| && 0 <= j < |m[0]| :: 0.0 <= m[i][j]
+  ensures r == SumPositiveMatrix(m)
+{
+  r := 0.0;
+  for i := 0 to |m| {
+    for j := 0 to |m[i]| {
+      r := r + m[i][j];
     }
   }
 }
