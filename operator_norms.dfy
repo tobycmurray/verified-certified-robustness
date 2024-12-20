@@ -47,15 +47,29 @@ method GenerateSpecNorms(n: seq<Matrix>) returns (r: seq<real>)
 method FrobeniusNormUpperBound(m: Matrix) returns (r: real)
   ensures r >= FrobeniusNorm(m)
 {
-  if DEBUG { print "Computing frobenius norm upper bound for matrix of size ", |m|, "x", |m[0]|, "\n"; }
-  r := 0.0;
-  for i := 0 to |m| {
-    for j := 0 to |m[i]| {
-      r := r + m[i][j] * m[i][j];
-    }
-  }
-  r := SqrtUpperBound(r);
+  var n := SquareMatrixElementsImpl(m);
+  var x := SumPositiveMatrixImpl(n);
+  r := SqrtUpperBound(x);
 }
+
+// method FrobeniusNormUpperBound(m: Matrix) returns (r: real)
+//   ensures r >= FrobeniusNorm(m)
+// {
+//   if DEBUG { print "Computing frobenius norm upper bound for matrix of size ", |m|, "x", |m[0]|, "\n"; }
+//   r := 0.0;
+//   for i := 0 to |m|
+//     invariant r >= 0.0
+//     invariant i != 0 ==> r == SumPositiveMatrix(SquareMatrixElements(m[..i]))
+//   {
+//     for j := 0 to |m[i]|
+//       invariant r >= 0.0
+
+//     {
+//       r := r + m[i][j] * m[i][j];
+//     }
+//   }
+//   r := SqrtUpperBound(r);
+// }
 
 method GramIterationSimple(G: Matrix) returns (s: real)
   ensures IsSpecNormUpperBound(s, G)

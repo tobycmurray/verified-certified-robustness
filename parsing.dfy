@@ -36,7 +36,9 @@ ghost predicate G_IsReal(s: string) {
 }
 
 // RealList ::== Real | Real "," RealList
-ghost predicate G_IsRealList(s: string) {
+ghost predicate G_IsRealList(s: string)
+  decreases |s|
+{
   G_IsReal(s) || exists s1: string, s2: string :: s == s1 + "," + s2 && G_IsReal(s1) && G_IsRealList(s2)
 }
 
@@ -46,7 +48,9 @@ ghost predicate G_IsVector(s: string) {
 }
 
 // VectorList ::== Vector | Vector "," VectorList
-ghost predicate G_IsVectorList(s: string) {
+ghost predicate G_IsVectorList(s: string)
+  decreases |s|
+{
   G_IsVector(s) || exists s1: string, s2: string :: s == s1 + "," + s2 && G_IsVector(s1) && G_IsVectorList(s2)
 }
 
@@ -56,7 +60,9 @@ ghost predicate G_IsMatrix(s: string) {
 }
 
 // NeuralNet ::== Matrix | Matrix "," NeuralNet
-ghost predicate G_IsNeuralNet(s: string) {
+ghost predicate G_IsNeuralNet(s: string)
+  decreases |s|
+{
   G_IsMatrix(s) || exists s1: string, s2: string :: s == s1 + "," + s2 && G_IsMatrix(s1) && G_IsNeuralNet(s2)
 }
 

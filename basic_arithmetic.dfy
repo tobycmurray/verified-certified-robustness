@@ -39,7 +39,9 @@ ghost function Abs(x: real): real
 }
 
 /** Represents x^y. */
-ghost function Pow(x: real, y: nat): real {
+ghost function Pow(x: real, y: nat): (r: real)
+  ensures x != 0.0 ==> r != 0.0
+{
   if y == 0 then 1.0 else x * Pow(x, y - 1)
 }
 
