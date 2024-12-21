@@ -101,7 +101,7 @@ module MainModule {
       output vector, this input-output pair of vectors is robust with respect
       to the given error margin. */
       assert robust ==> forall v: Vector |
-        CompatibleInput(v, neuralNet) && NN(neuralNet, v) == outputVector ::
+        IsInput(v, neuralNet) && NN(neuralNet, v) == outputVector ::
         Robust(v, outputVector, errorMargin, neuralNet);
       print "Certification:\n", robust, "\n\n";
     }

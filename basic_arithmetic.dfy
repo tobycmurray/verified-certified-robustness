@@ -403,6 +403,12 @@ lemma PositiveProduct(s: seq<real>)
   reveal Product();
 }
 
+lemma PositiveMultiplication(x: real, y: real)
+  requires x >= 0.0
+  requires y >= 0.0
+  ensures x * y >= 0.0
+{}
+
 /** The product of S is equal to the product of S[..|S|-1] times S[|S|-1]. */
 lemma ProductDef(s: seq<real>, s0: seq<real>, s': real)
   requires |s| > 0
@@ -412,4 +418,13 @@ lemma ProductDef(s: seq<real>, s0: seq<real>, s': real)
 {
   reveal Product();
 }
+
+lemma MultiplyBothSidesPositive(x: real, y: real, z: real)
+  requires x >= 0.0
+  requires y >= 0.0
+  requires z >= 0.0
+  requires x <= y
+  ensures z * x <= z * y
+{}
+
 }

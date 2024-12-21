@@ -21,7 +21,7 @@ function NonEmptyMatrix(): Matrix {
 /* ============================ Ghost Functions ============================= */
 
 /** True iff the size of v is compatible as an input-vector to n. */
-ghost predicate CompatibleInput(v: Vector, n: NeuralNetwork) {
+ghost predicate IsInput(v: Vector, n: NeuralNetwork) {
   |v| == Cols(n[0])
 }
 
@@ -54,7 +54,7 @@ ghost function Layer(m: Matrix, v: Vector): (r: Vector)
  * how the neural network transforms input vectors into output vectors.
  */
 ghost opaque function NN(n: NeuralNetwork, v: Vector): (r: Vector)
-  requires CompatibleInput(v, n)
+  requires IsInput(v, n)
   ensures CompatibleOutput(r, n)
   ensures |n| == 1 ==> r == ApplyRelu(MV(n[0], v))
 {
@@ -70,7 +70,7 @@ ghost opaque function NN(n: NeuralNetwork, v: Vector): (r: Vector)
  */
 lemma TrimmedNN(n: NeuralNetwork, n': NeuralNetwork, v: Vector, l: int)
   requires 0 <= l < |n[|n|-1]|
-  requires CompatibleInput(v, n) && CompatibleInput(v, n')
+  requires IsInput(v, n) && IsInput(v, n')
   requires |n| == |n'|
   requires n' == n[..|n|-1] + [[n[|n|-1][l]]]
   ensures NN(n', v) == [NN(n, v)[l]]
