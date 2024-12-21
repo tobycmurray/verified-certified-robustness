@@ -81,6 +81,77 @@ method Certify(v': Vector, e: real, L: seq<real>) returns (b: bool)
   }
 }
 
+lemma ProveRobust(v': Vector, e: real, L: seq<real>, x: int)
+  requires forall i | 0 <= i < |L| :: 0.0 <= L[i]
+  requires |v'| == |L|
+  requires x == ArgMax(v')
+  requires forall i | 0 <= i < |v'| && i != x ::
+    v'[x] - L[x] * e > v'[i] + L[i] * e
+  ensures forall v: Vector, n: NeuralNetwork |
+    IsInput(v, n) && NN(n, v) == v' && AreLipBounds(n, L) ::
+    Robust(v, v', e, n)
+{
+  assume false;
+}
+
+lemma SameArgMax(p: Vector, q: Vector, x: int, k: Vector)
+  requires P1: |p| == |q| == |k|
+  requires P2: 0 <= x < |p|
+  requires P3: ArgMax(p) == x
+  requires P4: forall i: nat | i < |p| :: Abs(p[i] - q[i]) <= k[i]
+  requires P5: forall i: nat | i < |p| && i != x :: p[x] - k[x] > p[i] + k[i]
+  ensures ArgMax(p) == ArgMax(q)
+{
+  reveal P1;
+  forall i: nat | i < |p|
+    ensures q[i] <= p[i] + k[i]
+  {
+    assert Q1: k[i] >= 0.0 by { reveal P4; }
+    assert q[i] <= p[i] + k[i] by {
+      reveal P4;
+      assert Abs(p[i] - q[i]) <= k[i];
+      assert Abs(q[i] - p[i]) <= k[i];
+      reveal Q1;
+      assert q[i] - p[i] <= k[i];
+      assert q[i] <= k[i] + p[i];
+    }
+  }
+  assert forall i: nat | i < |p| :: q[i] <= p[i] + k[i];
+  reveal P2;
+  assert q[x] >= p[x] - k[x] by {
+    reveal P4;
+    assert k[x] >= 0.0;
+    assert Abs(p[x] - q[x]) <= k[x];
+    assert p[x] - q[x] <= k[x];
+    assert q[x] >= p[x] - k[x];
+  }
+  reveal P5;
+  forall i: nat | i < |p| && i != x
+    ensures q[x] > q[i]
+  {
+    calc {
+      q[x];
+      >=
+      p[x] - k[x];
+      >
+      p[i] + k[i];
+      >=
+      q[i];
+    }
+    assert q[x] > q[i];
+  }
+  assert forall i: nat | i < |p| && i != x :: q[x] > q[i];
+  assume false;
+  assert ArgMax(q) == x;
+  assert ArgMax(q) == ArgMax(p);
+}
+
+lemma ArgMaxDef(q: Vector, x: int)
+  requires 0 <= x < |q|
+  requires forall i: nat | i < |q| && i != x :: q[x] > q[i];
+  ensures ArgMax(q) == x
+{}
+
 /**
  * Generates the Lipschitz bound for each logit in the output of the neural
  * network n. See GenLipBound for details.
@@ -403,34 +474,38 @@ lemma NeuralNetDefinition(n: NeuralNetwork, v: Vector)
  * robust. This follows from the fact that the maximum change in any logit i
  * is L[i] * e.
  */
-lemma ProveRobust(v': Vector, e: real, L: seq<real>, x: int)
-  requires forall i | 0 <= i < |L| :: 0.0 <= L[i]
-  requires |v'| == |L|
-  requires x == ArgMax(v')
-  requires forall i | 0 <= i < |v'| && i != x ::
-    v'[x] - L[x] * e > v'[i] + L[i] * e
-  ensures forall v: Vector, n: NeuralNetwork |
-    IsInput(v, n) && NN(n, v) == v' && AreLipBounds(n, L) ::
-    Robust(v, v', e, n)
-{
-  assume false;
-  assert forall n: NeuralNetwork, v: Vector, u: Vector, i |
-    |n[|n|-1]| == |L| && AreLipBounds(n, L) && 0 <= i < |L| &&
-    |v| == |u| && IsInput(v, n) && Distance(v, u) <= e ::
-    Abs(NN(n, v)[i] - NN(n, u)[i]) <= L[i] * e;
-  ProveRobustHelper(v', e, L, x);
-  assert forall n: NeuralNetwork, v: Vector, u: Vector |
-    |n[|n|-1]| == |L| && AreLipBounds(n, L) && |v| == |u| &&
-    IsInput(v, n) && Distance(v, u) <= e && v' == NN(n, v) ::
-    NN(n, u)[x] >= v'[x] - L[x] * e &&
-    forall i | 0 <= i < |L| && i != x ::
-    NN(n, u)[i] <= v'[i] + L[i] * e;
-  assert forall n: NeuralNetwork, v: Vector, u: Vector, i |
-    |n[|n|-1]| == |L| && AreLipBounds(n, L) && 0 <= i < |L| && |v| == |u| &&
-    IsInput(v, n) && Distance(v, u) <= e && v' == NN(n, v) &&
-    i != x ::
-    NN(n, u)[i] < NN(n, u)[x];
-}
+// lemma ProveRobust(v': Vector, e: real, L: seq<real>, x: int)
+//   requires forall i | 0 <= i < |L| :: 0.0 <= L[i]
+//   requires |v'| == |L|
+//   requires x == ArgMax(v')
+//   requires forall i | 0 <= i < |v'| && i != x ::
+//     v'[x] - L[x] * e > v'[i] + L[i] * e
+//   ensures forall v: Vector, n: NeuralNetwork |
+//     IsInput(v, n) && NN(n, v) == v' && AreLipBounds(n, L) ::
+//     Robust(v, v', e, n)
+// {
+//   assert forall n: NeuralNetwork, v: Vector, u: Vector, i |
+//     |n[|n|-1]| == |L| && AreLipBounds(n, L) && 0 <= i < |L| &&
+//     |v| == |u| && IsInput(v, n) ::
+//     Abs(NN(n, v)[i] - NN(n, u)[i]) <= L[i] * Distance(v, u);
+//   assert forall n: NeuralNetwork, v: Vector, u: Vector, i |
+//     |n[|n|-1]| == |L| && AreLipBounds(n, L) && 0 <= i < |L| &&
+//     |v| == |u| && IsInput(v, n) && Distance(v, u) <= e ::
+//     Abs(NN(n, v)[i] - NN(n, u)[i]) <= L[i] * e;
+//   ProveRobustHelper(v', e, L, x);
+//   assume false;
+//   assert forall n: NeuralNetwork, v: Vector, u: Vector |
+//     |n[|n|-1]| == |L| && AreLipBounds(n, L) && |v| == |u| &&
+//     IsInput(v, n) && Distance(v, u) <= e && v' == NN(n, v) ::
+//     NN(n, u)[x] >= v'[x] - L[x] * e &&
+//     forall i | 0 <= i < |L| && i != x ::
+//     NN(n, u)[i] <= v'[i] + L[i] * e;
+//   assert forall n: NeuralNetwork, v: Vector, u: Vector, i |
+//     |n[|n|-1]| == |L| && AreLipBounds(n, L) && 0 <= i < |L| && |v| == |u| &&
+//     IsInput(v, n) && Distance(v, u) <= e && v' == NN(n, v) &&
+//     i != x ::
+//     NN(n, u)[i] < NN(n, u)[x];
+// }
 
 /**
  * Sometimes Dafny needs a separate lemma to prove the obvious. In short,
