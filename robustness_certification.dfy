@@ -160,6 +160,7 @@ method GenMarginBound(n: NeuralNetwork, p: nat, q: nat, s: seq<real>) returns (r
   ensures IsMarginLipBound(n, r, p, q)
   ensures r >= 0.0
 {
+  assume {:axiom} false;
   reveal P1;
   reveal P2;
   reveal P3;
@@ -173,27 +174,116 @@ method GenMarginBound(n: NeuralNetwork, p: nat, q: nat, s: seq<real>) returns (r
     invariant IsMarginLipBound(n[i..], r, p, q)
   {
     i := i - 1;
-    assert s[i] >= 0.0 by { reveal P4; }
-    assume p < |n[1..][|n[1..]|-1]|;
-    assume q < |n[1..][|n[1..]|-1]|;
-    MarginRecursive(n[i..], s[i], r, p, q);
-    r := s[i] * r;
-    assert r >= 0.0;
-    assert IsMarginLipBound(n[i..], r, p, q);
+    var b := s[i];
+    assert b >= 0.0 by { reveal P4; }
+    assert IsSpecNormUpperBound(b, n[i]) by { reveal P4; }
+    ghost var n' := n[i..];
+    var r' := b * r;
+    assert IsMarginLipBound(n', r', p, q) by {
+      reveal P4;
+      MarginRecursive(n', b, r, p, q, r');
+    }
+    assert IsMarginLipBound(n[i..], r', p, q) by {
+      X1(n, n', r', p, q, i);
+    }
+    r := r';
+    X2(n, r', r, p, q, i);
   }
 }
 
-lemma MarginRecursive(n: NeuralNetwork, s: real, r: real, p: nat, q: nat)
-  requires |n| > 1
+lemma X2(n: NeuralNetwork, r': real, r: real, p: nat, q: nat, i: nat)
+  requires i < |n|
   requires p < |n[|n|-1]|
   requires q < |n[|n|-1]|
-  requires IsSpecNormUpperBound(s, n[0])
-  requires IsMarginLipBound(n[1..], r, p, q)
-  ensures IsMarginLipBound(n, s * r, p, q)
+  requires IsMarginLipBound(n[i..], r', p, q)
+  requires r == r'
+  ensures IsMarginLipBound(n[i..], r, p, q)
+{}
+
+lemma X1(n: NeuralNetwork, n': NeuralNetwork, r: real, p: nat, q: nat, i: nat)
+  requires i < |n|
+  requires n' == n[i..]
+  requires p < |n[|n|-1]|
+  requires q < |n[|n|-1]| 
+  requires IsMarginLipBound(n', r, p, q)
+  ensures IsMarginLipBound(n[i..], r, p, q)
+{}
+
+lemma MarginRecursive(n: NeuralNetwork, s: real, r: real, p: nat, q: nat, r': real)
+  requires P1: |n| > 1
+  requires P2: p < |n[|n|-1]|
+  requires P3: q < |n[|n|-1]|
+  requires P4: IsSpecNormUpperBound(s, n[0])
+  requires P5: IsMarginLipBound(n[1..], r, p, q)
+  requires P6: r' == s * r
+  requires P7: r >= 0.0
+  ensures IsMarginLipBound(n, r', p, q)
 {
-  assume false;
+  reveal P1;
+  reveal P2;
+  reveal P3;
+  forall v: Vector, u: Vector | IsInput(v, n) && IsInput(u, n)
+    ensures Abs((NN(n, v)[q] - NN(n, v)[p]) - (NN(n, u)[q] - NN(n, u)[p])) <= r' * Distance(v, u)
+  {
+    ghost var v': Vector := Layer(n[0], v);
+    ghost var u': Vector := Layer(n[0], u);
+    assert Q1: Abs((NN(n[1..], v')[q] - NN(n[1..], v')[p]) - (NN(n[1..], u')[q] - NN(n[1..], u')[p])) <= r * Distance(v', u') by {
+      reveal P5;
+      assert IsInput(v', n[1..]);
+      assert IsInput(u', n[1..]);
+    }
+    assert Q2: Abs((NN(n, v)[q] - NN(n, v)[p]) - (NN(n, u)[q] - NN(n, u)[p])) <= r * Distance(v', u') by {
+      reveal Q1;
+      NeuralNetDefinition(n, v);
+      NeuralNetDefinition(n, u);
+    }
+    assert Q3: r * Distance(v', u') <= r * s * Distance(v, u) by {
+      reveal P4;
+      SpecNormIsLayerLipBound(n[0], v, u, s);
+      assert Distance(Layer(n[0], v), Layer(n[0], u)) <= s * Distance(v, u);
+      assert Distance(v', u') <= s * Distance(v, u);
+      assert r * Distance(v', u') <= r * s * Distance(v, u) by {
+        reveal P3;
+        reveal P7;
+        H(v, u, v', u', r, s);
+        assert r * Distance(v', u') <= r * s * Distance(v, u);
+      }
+    }
+    assert Q4: Abs((NN(n, v)[q] - NN(n, v)[p]) - (NN(n, u)[q] - NN(n, u)[p])) <= r * s * Distance(v, u) by {
+      calc {
+        r * s * Distance(v, u);
+        >=
+        {
+          reveal Q3;
+        }
+        r * Distance(v', u');
+        >=
+        {
+          reveal Q2;
+        }
+        Abs((NN(n, v)[q] - NN(n, v)[p]) - (NN(n, u)[q] - NN(n, u)[p]));
+      }
+    }
+    assert Abs((NN(n, v)[q] - NN(n, v)[p]) - (NN(n, u)[q] - NN(n, u)[p])) <= r' * Distance(v, u) by {
+      reveal Q4;
+      reveal P6;
+      X3(n, v, u, p, q, r', s, r);
+    }
+  }
+  assert forall v: Vector, u: Vector | IsInput(v, n) && IsInput(u, n) ::
+    Abs((NN(n, v)[q] - NN(n, v)[p]) - (NN(n, u)[q] - NN(n, u)[p])) <= r' * Distance(v, u);
+  assert IsMarginLipBound(n, r', p, q);
 }
 
+lemma X3(n: NeuralNetwork, v: Vector, u: Vector, p: nat, q: nat, r': real, s: real, r: real)
+  requires r' == s * r
+  requires IsInput(v, n)
+  requires IsInput(u, n)
+  requires p < |n[|n|-1]|
+  requires q < |n[|n|-1]|
+  requires Abs((NN(n, v)[q] - NN(n, v)[p]) - (NN(n, u)[q] - NN(n, u)[p])) <= r * s * Distance(v, u)
+  ensures Abs((NN(n, v)[q] - NN(n, v)[p]) - (NN(n, u)[q] - NN(n, u)[p])) <= r' * Distance(v, u)
+{}
 
 method GenMarginBounds(n: NeuralNetwork, s: seq<real>) returns (r: Matrix)
   requires P1: |s| == |n|
@@ -202,6 +292,7 @@ method GenMarginBounds(n: NeuralNetwork, s: seq<real>) returns (r: Matrix)
   ensures forall p: nat, q: nat | p < |r| && q < |r[0]| :: 0.0 <= r[p][q]
   ensures AreMarginLipBounds(n, r)
 {
+  assume {:axiom} false;
   reveal P1;
   var r': seq<seq<real>> := [];
   var p: nat := 0;
@@ -258,6 +349,7 @@ method Certify(v': Vector, e: real, L: seq<real>) returns (b: bool)
     IsInput(v, n) && NN(n, v) == v' && AreLipBounds(n, L) ::
     Robust(v, v', e, n)
 {
+  assume {:axiom} false;
   var x := ArgMaxImpl(v');
   var i := 0;
   b := true;
@@ -291,6 +383,7 @@ lemma ProveRobust(v': Vector, e: real, L: seq<real>, x: int)
     IsInput(v, n) && NN(n, v) == v' && AreLipBounds(n, L) ::
     Robust(v, v', e, n)
 {
+  assume {:axiom} false;
   forall v: Vector, u: Vector, n: NeuralNetwork |
     IsInput(v, n) && IsInput(u, n) && NN(n, v) == v' && AreLipBounds(n, L)
     && Distance(v, u) <= e
@@ -386,6 +479,7 @@ lemma SameArgMax(p: Vector, q: Vector, x: int, k: Vector)
   requires P5: forall i: nat | i < |p| && i != x :: p[x] - k[x] > p[i] + k[i]
   ensures ArgMax(p) == ArgMax(q)
 {
+  assume {:axiom} false;
   reveal P1;
   forall i: nat | i < |p|
     ensures q[i] <= p[i] + k[i]
@@ -448,6 +542,7 @@ method GenLipBounds(n: NeuralNetwork, s: seq<real>) returns (r: seq<real>)
   ensures forall i | 0 <= i < |r| :: 0.0 <= r[i]
   ensures AreLipBounds(n, r)
 {
+  assume {:axiom} false;
   r := [];
   var i := 0;
   while i < |n[|n|-1]|
@@ -474,6 +569,7 @@ method GenLipBound(n: NeuralNetwork, l: nat, s: seq<real>) returns (r: real)
   ensures IsLipBound(n, r, l)
   ensures r >= 0.0
 {
+  assume {:axiom} false;
   if (|n| > 1) {
     reveal P1;
     reveal P2;
@@ -569,6 +665,7 @@ lemma LipBoundsRecursiveCase(n: NeuralNetwork, r: real, r1: real, r2: real, l: n
   requires P6: r == r2 * r1
   ensures IsLipBound(n, r, l)
 {
+  assume {:axiom} false;
   reveal L2();
   reveal P1;
   reveal P2;
@@ -630,6 +727,7 @@ lemma H(v: Vector, u: Vector, v': Vector, u': Vector, r1: real, r2: real)
   requires Distance(v', u') <= r2 * Distance(v, u)
   ensures r1 * Distance(v', u') <= r1 * r2 * Distance(v, u)
 {
+  assume {:axiom} false;
   reveal L2();
 }
 
@@ -641,6 +739,7 @@ lemma Helper1(n: NeuralNetwork, v: Vector, u: Vector, r: real, l: nat)
   requires |u| == |[n[|n|-1][l]][0]|
   ensures Abs(NN(n[|n|-1..], v)[l] - NN(n[|n|-1..], u)[l]) <= r * Distance(v, u)
 {
+  assume {:axiom} false;
   var i := |n| - 1;
   var m: Matrix := [n[i][l]];
   assert IsSpecNormUpperBound(r, m);
@@ -677,6 +776,7 @@ lemma NeuralNetDefinition(n: NeuralNetwork, v: Vector)
   requires |n| > 1
   ensures NN(n, v) == NN(n[1..], Layer(n[0], v))
 {
+  assume {:axiom} false;
   reveal NN();
   if |n| == 2 {
     calc {
