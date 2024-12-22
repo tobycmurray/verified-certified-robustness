@@ -147,6 +147,21 @@ function Cols(m: Matrix): nat {
 
 /* ================================ Methods ================================= */
 
+method MinusImpl(v: Vector, u: Vector) returns (r: Vector)
+  requires |v| == |u|
+  ensures r == Minus(v, u)
+{
+  reveal Minus();
+  var i := |v| - 1;
+  r := [v[i] - u[i]];
+  while i > 0
+    invariant r == Minus(v[i..], u[i..])
+  {
+    i := i - 1;
+    r := [v[i] - u[i]] + r;
+  }
+}
+
 method DotImpl(v: Vector, u: Vector) returns (r: real)
   requires |v| == |u|
   ensures r == Dot(v, u)

@@ -152,6 +152,19 @@ lemma DistanceInequality(y: real, z: real, e: real, v: Vector, u: Vector)
   ensures y <= z * e
 {}
 
+method GenMarginBound(n: NeuralNetwork, p: nat, q: nat, s: seq<real>) returns (r: real)
+  requires P1: |s| == |n|
+  requires P2: p < |n[|n|-1]|
+  requires P3: q < |n[|n|-1]|
+  requires P4: forall i: nat | i < |s| :: IsSpecNormUpperBound(s[i], n[i])
+  ensures IsMarginLipBound(n, r, p, q)
+  ensures r >= 0.0
+{
+  assume false;
+  // var m: Matrix := [Minus(n[|n|-1][q], n[|n|-1][p])];
+  var i := |n| - 2;
+}
+
 
 /* ================================ Methods ================================= */
 
@@ -259,9 +272,7 @@ lemma H4(v': Vector, L: Vector, k: Vector, e: real, x: int)
   requires forall j | 0 <= j < |v'| :: k[j] == L[j] * e
   requires forall j | 0 <= j < |v'| && j != x :: v'[x] - L[x] * e > v'[j] + L[j] * e
   ensures forall j: nat | j < |v'| && j != x :: v'[x] - k[x] > v'[j] + k[j]
-{
-  
-}
+{}
 
 
 lemma H3(v': Vector, L: Vector, v: Vector, u: Vector, n: NeuralNetwork, e: real)
