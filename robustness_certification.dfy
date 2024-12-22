@@ -100,6 +100,9 @@ lemma ProveRobust(v': Vector, e: real, L: seq<real>, x: int)
     ghost var i := 1;
     ghost var old_L := L;
     ghost var old_v' := v';
+    assert forall j: nat | j < i :: k[j] == L[j] * e by {
+      assert k == [L[0] * e];
+    }
     while i < |L|
       invariant 0 <= i <= |L|
       invariant |k| == i
@@ -117,21 +120,55 @@ lemma ProveRobust(v': Vector, e: real, L: seq<real>, x: int)
     assert |k| == |L|;
     assert forall j: nat | j < |k| :: k[j] == L[j] * e;
     assert forall j: nat | j < |v'| :: Abs(v'[j] - NN(n, u)[j]) <= k[j] by {
-      assert |L| == |v'|;
-      assert forall j: nat | j < |v'| :: IsLipBound(n, L[j], j);
-      assert Distance(v, u) <= e;
-      assert forall j: nat | j < |v'| :: Abs(v'[j] - NN(n, u)[j]) <= L[j] * e;
-      assume false;
+      assert forall j: nat | j < |v'| :: Abs(v'[j] - NN(n, u)[j]) <= L[j] * e by {
+        assert |L| == |v'|;
+        assert forall j: nat | j < |v'| :: IsLipBound(n, L[j], j);
+        assert forall j: nat | j < |v'| :: Abs(NN(n, v)[j] - NN(n, u)[j]) <= L[j] * Distance(v, u);
+        assert Distance(v, u) <= e;
+        H3(v', L, v, u, n, e);
+        assert forall j: nat | j < |v'| :: Abs(NN(n, v)[j] - NN(n, u)[j]) <= L[j] * e;
+      }
     }
     assert forall j: nat | j < |v'| && j != x :: v'[x] - k[x] > v'[j] + k[j] by {
-      assume false;
+      assert forall j | 0 <= j < |v'| :: k[j] == L[j] * e;
+      assert forall j | 0 <= j < |v'| && j != x ::
+        v'[x] - L[x] * e > v'[j] + L[j] * e;
+      H4(v', L, k, e, x);
     }
     SameArgMax(v', NN(n, u), x, k);
     assert ArgMax(v') == ArgMax(NN(n, u));
   }
   assert forall v: Vector, u: Vector, n: NeuralNetwork |
-    IsInput(v, n) && IsInput(u, n) && NN(n, v) == v' && AreLipBounds(n, L) ::
+    IsInput(v, n) && IsInput(u, n) && NN(n, v) == v' && AreLipBounds(n, L)
+    && Distance(v, u) <= e ::
     ArgMax(v') == ArgMax(NN(n, u));
+}
+
+lemma H4(v': Vector, L: Vector, k: Vector, e: real, x: int)
+  requires 0 <= x < |v'|
+  requires |v'| == |L| == |k|
+  requires forall j | 0 <= j < |v'| :: k[j] == L[j] * e
+  requires forall j | 0 <= j < |v'| && j != x :: v'[x] - L[x] * e > v'[j] + L[j] * e
+  ensures forall j: nat | j < |v'| && j != x :: v'[x] - k[x] > v'[j] + k[j]
+{
+  
+}
+
+
+lemma H3(v': Vector, L: Vector, v: Vector, u: Vector, n: NeuralNetwork, e: real)
+  requires IsInput(v, n) && IsInput(u, n)
+  requires |v'| == |L|
+  requires forall j: nat | j < |L| :: L[j] >= 0.0
+  requires v' == NN(n, v)
+  requires forall j: nat | j < |v'| :: Abs(NN(n, v)[j] - NN(n, u)[j]) <= L[j] * Distance(v, u)
+  requires Distance(v, u) <= e
+  ensures forall j: nat | j < |v'| :: Abs(NN(n, v)[j] - NN(n, u)[j]) <= L[j] * e
+{
+  reveal L2();
+  assert forall j: nat | j < |v'| :: L[j] * Distance(v, u) >= 0.0;
+  assert Distance(v, u) >= 0.0;
+  assert forall j: nat | j < |v'| :: L[j] >= 0.0;
+  assert forall j: nat | j < |v'| :: L[j] * Distance(v, u) <= L[j] * e;
 }
 
 lemma H2(i: int, k: Vector, L: Vector, e: real)
@@ -484,78 +521,7 @@ lemma NeuralNetDefinition(n: NeuralNetwork, v: Vector)
   }
 }
 
-/**
- * Generates the Lipschitz bound of logit l. This is achieved by taking the
- * product of the spectral norms of the first |n|-1 layers, and multiplying
- * this by the spectral norm of the matrix [v], where v is the vector
- * corresponding to the l'th row of the final layer of n.
- */
-// method GenLipBound(n: NeuralNetwork, l: int, s: seq<real>) returns (r: real)
-//   requires |s| == |n|
-//   requires 0 <= l < |n[|n|-1]|
-//   requires forall i | 0 <= i < |s| :: IsSpecNormUpperBound(s[i], n[i])
-//   ensures IsLipBound(n, r, l)
-//   ensures r >= 0.0
-// {
-//   var trimmedLayer := [n[|n|-1][l]];
-//   var trimmedSpecNorm := GramIterationSimple(trimmedLayer);
-//   var n' := n[..|n|-1] + [trimmedLayer];
-//   var s' := s[..|s|-1] + [trimmedSpecNorm];
-//   r := ProductImpl(s');
-//   PositiveProduct(s');
-//   forall v: Vector, u: Vector | |v| == |u| && IsInput(v, n')
-//     ensures Distance(NN(n', v), NN(n', u)) <= Product(s') * Distance(v, u)
-//   {
-//     SpecNormProductIsLipBound(n', v, u, s');
-//   }
-//   forall v: Vector, u: Vector | |v| == |u| && IsInput(v, n')
-//     ensures Distance(NN(n', v), NN(n', u)) == Abs(NN(n, v)[l] - NN(n, u)[l])
-//   {
-//     LogitLipBounds(n, n', v, u, l);
-//   }
-// }
-
 /* ================================= Lemmas ================================= */
-
-/**
- * Given an output vector v', error ball e and Lipschitz bounds L, if the
- * dominant logit x of v' is reduced by L[x] * e, and all other logits i are
- * increased by L[i] * e, and the dominant logit remains x, then v' is
- * robust. This follows from the fact that the maximum change in any logit i
- * is L[i] * e.
- */
-// lemma ProveRobust(v': Vector, e: real, L: seq<real>, x: int)
-//   requires forall i | 0 <= i < |L| :: 0.0 <= L[i]
-//   requires |v'| == |L|
-//   requires x == ArgMax(v')
-//   requires forall i | 0 <= i < |v'| && i != x ::
-//     v'[x] - L[x] * e > v'[i] + L[i] * e
-//   ensures forall v: Vector, n: NeuralNetwork |
-//     IsInput(v, n) && NN(n, v) == v' && AreLipBounds(n, L) ::
-//     Robust(v, v', e, n)
-// {
-//   assert forall n: NeuralNetwork, v: Vector, u: Vector, i |
-//     |n[|n|-1]| == |L| && AreLipBounds(n, L) && 0 <= i < |L| &&
-//     |v| == |u| && IsInput(v, n) ::
-//     Abs(NN(n, v)[i] - NN(n, u)[i]) <= L[i] * Distance(v, u);
-//   assert forall n: NeuralNetwork, v: Vector, u: Vector, i |
-//     |n[|n|-1]| == |L| && AreLipBounds(n, L) && 0 <= i < |L| &&
-//     |v| == |u| && IsInput(v, n) && Distance(v, u) <= e ::
-//     Abs(NN(n, v)[i] - NN(n, u)[i]) <= L[i] * e;
-//   ProveRobustHelper(v', e, L, x);
-//   assume false;
-//   assert forall n: NeuralNetwork, v: Vector, u: Vector |
-//     |n[|n|-1]| == |L| && AreLipBounds(n, L) && |v| == |u| &&
-//     IsInput(v, n) && Distance(v, u) <= e && v' == NN(n, v) ::
-//     NN(n, u)[x] >= v'[x] - L[x] * e &&
-//     forall i | 0 <= i < |L| && i != x ::
-//     NN(n, u)[i] <= v'[i] + L[i] * e;
-//   assert forall n: NeuralNetwork, v: Vector, u: Vector, i |
-//     |n[|n|-1]| == |L| && AreLipBounds(n, L) && 0 <= i < |L| && |v| == |u| &&
-//     IsInput(v, n) && Distance(v, u) <= e && v' == NN(n, v) &&
-//     i != x ::
-//     NN(n, u)[i] < NN(n, u)[x];
-// }
 
 /**
  * Sometimes Dafny needs a separate lemma to prove the obvious. In short,
@@ -574,20 +540,6 @@ lemma ProveRobustHelper(v': Vector, e: real, L: seq<real>, x: int)
     |v| == |u| && IsInput(v, n) && Distance(v, u) <= e ::
     Abs(NN(n, v)[x] - NN(n, u)[x]) <= L[x] * e
 {}
-
-lemma SpecNormProductLipBoundHelper(n: NeuralNetwork, s: seq<real>)
-  requires |s| == |n|
-  requires forall i | 0 <= i < |s| :: IsSpecNormUpperBound(s[i], n[i])
-  ensures forall v: Vector, u: Vector
-    | |v| == |u| && IsInput(v, n) && IsInput(u, n)
-    :: Distance(NN(n, v), NN(n, u)) <= Product(s) * Distance(v, u)
-{
-  assume false;
-  forall v: Vector, u: Vector
-    | |v| == |u| && IsInput(v, n) && IsInput(u, n) {
-    SpecNormProductIsLipBound(n, v, u, s);
-  }
-}
 
 /**
  * The product of the spectral norms of each matrix of a neural network n is
