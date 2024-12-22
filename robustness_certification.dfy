@@ -120,7 +120,7 @@ method ProveRobustMargin(v': Vector, e: real, L: Matrix, x: nat)
       }
     }
     forall j: nat | j < |L| && j != x
-      ensures NN(n, u)[x] < NN(n, u)[j]
+      ensures NN(n, u)[j] < NN(n, u)[x]
     {
       assert L[j][x] * e < v'[x] - v'[j] by { reveal P4; }
       assert Abs((NN(n, v)[x] - NN(n, v)[j]) - (NN(n, u)[x] - NN(n, u)[j])) <= L[j][x] * e;
@@ -130,10 +130,11 @@ method ProveRobustMargin(v': Vector, e: real, L: Matrix, x: nat)
       assert (v'[x] - v'[j]) - (NN(n, u)[x] - NN(n, u)[j]) < v'[x] - v'[j];
       assert v'[x] - v'[j] - (NN(n, u)[x] - NN(n, u)[j]) < v'[x] - v'[j];
       assert v'[x] - (NN(n, u)[x] - NN(n, u)[j]) < v'[x];
-      assert (NN(n, u)[x] - NN(n, u)[j]) < 0.0;
-      assert NN(n, u)[x] < NN(n, u)[j];
+      assert -(NN(n, u)[x] - NN(n, u)[j]) < 0.0;
+      assert - NN(n, u)[x] + NN(n, u)[j] < 0.0;
+      assert NN(n, u)[j] < NN(n, u)[x];
     }
-    assert forall j: nat | j < |L| && j != x :: NN(n, u)[x] < NN(n, u)[j];
+    assert forall j: nat | j < |L| && j != x :: NN(n, u)[j] < NN(n, u)[x];
     ArgMaxDef(NN(n, u), x);
     assert ArgMax(NN(n, u)) == x;
     assert ArgMax(v') == ArgMax(NN(n, u));
