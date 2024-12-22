@@ -44,6 +44,114 @@ ghost predicate IsLipBound(n: NeuralNetwork, r: real, l: int)
     Abs(NN(n, v)[l] - NN(n, u)[l]) <= r * Distance(v, u)
 }
 
+/* ============================= Margin Bounds ============================== */
+
+ghost predicate IsMarginLipBound(n: NeuralNetwork, r: real, p: nat, q: nat)
+  requires p < |n[|n|-1]|
+  requires q < |n[|n|-1]|
+{
+  forall v, u: Vector | IsInput(v, n) && IsInput(u, n) ::
+    Abs((NN(n, v)[q] - NN(n, v)[p]) - (NN(n, u)[q] - NN(n, u)[p])) <= r * Distance(v, u)
+}
+
+ghost predicate AreMarginLipBounds(n: NeuralNetwork, L: Matrix)
+  requires |L| == |L[0]| == |n[|n|-1]|
+{
+  forall p: nat, q: nat | p < |L| && q < |L[0]| :: IsMarginLipBound(n, L[p][q], p, q)
+}
+
+method CertifyMargin(v': Vector, e: real, L: Matrix) returns (b: bool)
+  requires |L| == |L[0]| == |v'|
+  requires forall i: nat, j: nat | i < |L| && j < |L[0]| :: 0.0 <= L[i][j]
+  ensures b ==> forall v: Vector, n: NeuralNetwork |
+    IsInput(v, n) && NN(n, v) == v' && AreMarginLipBounds(n, L) ::
+    Robust(v, v', e, n)
+{
+  var x := ArgMaxImpl(v');
+  var i := 0;
+  b := true;
+  while i < |v'|
+    invariant 0 <= i <= |v'|
+    invariant b ==> forall j | 0 <= j < i && j != x :: L[j][x] * e < v'[x] - v'[j]
+  {
+    if i == x {
+      i := i + 1;
+      continue;
+    }
+    if L[i][x] * e >= v'[x] - v'[i] {
+      b := false;
+      break;
+    }
+    i := i + 1;
+  }
+  if b {
+    assert forall j | 0 <= j < |v'| && j != x :: L[j][x] * e < v'[x] - v'[j];
+    ProveRobustMargin(v', e, L, x);
+  }
+}
+
+method ProveRobustMargin(v': Vector, e: real, L: Matrix, x: nat)
+  requires P1: |L| == |L[0]| == |v'|
+  requires P2: x == ArgMax(v')
+  requires P3: forall i: nat, j: nat | i < |L| && j < |L[0]| :: 0.0 <= L[i][j]
+  requires P4: forall j: nat | j < |v'| && j != x :: L[j][x] * e < v'[x] - v'[j]
+  ensures forall v: Vector, n: NeuralNetwork |
+    IsInput(v, n) && NN(n, v) == v' && AreMarginLipBounds(n, L) ::
+    Robust(v, v', e, n)
+{
+  reveal P1;
+  reveal P2;
+  reveal P3;
+  forall v: Vector, u: Vector, n: NeuralNetwork |
+    IsInput(v, n) && IsInput(u, n) && NN(n, v) == v' && AreMarginLipBounds(n, L)
+    && Distance(v, u) <= e
+    ensures ArgMax(v') == ArgMax(NN(n, u))
+  {
+    forall j: nat | j < |L|
+      ensures Abs((NN(n, v)[x] - NN(n, v)[j]) - (NN(n, u)[x] - NN(n, u)[j])) <= L[j][x] * e
+    {
+      ghost var y := Abs((NN(n, v)[x] - NN(n, v)[j]) - (NN(n, u)[x] - NN(n, u)[j]));
+      ghost var z := L[j][x];
+      DistanceInequality(y, z, e, v, u);
+      assert y <= z * e;
+      assert Abs((NN(n, v)[x] - NN(n, v)[j]) - (NN(n, u)[x] - NN(n, u)[j])) <= L[j][x] * e by {
+        assert y == Abs((NN(n, v)[x] - NN(n, v)[j]) - (NN(n, u)[x] - NN(n, u)[j]));
+        assert z == L[j][x];
+      }
+    }
+    forall j: nat | j < |L| && j != x
+      ensures NN(n, u)[x] < NN(n, u)[j]
+    {
+      assert L[j][x] * e < v'[x] - v'[j] by { reveal P4; }
+      assert Abs((NN(n, v)[x] - NN(n, v)[j]) - (NN(n, u)[x] - NN(n, u)[j])) <= L[j][x] * e;
+      assert Abs((NN(n, v)[x] - NN(n, v)[j]) - (NN(n, u)[x] - NN(n, u)[j])) < v'[x] - v'[j];
+      assert Abs((v'[x] - v'[j]) - (NN(n, u)[x] - NN(n, u)[j])) < v'[x] - v'[j];
+      assert v'[x] - v'[j] >= 0.0;
+      assert (v'[x] - v'[j]) - (NN(n, u)[x] - NN(n, u)[j]) < v'[x] - v'[j];
+      assert v'[x] - v'[j] - (NN(n, u)[x] - NN(n, u)[j]) < v'[x] - v'[j];
+      assert v'[x] - (NN(n, u)[x] - NN(n, u)[j]) < v'[x];
+      assert (NN(n, u)[x] - NN(n, u)[j]) < 0.0;
+      assert NN(n, u)[x] < NN(n, u)[j];
+    }
+    assert forall j: nat | j < |L| && j != x :: NN(n, u)[x] < NN(n, u)[j];
+    ArgMaxDef(NN(n, u), x);
+    assert ArgMax(NN(n, u)) == x;
+    assert ArgMax(v') == ArgMax(NN(n, u));
+  }
+  assert forall v: Vector, u: Vector, n: NeuralNetwork |
+    IsInput(v, n) && IsInput(u, n) && NN(n, v) == v' && AreMarginLipBounds(n, L)
+    && Distance(v, u) <= e :: ArgMax(v') == ArgMax(NN(n, u));
+}
+
+lemma DistanceInequality(y: real, z: real, e: real, v: Vector, u: Vector)
+  requires |v| == |u|
+  requires y <= z * Distance(v, u)
+  requires Distance(v, u) <= e
+  requires 0.0 <= z
+  ensures y <= z * e
+{}
+
+
 /* ================================ Methods ================================= */
 
 /**
