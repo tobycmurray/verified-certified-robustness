@@ -91,8 +91,57 @@ lemma ProveRobust(v': Vector, e: real, L: seq<real>, x: int)
     IsInput(v, n) && NN(n, v) == v' && AreLipBounds(n, L) ::
     Robust(v, v', e, n)
 {
-  assume false;
+  forall v: Vector, u: Vector, n: NeuralNetwork |
+    IsInput(v, n) && IsInput(u, n) && NN(n, v) == v' && AreLipBounds(n, L)
+    && Distance(v, u) <= e
+    ensures ArgMax(v') == ArgMax(NN(n, u))
+  {
+    ghost var k: Vector := [L[0] * e];
+    ghost var i := 1;
+    ghost var old_L := L;
+    ghost var old_v' := v';
+    while i < |L|
+      invariant 0 <= i <= |L|
+      invariant |k| == i
+      invariant forall j: nat | j < i :: k[j] == L[j] * e
+      invariant L == old_L
+      invariant v' == old_v'
+    {
+      k := k + [L[i] * e];
+      assert forall j: nat | j <= i :: k[j] == L[j] * e by {
+        H2(i, k, L, e);
+      }
+      i := i + 1;
+      assert forall j: nat | j < i :: k[j] == L[j] * e;
+    }
+    assert |k| == |L|;
+    assert forall j: nat | j < |k| :: k[j] == L[j] * e;
+    assert forall j: nat | j < |v'| :: Abs(v'[j] - NN(n, u)[j]) <= k[j] by {
+      assert |L| == |v'|;
+      assert forall j: nat | j < |v'| :: IsLipBound(n, L[j], j);
+      assert Distance(v, u) <= e;
+      assert forall j: nat | j < |v'| :: Abs(v'[j] - NN(n, u)[j]) <= L[j] * e;
+      assume false;
+    }
+    assert forall j: nat | j < |v'| && j != x :: v'[x] - k[x] > v'[j] + k[j] by {
+      assume false;
+    }
+    SameArgMax(v', NN(n, u), x, k);
+    assert ArgMax(v') == ArgMax(NN(n, u));
+  }
+  assert forall v: Vector, u: Vector, n: NeuralNetwork |
+    IsInput(v, n) && IsInput(u, n) && NN(n, v) == v' && AreLipBounds(n, L) ::
+    ArgMax(v') == ArgMax(NN(n, u));
 }
+
+lemma H2(i: int, k: Vector, L: Vector, e: real)
+  requires 0 <= i < |L|
+  requires |k| <= |L|
+  requires |k| == i + 1
+  requires forall j: nat | j < i :: k[j] == L[j] * e
+  requires k[i] == L[i] * e
+  ensures forall j: nat | j <= i :: k[j] == L[j] * e
+{}
 
 lemma SameArgMax(p: Vector, q: Vector, x: int, k: Vector)
   requires P1: |p| == |q| == |k|
@@ -141,14 +190,15 @@ lemma SameArgMax(p: Vector, q: Vector, x: int, k: Vector)
     assert q[x] > q[i];
   }
   assert forall i: nat | i < |p| && i != x :: q[x] > q[i];
-  assume false;
+  ArgMaxDef(q, x);
   assert ArgMax(q) == x;
+  reveal P3;
   assert ArgMax(q) == ArgMax(p);
 }
 
 lemma ArgMaxDef(q: Vector, x: int)
   requires 0 <= x < |q|
-  requires forall i: nat | i < |q| && i != x :: q[x] > q[i];
+  requires forall i: nat | i < |q| && i != x :: q[x] > q[i]
   ensures ArgMax(q) == x
 {}
 
