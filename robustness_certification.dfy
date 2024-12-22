@@ -160,9 +160,72 @@ method GenMarginBound(n: NeuralNetwork, p: nat, q: nat, s: seq<real>) returns (r
   ensures IsMarginLipBound(n, r, p, q)
   ensures r >= 0.0
 {
-  assume false;
-  // var m: Matrix := [Minus(n[|n|-1][q], n[|n|-1][p])];
-  var i := |n| - 2;
+  reveal P1;
+  reveal P2;
+  reveal P3;
+  var i := |n| - 1;
+  var d: Vector := MinusImpl(n[i][q], n[i][p]);
+  var m: Matrix := [d];
+  r := GramIterationSimple(m);
+  assume IsMarginLipBound(n[i..], r, p, q);
+  while i > 0
+    invariant r >= 0.0
+    invariant IsMarginLipBound(n[i..], r, p, q)
+  {
+    i := i - 1;
+    assert s[i] >= 0.0 by { reveal P4; }
+    r := s[i] * r;
+    assert r >= 0.0;
+    assume IsMarginLipBound(n[i..], r, p, q);
+  }
+}
+
+method GenMarginBounds(n: NeuralNetwork, s: seq<real>) returns (r: Matrix)
+  requires P1: |s| == |n|
+  requires P2: forall i: nat | i < |s| :: IsSpecNormUpperBound(s[i], n[i])
+  ensures |r| == |r[0]| == |n[|n|-1]|
+  ensures forall p: nat, q: nat | p < |r| && q < |r[0]| :: 0.0 <= r[p][q]
+  ensures AreMarginLipBounds(n, r)
+{
+  reveal P1;
+  var r': seq<seq<real>> := [];
+  var p: nat := 0;
+  while p < |n[|n|-1]|
+    // proportions
+    invariant p <= |n[|n|-1]|
+    invariant |r'| == p
+    invariant forall i: nat | i < p :: |r'[i]| == |n[|n|-1]|
+    // lip bounds
+    invariant forall i: nat, j: nat | i < p && j < |n[|n|-1]| :: IsMarginLipBound(n, r'[i][j], i, j) && 0.0 <= r'[i][j]
+  {
+    var p_bounds: seq<real> := [];
+    var q: nat := 0;
+    while q < |n[|n|-1]|
+      // proportions
+      invariant q <= |n[|n|-1]|
+      invariant |p_bounds| == q
+      // lip bounds
+      invariant forall i: nat | i < q :: IsMarginLipBound(n, p_bounds[i], p, i) && 0.0 <= p_bounds[i]
+    {
+      reveal P2;
+      var bound: real := GenMarginBound(n, p, q, s);
+      assert 0.0 <= bound;
+      assert IsMarginLipBound(n, bound, p, q);
+      assert forall i: nat | i < |p_bounds| :: IsMarginLipBound(n, p_bounds[i], p, i) && 0.0 <= p_bounds[i];
+      p_bounds := p_bounds + [bound];
+      assert forall i: nat | i < |p_bounds| :: IsMarginLipBound(n, p_bounds[i], p, i) && 0.0 <= p_bounds[i] by {
+        assert forall i: nat | i < |p_bounds|-1 :: IsMarginLipBound(n, p_bounds[i], p, i) && 0.0 <= p_bounds[i];
+        assert IsMarginLipBound(n, p_bounds[|p_bounds|-1], p, |p_bounds|-1);
+      }
+      q := q + 1;
+      assert q <= |n[|n|-1]|;
+      assert |p_bounds| == q;
+      assert forall i: nat | i < q :: IsMarginLipBound(n, p_bounds[i], p, i) && 0.0 <= p_bounds[i];
+    }
+    r' := r' + [p_bounds];
+    p := p + 1;
+  }
+  r := r';
 }
 
 
