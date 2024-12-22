@@ -174,11 +174,26 @@ method GenMarginBound(n: NeuralNetwork, p: nat, q: nat, s: seq<real>) returns (r
   {
     i := i - 1;
     assert s[i] >= 0.0 by { reveal P4; }
+    assume p < |n[1..][|n[1..]|-1]|;
+    assume q < |n[1..][|n[1..]|-1]|;
+    MarginRecursive(n[i..], s[i], r, p, q);
     r := s[i] * r;
     assert r >= 0.0;
-    assume IsMarginLipBound(n[i..], r, p, q);
+    assert IsMarginLipBound(n[i..], r, p, q);
   }
 }
+
+lemma MarginRecursive(n: NeuralNetwork, s: real, r: real, p: nat, q: nat)
+  requires |n| > 1
+  requires p < |n[|n|-1]|
+  requires q < |n[|n|-1]|
+  requires IsSpecNormUpperBound(s, n[0])
+  requires IsMarginLipBound(n[1..], r, p, q)
+  ensures IsMarginLipBound(n, s * r, p, q)
+{
+  assume false;
+}
+
 
 method GenMarginBounds(n: NeuralNetwork, s: seq<real>) returns (r: Matrix)
   requires P1: |s| == |n|

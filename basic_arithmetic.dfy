@@ -196,7 +196,7 @@ method SqrtUpperBound(x: real) returns (r: real)
   while i < SQRT_ITERATIONS
     invariant r >= Sqrt(x) > 0.0
   {
-    if DEBUG { print "SqrtUpperBound iteration ", i, " of ", SQRT_ITERATIONS-1, "\n"; }
+    if DEBUG { print "SqrtUpperBound iteration ", i+1, " of a maximum of ", SQRT_ITERATIONS, "\n"; }
     var old_r := r;
     assert Sqrt(x) <= (r + x / r) / 2.0 by {
       assert 0.0 <= (r - Sqrt(x)) * (r - Sqrt(x)); // 0.0 <= any square

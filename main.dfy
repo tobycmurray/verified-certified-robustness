@@ -19,7 +19,7 @@ module MainModule {
     /* ===================== Generate Lipschitz bounds ===================== */
     // Parse neural network from file (unverified).
     print "Parsing...\n";
-    var neuralNetStr: string := ReadFromFile("Input/neural_network_3.txt");
+    var neuralNetStr: string := ReadFromFile("Input/neural_network.txt");
     var maybeNeuralNet: Maybe<NeuralNetwork> := ParseNeuralNet(neuralNetStr);
     expect maybeNeuralNet.Some?, "Failed to parse neural network.";
     var neuralNet: NeuralNetwork := maybeNeuralNet.val;
@@ -29,7 +29,7 @@ module MainModule {
     var specNorms: seq<real> := GenerateSpecNorms(neuralNet);
     // Generate the Lipschitz bounds for each logit in the output vector.
     print "Generating Lipschitz bounds...\n";
-    var lipBounds: seq<real> := GenLipBounds(neuralNet, specNorms);
+    var lipBounds: Matrix := GenMarginBounds(neuralNet, specNorms);
     print "Bounds generated:\n";
     for i: nat := 0 to |lipBounds| {
       // BasicArithmetic.PrintReal(lipBounds[i], 20);
@@ -95,7 +95,7 @@ module MainModule {
         continue;
       }
       // Use the generated Lipschitz bounds to certify robustness.
-      var robust: bool := Certify(outputVector, errorMargin, lipBounds);
+      var robust: bool := CertifyMargin(outputVector, errorMargin, lipBounds);
       /* Verification guarantees that 'true' is only printed when for all input
       vectors v where applying the neural network to v results in the given
       output vector, this input-output pair of vectors is robust with respect
