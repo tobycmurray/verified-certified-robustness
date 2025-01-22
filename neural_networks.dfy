@@ -49,6 +49,14 @@ ghost function Layer(m: Matrix, v: Vector): (r: Vector)
   ApplyRelu(MV(m, v))
 }
 
+ghost opaque function NNBody(n: NeuralNetwork, v: Vector): (r: Vector)
+  requires IsInput(v, n)
+  ensures CompatibleOutput(r, n)
+  ensures |n| == 1 ==> r == ApplyRelu(MV(n[0], v))
+{
+  if |n| == 1 then Layer(n[0], v) else Layer(n[|n|-1], NNBody(n[..|n|-1], v))
+}
+
 /**
  * Function representing the assumed behaviour of the neural network. Models
  * how the neural network transforms input vectors into output vectors.
@@ -56,9 +64,9 @@ ghost function Layer(m: Matrix, v: Vector): (r: Vector)
 ghost opaque function NN(n: NeuralNetwork, v: Vector): (r: Vector)
   requires IsInput(v, n)
   ensures CompatibleOutput(r, n)
-  ensures |n| == 1 ==> r == ApplyRelu(MV(n[0], v))
+  ensures |n| == 1 ==> r == MV(n[0], v)
 {
-  if |n| == 1 then Layer(n[0], v) else Layer(n[|n|-1], NN(n[..|n|-1], v))
+  if |n| == 1 then MV(n[0], v) else MV(n[|n|-1], NNBody(n[..|n|-1], v))
 }
 
 /* ================================= Lemmas ================================= */

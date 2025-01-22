@@ -398,6 +398,13 @@ lemma DotIsDistributive(v: Vector, u: Vector, w: Vector)
   }
 }
 
+lemma DotIsCommutative(v: Vector, u: Vector)
+  requires |v| == |u|
+  ensures Dot(v, u) == Dot(u, v)
+{
+  reveal Dot();
+}
+
 /** The norm of a vector with one element d is the absolute value of d. */
 lemma NormOfOneDimensionIsAbs()
   ensures forall v: Vector | |v| == 1 :: L2(v) == Abs(v[0])

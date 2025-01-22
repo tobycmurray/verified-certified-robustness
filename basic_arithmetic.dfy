@@ -345,6 +345,15 @@ lemma IncreaseSquare(x: real, y: real)
   if y == 0.0 {
     // x * x > x * 0
     Increase(x, 0.0, x);
+    calc {
+      x * x;
+      >
+      x * 0.0;
+      ==
+      0.0;
+      ==
+      y * y;
+    }
     // Since x * 0 == 0 == y * y, we have x * x > y * y
   } else {
     // x * x > x * y
