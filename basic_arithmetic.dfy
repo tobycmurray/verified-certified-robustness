@@ -256,6 +256,7 @@ method SqrtUpperBound(x: real) returns (r: real)
       assert 0.0 <= (r - Sqrt(x)) * (r - Sqrt(x)); // 0.0 <= any square
       assert 0.0 <= r * r - 2.0 * r * Sqrt(x) + x; // distribute
       assert 0.0 <= (r * r - 2.0 * r * Sqrt(x) + x) / r; // divide by r
+      assert ((r * r - 2.0 * r * Sqrt(x) + x) / r) == (r - 2.0 * Sqrt(x) + x / r);
       assert 0.0 <= r - 2.0 * Sqrt(x) + x / r; // simplify
       assert 2.0 * Sqrt(x) <= r + x / r; // rearrange
       assert Sqrt(x) <= (r + x / r) / 2.0; // divide by 2
