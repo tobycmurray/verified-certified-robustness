@@ -34,8 +34,9 @@ ghost opaque function Minus(v: Vector, u: Vector): (r: Vector)
 }
 
 /** Dot product. */
-ghost opaque function Dot(v: Vector, u: Vector): real
+ghost opaque function Dot(v: Vector, u: Vector): (r: real)
   requires |v| == |u|
+  ensures v == u ==> r >= 0.0
 {
   // if |v| == 1 then v[0] * u[0] else Dot(v[..|v|-1], u[..|u|-1]) + v[|v|-1] * u[|u|-1]
   if |v| == 1 then v[0] * u[0] else v[0] * u[0] + Dot(v[1..], u[1..])
@@ -394,9 +395,15 @@ lemma DotIsDistributive(v: Vector, u: Vector, w: Vector)
   if |v| == 1 {
   } else {
     DotIsDistributive(v[1..], u[1..], w[1..]);
+    MinusIsDistributive(u, w);
     assert Minus(u, w)[1..] == Minus(u[1..], w[1..]);
   }
 }
+
+lemma MinusIsDistributive(v: Vector, u: Vector)
+  requires 1 < |v| == |u|
+  ensures Minus(v, u)[1..] == Minus(v[1..], u[1..])
+{}
 
 lemma DotIsCommutative(v: Vector, u: Vector)
   requires |v| == |u|
@@ -434,10 +441,103 @@ lemma MonotonicL2(v: Vector, u: Vector)
   MonotonicSqrt(Sum(Apply(v, Square)), Sum(Apply(u, Square)));
 }
 
-
 lemma PositiveL2()
   ensures forall v: Vector :: L2(v) >= 0.0
 {
   reveal L2();
 }
+
+// Toby's work =================================================================
+
+lemma MVIsDot(v: Vector, u: Vector)
+  requires |v| == |u|
+  ensures MV([v], u) == [Dot(v, u)]
+{
+}
+
+lemma L2MVIsAbsDot(v: Vector, u: Vector)
+  requires |v| == |u|
+  ensures L2(MV([v], u)) == Abs(Dot(v, u))
+{
+  MVIsDot(v, u);
+  NormOfOneDimensionIsAbs();
+}
+
+lemma PlusNonNegative(a: real, b: real)
+  requires a >= 0.0
+  requires b >= 0.0
+  ensures a + b >= 0.0
+{
+}
+
+lemma DotSelfIsNonNegative(v: Vector)
+  ensures Dot(v, v) >= 0.0
+{
+  reveal Dot();
+
+  if |v| == 1 {
+  } else {
+    DotSelfIsNonNegative(v[1..]);
+    PlusNonNegative(v[0] * v[0], Dot(v[1..], v[1..]));
+  } 
+}
+
+// FIXME: This proof is going to be very non-trivial (but absolutely boring)
+// because L2 is defined in terms of Sum, but it computes the sum in thea
+// opposite direction to Dot.
+// One way to avoid this would be to write the Cauchy-Schwartz axiom to
+// avoid using Dot(x,x) on its RHS and instead use Sum(Apply(x,Square))
+lemma L2IsSqrtDot(v: Vector)
+  ensures L2(v) == Sqrt(Dot(v, v))
+{
+  DotIsSumApplySquare(v);
+  assert Dot(v, v) == Sum(Apply(v, Square));
+  reveal L2();
+}
+
+lemma DotIsSumApplySquare(v: Vector)
+  ensures Dot(v, v) == Sum(Apply(v, Square))
+{
+  reveal Dot();
+  reveal Sum();
+  reveal Apply();
+  reveal Square();
+  if (|v| == 1) {
+  } else {
+    calc {
+      Dot(v, v);
+      ==
+      v[0] * v[0] + Dot(v[1..], v[1..]);
+      ==
+      {
+        DotIsSumApplySquare(v[1..]);
+      }
+      v[0] * v[0] + Sum(Apply(v[1..], Square));
+      ==
+      Square(v[0]) + Sum(Apply(v[1..], Square));
+      ==
+      Apply([v[0]], Square)[0] + Sum(Apply(v[1..], Square));
+      ==
+      calc {
+        Apply([v[0]], Square)[0];
+        ==
+        Apply(v, Square)[0];
+      }
+      Apply(v, Square)[0] + Sum(Apply(v[1..], Square));
+      ==
+      calc {
+        Sum(Apply(v[1..], Square));
+        ==
+        Sum(Apply(v, Square)[1..]);
+      }
+      Apply(v, Square)[0] + Sum(Apply(v, Square)[1..]);
+      ==
+      {
+        ReverseSum(Apply(v, Square));
+      }
+      Sum(Apply(v, Square));
+    }
+  }
+}
+
 }

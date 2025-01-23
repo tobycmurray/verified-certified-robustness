@@ -83,6 +83,15 @@ method CertifyMargin(v': Vector, e: real, L: Matrix) returns (b: bool)
   }
 }
 
+method L2UpperBound(v: Vector) returns (r: real)
+  ensures r >= L2(v)
+{
+  reveal L2();
+  var v' := ApplyImpl(v, Square);
+  r := SumImpl(v');
+  r := SqrtUpperBound(r);
+}
+
 method GenMarginBound(n: NeuralNetwork, p: nat, q: nat, s: seq<real>) returns (r: real)
   requires P1: |s| == |n|
   requires P2: p < |n[|n|-1]|
@@ -97,7 +106,9 @@ method GenMarginBound(n: NeuralNetwork, p: nat, q: nat, s: seq<real>) returns (r
   var i := |n| - 1;
   var d: Vector := MinusImpl(n[i][q], n[i][p]);
   var m: Matrix := [d];
-  r := GramIterationSimple(m);
+  r := L2UpperBound(d);
+  L2IsSpecNormUpperBound(r, m);
+  assert IsSpecNormUpperBound(r, m);
   SpecNormIsMarginLipBound(n[i..], m, p, q, r);
   assert IsMarginLipBound(n[i..], r, p, q);
   while i > 0

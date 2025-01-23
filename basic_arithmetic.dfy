@@ -58,6 +58,60 @@ ghost opaque function Sum(s: seq<real>): (r: real)
   if |s| == 0 then 0.0 else Sum(s[..|s|-1]) + s[|s|-1]
 }
 
+lemma ReverseSum(s: seq<real>)
+  requires |s| > 1
+  ensures Sum(s) == s[0] + Sum(s[1..])
+{
+  reveal Sum();
+  if |s| == 2 {
+    calc {
+      Sum(s);
+      ==
+      Sum(s[..|s|-1]) + s[|s|-1];
+      ==
+      s[1] + s[0];
+      ==
+      s[0] + s[1];
+      ==
+      s[0] + Sum(s[1..]);
+    }
+  } else {
+    calc {
+      Sum(s);
+      ==
+      Sum(s[..|s|-1]) + s[|s|-1];
+      ==
+      {
+        ReverseSum(s[..|s|-1]);
+      }
+      s[..|s|-1][0] + Sum(s[..|s|-1][1..]) + s[|s|-1];
+      ==
+      s[0] + Sum(s[1..|s|-1]) + s[|s|-1];
+      ==
+      calc {
+        Sum(s[1..]);
+        ==
+        Sum(s[1..][..|s[1..]|-1]) + s[1..][|s[1..]|-1];
+        ==
+        calc {
+          Sum(s[1..][..|s[1..]|-1]);
+          ==
+          calc {
+            s[1..][..|s[1..]|-1];
+            ==
+            s[1..|s|-1];
+          }
+          Sum(s[1..|s|-1]);
+        }
+        Sum(s[1..|s|-1]) + s[1..][|s[1..]|-1];
+        ==
+        Sum(s[1..|s|-1]) + s[|s|-1];
+      }
+      s[0] + Sum(s[1..]);
+    }
+  }
+}
+
 ghost function ArgMax(v: seq<real>): (r: nat)
   requires |v| > 0
   ensures 0 <= ArgMax(v) < |v|
@@ -435,5 +489,54 @@ lemma MultiplyBothSidesPositive(x: real, y: real, z: real)
   requires x <= y
   ensures z * x <= z * y
 {}
+
+lemma SqrtOfMult(x: real, y: real)
+  requires x >= 0.0
+  requires y >= 0.0
+  ensures Sqrt(x * y) == Sqrt(x) * Sqrt(y)
+{
+  assert (Sqrt(x) * Sqrt(x)) * (Sqrt(y) * Sqrt(y)) == (Sqrt(x) * Sqrt(y)) * (Sqrt(x) * Sqrt(y));
+  var r: real := (Sqrt(x) * Sqrt(y)) * (Sqrt(x) * Sqrt(y));
+  assert x * y == r;
+  assert Sqrt(r * r) == r by {   SqrtOfSquare2(r); }
+  assert Sqrt(x * y) == Sqrt(r) by { SqrtUnique(x * y, r); }
+  assert Sqrt(r) == Sqrt(x) * Sqrt(y) by {
+    var w := Sqrt(x) * Sqrt(y);
+    SqrtOfSquare2(w);
+    assert Sqrt(w * w) == w;
+    calc {
+      Sqrt(x) * Sqrt(y);
+      ==
+      w;
+      ==
+      Sqrt(w * w);
+      ==
+      {
+        assert w * w == (Sqrt(x) * Sqrt(y)) * (Sqrt(x) * Sqrt(y));
+      }
+      Sqrt((Sqrt(x) * Sqrt(y)) * (Sqrt(x) * Sqrt(y)));
+    }
+    assert Sqrt((Sqrt(x) * Sqrt(y)) * (Sqrt(x) * Sqrt(y))) == Sqrt(x) * Sqrt(y); // WTF Dafny!?!
+    assert Sqrt(r) == Sqrt(x) * Sqrt(y);
+  }  
+}
+
+lemma SqrtUnique(x: real, y: real)
+  requires x >= 0.0
+  requires y >= 0.0
+  requires x == y
+  ensures Sqrt(x) == Sqrt(y)
+{
+}
+
+lemma SqrtOfSquare2(x : real)
+  requires x >= 0.0
+  ensures Sqrt(x * x) == x
+{
+  SqrtOfSquare();
+  assert Sqrt(Square(x)) == Abs(x);
+  assert Sqrt(Square(x)) == Sqrt(x * x);
+  assert Abs(x) == x;
+}
 
 }
