@@ -3,7 +3,7 @@ module BasicArithmetic {
 // number of decimal places to round reals to, for efficiency purposes
 const ROUNDING_PRECISION := 16
 // maximum number of iterations to run the square-root algorithm for
-const SQRT_ITERATIONS := 2000
+const SQRT_ITERATIONS := 20000
 // satisfactory error margin for square roots, to optimise the algorithm
 const SQRT_ERR_MARGIN := 0.0000001
 // print debug messages
@@ -418,12 +418,22 @@ lemma IncreaseSquare(x: real, y: real)
   }
 }
 
+lemma MultIsMono(x: real, y: real, m: real)
+  requires x <= y
+  requires m >= 0.0
+  ensures x * m <= y * m
+{
+}
+
 /** For any non-negative reals x and y, x^2 <= y^2. */
 lemma MonotonicSquarePositive(x: real, y: real)
   requires 0.0 <= x <= y
   ensures Square(x) <= Square(y)
 {
   assert 0.0 <= y;
+  MultIsMono(x, y, x); // x * x <= y * x
+  MultIsMono(x, y, y); // x * y <= y * y;
+  assert x * x <= y * y;
 }
 
 /** For any real number x, we have |x|^2 == x^2. */

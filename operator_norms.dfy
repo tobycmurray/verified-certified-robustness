@@ -6,7 +6,7 @@ import opened BasicArithmetic
 import opened LinearAlgebra
 
 // maximum number of iterations to run the gram-iteration algorithm for
-const GRAM_ITERATIONS := 6
+const GRAM_ITERATIONS := 11
 
 /* ============================ Ghost Functions ============================= */
 
@@ -263,14 +263,6 @@ lemma AbsDotL2(v: Vector, u: Vector)
   L2IsSqrtDot(v);
   L2IsSqrtDot(u);
   assert Abs(Dot(v,u)) <= L2(v) * L2(u);  // WTF Dafny !?!
-}
-
-// FIXME: move to basic_arithmetic.dfy
-lemma MultIsMono(x: real, y: real, m: real)
-  requires x <= y
-  requires m >= 0.0
-  ensures x * m <= y * m
-{
 }
 
 lemma L2IsSpecNormUpperBound(s: real, m: Matrix)
