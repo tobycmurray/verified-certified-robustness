@@ -482,11 +482,6 @@ lemma DotSelfIsNonNegative(v: Vector)
   } 
 }
 
-// FIXME: This proof is going to be very non-trivial (but absolutely boring)
-// because L2 is defined in terms of Sum, but it computes the sum in thea
-// opposite direction to Dot.
-// One way to avoid this would be to write the Cauchy-Schwartz axiom to
-// avoid using Dot(x,x) on its RHS and instead use Sum(Apply(x,Square))
 lemma L2IsSqrtDot(v: Vector)
   ensures L2(v) == Sqrt(Dot(v, v))
 {

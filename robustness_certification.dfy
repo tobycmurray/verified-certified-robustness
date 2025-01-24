@@ -361,22 +361,7 @@ lemma ProveRobust(v': Vector, e: real, L: Matrix, x: nat)
         }
       }
       DistanceInequality(y, z, e, v, u);
-      assert Abs(NN(n, v)[x] - NN(n, v)[j] - (NN(n, u)[x] - NN(n, u)[j])) <= L[j][x] * e by {
-        calc {
-          Abs(NN(n, v)[x] - NN(n, v)[j] - (NN(n, u)[x] - NN(n, u)[j]));
-          ==
-          y;
-          <=
-          z * e;
-          ==
-          calc {
-            z;
-            ==
-            L[j][x];
-          }
-          L[j][x] * e;
-        }
-      }
+      assert Abs(NN(n, v)[x] - NN(n, v)[j] - (NN(n, u)[x] - NN(n, u)[j])) <= L[j][x] * e; // Dafny behaves unstably sometimes unable to prove this assertion especially when --verify-included-files is used
     }
     forall j: nat | j < |L| && j != x
       ensures NN(n, u)[j] < NN(n, u)[x]

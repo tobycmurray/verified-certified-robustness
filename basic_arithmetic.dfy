@@ -527,7 +527,7 @@ lemma SqrtOfMult(x: real, y: real)
       }
       Sqrt((Sqrt(x) * Sqrt(y)) * (Sqrt(x) * Sqrt(y)));
     }
-    assert Sqrt((Sqrt(x) * Sqrt(y)) * (Sqrt(x) * Sqrt(y))) == Sqrt(x) * Sqrt(y); // WTF Dafny!?!
+    assert Sqrt((Sqrt(x) * Sqrt(y)) * (Sqrt(x) * Sqrt(y))) == Sqrt(x) * Sqrt(y);
     assert Sqrt(r) == Sqrt(x) * Sqrt(y);
   }  
 }

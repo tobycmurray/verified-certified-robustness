@@ -204,28 +204,30 @@ lemma AbsDotL2(v: Vector, u: Vector)
   assert 0.0 <= Square(Dot(v, u));
   // (v.u)^2 <= v.v * u.u
   assert Square(Dot(v, u)) <= Dot(v,v) * Dot(u,u);
-  // sqrt((v.u)^2) <= sqrt(v.v * u.u)
-  assert Sqrt(Square(Dot(v, u))) <= Sqrt(Dot(v, v) * Dot(u, u)) by {
-    var x := Square(Dot(v, u));
-    var y := Dot(v, v) * Dot(u, u);
-    MonotonicSqrt(x, y);
-    assert Sqrt(x) <= Sqrt(y);
-    calc {
-      Sqrt(Square(Dot(v, u)));
-      ==
-      Sqrt(x);
-      <=
-      Sqrt(y);
-      ==
-      {
-        assert y == Dot(v, v) * Dot(u, u);
-      }
-      Sqrt(Dot(v, v) * Dot(u, u));
+  
+  var x := Square(Dot(v, u));
+  var y := Dot(v, v) * Dot(u, u);
+  MonotonicSqrt(x, y);
+  assert Sqrt(x) <= Sqrt(y);
+
+  calc {
+    Sqrt(Square(Dot(v, u)));
+    ==
+    Sqrt(x);
+    <=
+    Sqrt(y);
+    ==
+    {
+      assert y == Dot(v, v) * Dot(u, u);
     }
-    assert Sqrt(Square(Dot(v, u))) <= Sqrt(Dot(v, v) * Dot(u, u));
-  } // WTF Dafny !?!
+    Sqrt(Dot(v, v) * Dot(u, u));
+  }
+
+  // sqrt((v.u)^2) <= sqrt(v.v * u.u)
+  assert Sqrt(Square(Dot(v, u))) <= Sqrt(Dot(v, v) * Dot(u, u));
+
   // |(v.u)| <= sqrt(v.v * u.u)
-  assert Abs(Dot(v,u)) <= Sqrt(Dot(v,v) * Dot(u,u)) by {  SqrtOfSquare(); } // WTF Dafny !?!
+  assert Abs(Dot(v,u)) <= Sqrt(Dot(v,v) * Dot(u,u)) by {  SqrtOfSquare(); }
   
   DotSelfIsNonNegative(v);
   DotSelfIsNonNegative(u);
@@ -247,7 +249,7 @@ lemma AbsDotL2(v: Vector, u: Vector)
       Sqrt(Dot(v, v)) * Sqrt(Dot(u, u));
     }
     assert Sqrt(Dot(v, v) * Dot(u, u)) == Sqrt(Dot(v, v)) * Sqrt(Dot(u, u));
-  } // WTF Dafny !?!
+  }
 
   calc {
     Abs(Dot(v,u));
@@ -258,11 +260,12 @@ lemma AbsDotL2(v: Vector, u: Vector)
   }
 
   // |(v.u)| <= sqrt(v.v) * sqrt(u.u)
-  assert Abs(Dot(v,u)) <= Sqrt(Dot(v,v)) * Sqrt(Dot(u,u)); // WTF Dafny !?!
+  assert Abs(Dot(v,u)) <= Sqrt(Dot(v,v)) * Sqrt(Dot(u,u));
   
   L2IsSqrtDot(v);
   L2IsSqrtDot(u);
-  assert Abs(Dot(v,u)) <= L2(v) * L2(u);  // WTF Dafny !?!
+  assert Sqrt(Dot(v,v)) * Sqrt(Dot(u,u)) == L2(v) * L2(u);
+  assert Abs(Dot(v,u)) <= L2(v) * L2(u);
 }
 
 lemma L2IsSpecNormUpperBound(s: real, m: Matrix)
