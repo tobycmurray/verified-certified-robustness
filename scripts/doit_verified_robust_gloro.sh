@@ -1,3 +1,4 @@
+#!/bin/bash
 # train a gloro net
 
 # Function to ask for confirmation
@@ -21,7 +22,7 @@ confirm() {
 }
 
 
-if ! ([ $# -eq 9 ] || [ $# -eq 10 ]); then
+if ! ([ $# -eq 8 ] || [ $# -eq 9 ]); then
     echo "Usage $0 \"train_and_eval\" gloro_epsilon INTERNAL_LAYER_SIZES eval_epsilon robustness_certifier_binary GRAM_ITERATIONS epochs batch_size [model_input_size]"
     echo "Usage $0 basedir gloro_epsilon INTERNAL_LAYER_SIZES eval_epsilon robustness_certifier_binary GRAM_ITERATIONS epochs batch_size [model_input_size]"    
     exit 1
@@ -187,7 +188,7 @@ echo ""
 
 if [[ "$TRAINING" ]]; then
     # train the gloro model
-    ${PYTHON} train_gloro.py $EPSILON "$INTERNAL_LAYER_SIZES" $EPOCHS $INPUT_SIZE
+    ${PYTHON} train_gloro.py $EPSILON "$INTERNAL_LAYER_SIZES" $EPOCHS $EVAL_EPSILON $INPUT_SIZE
 
     if [ ! -d model_weights_csv ]; then
 	echo "Training gloro model failed or results not successfully saved to model_weights_csv/ dir"

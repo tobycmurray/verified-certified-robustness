@@ -94,6 +94,7 @@ def train_gloro(
 def script(
         dataset,
         epsilon,
+        eval_epsilon,
         epsilon_schedule='fixed',
         loss='crossentropy',
         augmentation='standard',
@@ -205,6 +206,10 @@ def script(
 
 
     # compute the model's clean accuracy and robustness (rejection rate) via the gloro methods
+    # we need to do these against the evaluation epsilon, which might differ from the training one
+    # hence, before running the model to evaluate it we need to tell it the new epsilon value to use
+    g.epsilon = eval_epsilon
+    
     x_test, y_test = doitlib.load_mnist_test_data(input_size)
     y_pred = g.predict(x_test)
     accuracy = float(clean_acc(y_test, y_pred).numpy())
@@ -240,8 +245,8 @@ def script(
 
 import sys
 
-if len(sys.argv) != 5:
-    print(f"Usage: {sys.argv[0]} epsilon INTERNAL_LAYER_SIZES epochs [input_size]\n");
+if len(sys.argv) != 6:
+    print(f"Usage: {sys.argv[0]} epsilon INTERNAL_LAYER_SIZES epochs eval_epsilon input_size\n");
     sys.exit(1)
 
 epsilon=float(sys.argv[1])
@@ -250,13 +255,16 @@ internal_layers=eval(sys.argv[2])
 
 epochs=int(sys.argv[3])
 
-input_size=int(sys.argv[4])
+eval_epsilon=float(sys.argv[4])
+
+input_size=int(sys.argv[5])
 
 print(f"Running with internal layer dimensions: {internal_layers}")
 
 script(
     dataset='mnist',
     epsilon=epsilon,
+    eval_epsilon=eval_epsilon,
     #epsilon_schedule='[0.01]-log-[50%:1.1]',
     epsilon_schedule='fixed',
     batch_size=32,
