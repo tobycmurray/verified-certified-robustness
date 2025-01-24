@@ -340,6 +340,32 @@ method ParseReal(s: string) returns (r: real)
 }
 
 /**
+ * Returns the integer represented by s.
+ * Note: This method is not verified.
+ */
+method ParseInt(s: string) returns (r: int)
+  requires IsInt(s)
+{
+  var neg: bool := false;
+  var i: int := 0;
+  if s[i] == '-' {
+    neg := true;
+    i := i + 1;
+  }
+  r := ParseDigit(s[i]);
+  i := i + 1;
+  while i < |s| {
+    if IsDigit(s[i]) {
+      r := r * 10 + (ParseDigit(s[i]));
+    }
+    i := i + 1;
+  }
+  if neg {
+    r := r * (-1);
+  }
+}
+
+/**
  * Returns the integer represented by x.
  * For example, ParseDigit('3') == 3.
  * 
@@ -369,6 +395,16 @@ predicate IsReal(s: string) {
   IsDigit(s[|s|-1]) &&
   exists i :: 0 <= i < |s| && s[i] == '.' &&
     forall j :: 1 <= j < |s| && j != i ==> IsDigit(s[j])
+}
+
+/**
+ * Returns true iff s represents an integer.
+ */
+predicate IsInt(s: string) {
+  |s| >= 1 &&
+  (IsDigit(s[0]) || (|s| >= 2 && (s[0] == '-' && IsDigit(s[1])))) &&
+  IsDigit(s[|s|-1]) &&
+  forall j :: 1 <= j < |s| ==> IsDigit(s[j])
 }
 
 /**

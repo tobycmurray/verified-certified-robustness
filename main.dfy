@@ -16,75 +16,84 @@ module MainModule {
   method Main(args: seq<string>)
     decreases *
   {
+    /* =================== Parse command line arguments ==================== */
+    // parse command line arguments
+    if |args| != 3 {
+      print "Usage: main <neural_network_input.txt> <GRAM_ITERATIONS>\n";
+      return;
+    }
+    var input_file: string := args[1];
+
+    if !IsInt(args[2]) {
+      print "<GRAM_ITERATIONS> should be a positive integer";
+      return;
+    }
+    var GRAM_ITERATIONS: int := ParseInt(args[2]);
+    if GRAM_ITERATIONS <= 0 {
+      print "<GRAM_ITERATIONS> should be positive";
+      return;
+    }
+    
+    print "[\n";
+    
     /* ===================== Generate Lipschitz bounds ===================== */
     // Parse neural network from file (unverified).
-    print "Parsing...\n";
-    var neuralNetStr: string := ReadFromFile("Input/neural_network.txt");
+    var neuralNetStr: string := ReadFromFile(input_file);
     var maybeNeuralNet: Maybe<NeuralNetwork> := ParseNeuralNet(neuralNetStr);
     expect maybeNeuralNet.Some?, "Failed to parse neural network.";
     var neuralNet: NeuralNetwork := maybeNeuralNet.val;
     // Generate spectral norms for the matrices comprising the neural net.
-    // We currently assume an external implementation for generating these.
-    print "Generating spectral norms...\n";
-    var specNorms: seq<real> := GenerateSpecNorms(neuralNet);
-    // Generate the Lipschitz bounds for each logit in the output vector.
-    print "Generating Lipschitz bounds...\n";
+    var specNorms: seq<real> := GenerateSpecNorms(neuralNet, GRAM_ITERATIONS);
+    // Generate the margin Lipschitz bounds for each pair of logits in the output vector.
     var lipBounds: Matrix := GenMarginBounds(neuralNet, specNorms);
-    print "Bounds generated:\n";
-    for i: nat := 0 to |lipBounds| {
-      // BasicArithmetic.PrintReal(lipBounds[i], 20);
-      print lipBounds[i];
-      print "\n\n";
+
+    print "{\n";
+    print "  \"lipschitz_bounds\": ", lipBounds, ",\n";
+    print "  \"GRAM_ITERATIONS\": ", GRAM_ITERATIONS, "\n";
+    print "}\n"; 
+    
+
+    /* ================= Read input vectors from stdin ===================== */
+    var inputStr: string := ReadFromFile("/dev/stdin");
+
+    var lines: seq<string> := Split(inputStr, '\n');    
+    if |lines| <= 0 {
+      return;
     }
 
-    /* ================= Repeatedly certify output vectors ================= */
-
-    while true
-      // This tells Dafny that we don't intend for this loop to terminate.
-      decreases *
+    var l := 0;
+    while l < |lines|
+      decreases |lines| - l
     {
-      /* ===================== Parse input from stdin ====================== */
+      var line := lines[l];
+      l := l + 1;
+      var inputSeq: seq<string> := Split(line, ' ');    
 
-      // Read from stdin. Currently, input must be terminated with an EOF char.
-      print "> ";
-      var inputStr: string := ReadFromFile("/dev/stdin");
-      print '\n';
-      // Extract output vector and error margin, which are space-separated.
-      var inputSeq: seq<string> := Split(inputStr, ' ');
-      if |inputSeq| != 2 {
-        print "Error: Expected 1 space in input. Got ", |inputSeq| - 1, ".\n";
-        continue;
+      if |inputSeq| != 2 || inputSeq[0] == "" {
+        // as soon as we see bad input, stop silently so that the end of the input won't cause junk to be printed
+        print "]\n";
+        return;
       }
       
-      // Parse output vector.
-      if inputSeq[0] == "" {
-        print "Error: The given output vector was found to be empty.\n";
-        continue;
-      }
       var realsStr: seq<string> := Split(inputSeq[0], ',');
       var areReals: bool := AreReals(realsStr);
       if !areReals {
         print "Error: The given output vector contained non-real values.\n";
-        continue;
+        return;
       }
       var outputVector := ParseReals(realsStr);
       
       // Parse error margin.
       if inputSeq[1] == "" {
         print "Error: The given error margin was found to be empty.\n";
-        continue;
+        return;
       }
       var isReal: bool := IsReal(inputSeq[1]);
       if !isReal {
         print "Error: The given error margin is not of type real.\n";
-        continue;
+        return;
       }
       var errorMargin := ParseReal(inputSeq[1]);
-
-      // Print parse results.
-      print '\n';
-      print "Received output vector:\n", outputVector, "\n\n";
-      print "Received error margin:\n", errorMargin, "\n\n";
 
       /* ======================= Certify Robustness ======================== */
 
@@ -92,7 +101,7 @@ module MainModule {
       if |outputVector| != |lipBounds| {
         print "Error: Expected a vector of size ", |lipBounds|,
           ", but got ", |outputVector|, ".\n";
-        continue;
+        return;
       }
       // Use the generated Lipschitz bounds to certify robustness.
       var robust: bool := CertifyMargin(outputVector, errorMargin, lipBounds);
@@ -103,8 +112,18 @@ module MainModule {
       assert robust ==> forall v: Vector |
         IsInput(v, neuralNet) && NN(neuralNet, v) == outputVector ::
         Robust(v, outputVector, errorMargin, neuralNet);
-      print "Certification:\n", robust, "\n\n";
+
+      print ",\n";
+      print "{\n";
+      print "\"output\": ";
+      print outputVector, ",\n";
+      print "\"radius\": ";
+      print errorMargin, ",\n";
+      print "\"certified\": ";
+      print robust, "\n";
+      print "}\n";
     }
+    print "]\n";
   }
 
   method ReadFromFile(filename: string) returns (str: string) {
