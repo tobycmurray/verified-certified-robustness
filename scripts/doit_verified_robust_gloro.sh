@@ -1,9 +1,36 @@
 # train a gloro net
 
-if ! ([ $# -eq 7 ] || [ $# -eq 8 ]); then
-    echo "Usage $0 gloro_epsilon INTERNAL_LAYER_SIZES eval_epsilon robustness_certifier_binary GRAM_ITERATIONS epochs batch_size [model_input_size]"
+# Function to ask for confirmation
+confirm() {
+  local prompt_message="$1"  # Message to display
+  while true; do
+    echo -n "$prompt_message (yes/no): "
+    read -r user_input
+    case "$user_input" in
+      yes | y)
+        return 0  # User confirmed
+        ;;
+      no | n)
+        return 1  # User declined
+        ;;
+      *)
+        echo "Invalid input. Please respond with 'yes' or 'no'."
+        ;;
+    esac
+  done
+}
+
+
+if ! ([ $# -eq 9 ] || [ $# -eq 10 ]); then
+    echo "Usage $0 \"train_and_eval\" gloro_epsilon INTERNAL_LAYER_SIZES eval_epsilon robustness_certifier_binary GRAM_ITERATIONS epochs batch_size [model_input_size]"
+    echo "Usage $0 basedir gloro_epsilon INTERNAL_LAYER_SIZES eval_epsilon robustness_certifier_binary GRAM_ITERATIONS epochs batch_size [model_input_size]"    
     exit 1
 fi
+
+COMMAND=$1
+EXISTING_BASEDIR=$1 # we'll work out which it is later on
+
+shift 
 
 EPSILON=$1
 INTERNAL_LAYER_SIZES=$2
@@ -43,6 +70,71 @@ if [ ! -x ${CERTIFIER} ]; then
     exit 1
 fi
 
+case "$COMMAND" in
+    "train_and_eval")
+	echo "We will train a new model and evaluate it."
+	if confirm "Proceed?"; then
+	    echo "Proceeding..."
+	else
+	    echo "Operation canceled."
+	    exit 0
+	fi
+	
+	# check we won't interfere with any concurrent execution of this same script
+	if [ -d model_weights_csv ]; then
+	    echo "Directory model_weights_csv/ still exists."
+	    exit 1
+	fi
+
+	# clean out any old temporary model weights etc.
+	rm -rf model_weights_csv
+
+	DT=$(date +"%Y-%m-%d_%H:%M:%S")
+
+	if [ -d "${DT}" ]; then
+	    echo "Directory ${DT}/ already exists!"
+	    exit 1
+	fi
+
+	mkdir "${DT}"
+
+	if [ ! -d "${DT}" ]; then
+	    echo "Error creating directory ${DT}"
+	    exit 1
+	fi
+
+	TRAINING=true
+	
+    ;;
+    *)
+	echo "We will evaluate existing model in ${EXISTING_BASEDIR}."
+	if confirm "Proceed?"; then
+	    echo "Proceeding..."
+	else
+	    echo "Operation canceled."
+	    exit 0
+	fi
+	
+	if [ ! -d "${EXISTING_BASEDIR}" ]; then
+	    echo "Error: basedir for existing trained model doesn't exist."
+	    exit 1
+	fi
+	DT="${EXISTING_BASEDIR}"
+	
+    ;;
+    *)
+	echo "command should be \"train_and_eval\" or \"eval_only\""
+	exit 1
+	;;
+esac
+
+MODEL_WEIGHTS_DIR="${DT}/model_weights_epsilon_${EPSILON}_${INTERNAL_LAYER_SIZES}_${EPOCHS}"
+MODEL_OUTPUTS="${DT}/all_mnist_outputs_epsilon_${EPSILON}_${INTERNAL_LAYER_SIZES}_${EPOCHS}.txt"
+NEURAL_NET_FILE="${DT}/neural_net_mnist_epsilon_${EPSILON}_${INTERNAL_LAYER_SIZES}_${EPOCHS}.txt"
+MODEL_OUTPUTS_EVAL="${DT}/all_mnist_outputs_epsilon_${EPSILON}_${INTERNAL_LAYER_SIZES}_${EPOCHS}_eval_${EVAL_EPSILON}.txt"
+RESULTS_JSON="${DT}/results_epsilon_${EPSILON}_${INTERNAL_LAYER_SIZES}_${EPOCHS}_eval_${EVAL_EPSILON}_gram_${GRAM_ITERATIONS}.json"
+
+
 PYTHON=python3
 
 # check for dependencies
@@ -71,28 +163,6 @@ if ! which jq > /dev/null 2>&1; then
     exit 1
 fi
 
-# check we won't interfere with any concurrent execution of this same script
-if [ -d model_weights_csv ]; then
-    echo "Directory model_weights_csv/ still exists."
-    exit 1
-fi
-
-# clean out any old temporary model weights etc.
-rm -rf model_weights_csv
-
-DT=$(date +"%Y-%m-%d_%H:%M:%S")
-
-if [ -d "${DT}" ]; then
-    echo "Directory ${DT}/ already exists!"
-    exit 1
-fi
-
-mkdir "${DT}"
-
-if [ ! -d "${DT}" ]; then
-    echo "Error creating directory ${DT}"
-    exit 1
-fi
 
 echo ""
 echo ""
@@ -114,30 +184,49 @@ cat "$PARAMS_FILE"
 echo ""
 echo ""
 
-MODEL_WEIGHTS_DIR="${DT}/model_weights_epsilon_${EPSILON}_${INTERNAL_LAYER_SIZES}_${EPOCHS}"
-MODEL_OUTPUTS="${DT}/all_mnist_outputs_epsilon_${EPSILON}_${INTERNAL_LAYER_SIZES}_${EPOCHS}.txt"
-NEURAL_NET_FILE="${DT}/neural_net_mnist_epsilon_${EPSILON}_${INTERNAL_LAYER_SIZES}_${EPOCHS}.txt"
-MODEL_OUTPUTS_EVAL="${DT}/all_mnist_outputs_epsilon_${EPSILON}_${INTERNAL_LAYER_SIZES}_${EPOCHS}_eval_${EVAL_EPSILON}.txt"
-RESULTS_JSON="${DT}/results_epsilon_${EPSILON}_${INTERNAL_LAYER_SIZES}_${EPOCHS}_eval_${EVAL_EPSILON}_gram_${GRAM_ITERATIONS}.json"
 
+if [[ "$TRAINING" ]]; then
+    # train the gloro model
+    ${PYTHON} train_gloro.py $EPSILON "$INTERNAL_LAYER_SIZES" $EPOCHS $INPUT_SIZE
 
+    if [ ! -d model_weights_csv ]; then
+	echo "Training gloro model failed or results not successfully saved to model_weights_csv/ dir"
+	exit 1
+    fi
 
-# train the gloro model
-${PYTHON} train_gloro.py $EPSILON "$INTERNAL_LAYER_SIZES" $EPOCHS $INPUT_SIZE
+    # save the weights
+    mv model_weights_csv "$MODEL_WEIGHTS_DIR"
 
-if [ ! -d model_weights_csv ]; then
-    echo "Training gloro model failed or results not successfully saved to model_weights_csv/ dir"
-    exit 1
+    # make the outputs from the zero-bias model
+    ${PYTHON} zero_bias_saved_model.py "$INTERNAL_LAYER_SIZES" "$MODEL_WEIGHTS_DIR" "$MODEL_OUTPUTS" $INPUT_SIZE
+    # make the neural net in a form the certifier can understand
+    ${PYTHON} make_certifier_format.py "$INTERNAL_LAYER_SIZES" "$MODEL_WEIGHTS_DIR" > "$NEURAL_NET_FILE"
+    # add the epsilon to each model output for the certifier to certify against
+    sed "s/$/ ${EVAL_EPSILON}/" "$MODEL_OUTPUTS" > "$MODEL_OUTPUTS_EVAL"    
+else
+    # check we have what we need to evaluate
+    if [ ! -d "${MODEL_WEIGHTS_DIR}" ]; then
+	echo "Model weights directory ${MODEL_WEIGHTS_DIR} doesn't exist!"
+	exit 1
+    fi
+
+    if [ ! -f "${NEURAL_NET_FILE}" ]; then
+	echo "Neural net file ${NEURAL_NET_FILE} doesn't exist!"
+	exit 1
+    fi
+
+    if [ ! -f "${MODEL_OUTPUTS_EVAL}" ]; then
+	echo "Model outputs (with eval epsilon) file ${MODEL_OUTPUTS_EVAL} doesn't exist!"
+	exit 1
+    fi
+
+    # don't overwrite existing results
+    if [ -f "${RESULTS_JSON}" ]; then
+	echo "Certifier JSON results file ${RESULTS_JSON} already exists!"
+	exit 1
+    fi
 fi
 
-# save the weights
-mv model_weights_csv "$MODEL_WEIGHTS_DIR"
-# make the outputs from the zero-bias model
-${PYTHON} zero_bias_saved_model.py "$INTERNAL_LAYER_SIZES" "$MODEL_WEIGHTS_DIR" "$MODEL_OUTPUTS" $INPUT_SIZE
-# make the neural net in a form the certifier can understand
-${PYTHON} make_certifier_format.py "$INTERNAL_LAYER_SIZES" "$MODEL_WEIGHTS_DIR" > "$NEURAL_NET_FILE"
-# add the epsilon to each model output for the certifier to certify against
-sed "s/$/ ${EVAL_EPSILON}/" "$MODEL_OUTPUTS" > "$MODEL_OUTPUTS_EVAL"
 
 
 echo "Running the certifier. This may take a while..."
