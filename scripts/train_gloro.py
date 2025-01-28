@@ -210,7 +210,7 @@ def script(
     # hence, before running the model to evaluate it we need to tell it the new epsilon value to use
     g.epsilon = eval_epsilon
     
-    x_test, y_test = doitlib.load_mnist_test_data(input_size)
+    x_test, y_test = doitlib.load_test_data(dataset=dataset,input_size=input_size)
     y_pred = g.predict(x_test)
     accuracy = float(clean_acc(y_test, y_pred).numpy())
     reject_rate = float(rejection_rate(y_test, y_pred).numpy())
@@ -245,36 +245,42 @@ def script(
 
 import sys
 
-if len(sys.argv) != 6:
-    print(f"Usage: {sys.argv[0]} epsilon INTERNAL_LAYER_SIZES epochs eval_epsilon input_size\n");
+if len(sys.argv) != 8:
+    print(f"Usage: {sys.argv[0]} dataset epsilon INTERNAL_LAYER_SIZES epochs batch_size eval_epsilon input_size\n");
     sys.exit(1)
 
-epsilon=float(sys.argv[1])
+dataset=sys.argv[1]
+
+epsilon=float(sys.argv[2])
     
-internal_layers=eval(sys.argv[2])
+internal_layers=eval(sys.argv[3])
 
-epochs=int(sys.argv[3])
+epochs=int(sys.argv[4])
 
-eval_epsilon=float(sys.argv[4])
+batch_size=int(sys.argv[5])
 
-input_size=int(sys.argv[5])
+eval_epsilon=float(sys.argv[6])
+
+input_size=int(sys.argv[7])
 
 print(f"Running with internal layer dimensions: {internal_layers}")
 
+if dataset=="cifar10":
+    augmentation="all"
+else:
+    augmentation="none"
+
 script(
-    dataset='mnist',
+    dataset=dataset,
     epsilon=epsilon,
     eval_epsilon=eval_epsilon,
     #epsilon_schedule='[0.01]-log-[50%:1.1]',
     epsilon_schedule='fixed',
-    batch_size=32,
+    batch_size=batch_size,
     lr=1e-3,
-    #lr_schedule='decay_after_half_to_0.000001',
     lr_schedule='decay_to_0.000001',
     epochs=epochs,
-    # Table B.1 in Leino et al. lists "0.1,2.0,500" in the "loss" but for others it is 1.5 so ...
-    #loss='sparse_trades_kl.1.5',
     loss='sparse_crossentropy',    
-    augmentation='none',
+    augmentation=augmentation,
     INTERNAL_LAYER_SIZES=internal_layers,
     input_size=input_size)

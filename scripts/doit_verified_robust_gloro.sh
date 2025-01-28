@@ -22,9 +22,9 @@ confirm() {
 }
 
 
-if ! ([ $# -eq 8 ] || [ $# -eq 9 ]); then
-    echo "Usage $0 \"train_and_eval\" gloro_epsilon INTERNAL_LAYER_SIZES eval_epsilon robustness_certifier_binary GRAM_ITERATIONS epochs batch_size [model_input_size]"
-    echo "Usage $0 basedir gloro_epsilon INTERNAL_LAYER_SIZES eval_epsilon robustness_certifier_binary GRAM_ITERATIONS epochs batch_size [model_input_size]"    
+if ! ([ $# -eq 9 ] || [ $# -eq 10 ]); then
+    echo "Usage $0 \"train_and_eval\" dataset training_epsilon INTERNAL_LAYER_SIZES eval_epsilon robustness_certifier_binary GRAM_ITERATIONS epochs batch_size [model_input_size]"
+    echo "Usage $0 basedir dataset training_epsilon INTERNAL_LAYER_SIZES eval_epsilon robustness_certifier_binary GRAM_ITERATIONS epochs batch_size [model_input_size]"    
     exit 1
 fi
 
@@ -32,6 +32,10 @@ COMMAND=$1
 EXISTING_BASEDIR=$1 # we'll work out which it is later on
 
 shift 
+
+DATASET=$1
+
+shift
 
 EPSILON=$1
 INTERNAL_LAYER_SIZES=$2
@@ -41,7 +45,19 @@ GRAM_ITERATIONS=$5
 EPOCHS=$6
 BATCH_SIZE=$7
 
-INPUT_SIZE=28
+case "$DATASET" in
+    "mnist")
+	INPUT_SIZE=28
+	;;
+    "cifar10")
+	INPUT_SIZE=32
+	;;
+    *)
+	echo "dataset should be \"mnist\" or \"cifar10\""
+	exit 1
+	;;
+esac
+
 if [ $# -eq 8 ]; then
     INPUT_SIZE=$8
 fi
@@ -73,7 +89,7 @@ fi
 
 case "$COMMAND" in
     "train_and_eval")
-	echo "We will train a new model and evaluate it."
+	echo "We will train a new ${DATASET} model and evaluate it."
 	if confirm "Proceed?"; then
 	    echo "Proceeding..."
 	else
@@ -91,7 +107,8 @@ case "$COMMAND" in
 	rm -rf model_weights_csv
 
 	DT=$(date +"%Y-%m-%d_%H:%M:%S")
-
+	DT="${DT}-${DATASET}" # put the data set name in there for readability, I guess
+	
 	if [ -d "${DT}" ]; then
 	    echo "Directory ${DT}/ already exists!"
 	    exit 1
@@ -108,7 +125,7 @@ case "$COMMAND" in
 	
     ;;
     *)
-	echo "We will evaluate existing model in ${EXISTING_BASEDIR}."
+	echo "We will evaluate an existing ${DATASET} model in ${EXISTING_BASEDIR}."
 	if confirm "Proceed?"; then
 	    echo "Proceeding..."
 	else
@@ -123,10 +140,6 @@ case "$COMMAND" in
 	DT="${EXISTING_BASEDIR}"
 	
     ;;
-    *)
-	echo "command should be \"train_and_eval\" or \"eval_only\""
-	exit 1
-	;;
 esac
 
 MODEL_WEIGHTS_DIR="${DT}/model_weights_epsilon_${EPSILON}_${INTERNAL_LAYER_SIZES}_${EPOCHS}"
@@ -171,7 +184,8 @@ echo "Artifacts and results will live in: ${DT}/"
 echo ""
 
 PARAMS_FILE=${DT}/params.txt
-echo "    (Global) Model input size: ${INPUT_SIZE}x${INPUT_SIZE}" > "${PARAMS_FILE}"
+echo "    Data set: ${DATASET}" > "${PARAMS_FILE}"
+echo "    (Global) Model input size: ${INPUT_SIZE}x${INPUT_SIZE}" >> "${PARAMS_FILE}"
 echo "    (Training) Gloro epsilon: ${EPSILON}" >> "${PARAMS_FILE}"
 echo "    (Training) INTERNAL_LAYER_SIZES: ${INTERNAL_LAYER_SIZES}" >> "${PARAMS_FILE}"
 echo "    (Training) Epochs: ${EPOCHS}" >> "${PARAMS_FILE}"
@@ -188,7 +202,7 @@ echo ""
 
 if [[ "$TRAINING" ]]; then
     # train the gloro model
-    ${PYTHON} train_gloro.py $EPSILON "$INTERNAL_LAYER_SIZES" $EPOCHS $EVAL_EPSILON $INPUT_SIZE
+    ${PYTHON} train_gloro.py "$DATASET" $EPSILON "$INTERNAL_LAYER_SIZES" $EPOCHS $EVAL_EPSILON $INPUT_SIZE
 
     if [ ! -d model_weights_csv ]; then
 	echo "Training gloro model failed or results not successfully saved to model_weights_csv/ dir"
@@ -197,9 +211,10 @@ if [[ "$TRAINING" ]]; then
 
     # save the weights
     mv model_weights_csv "$MODEL_WEIGHTS_DIR"
-
+    mv model.keras.gloronet "$MODEL_WEIGHTS_DIR" # this doesn't seem to be very useful but keep it just in case
+    
     # make the outputs from the zero-bias model
-    ${PYTHON} zero_bias_saved_model.py "$INTERNAL_LAYER_SIZES" "$MODEL_WEIGHTS_DIR" "$MODEL_OUTPUTS" $INPUT_SIZE
+    ${PYTHON} zero_bias_saved_model.py "$DATASET" "$INTERNAL_LAYER_SIZES" "$MODEL_WEIGHTS_DIR" "$MODEL_OUTPUTS" $INPUT_SIZE
     # make the neural net in a form the certifier can understand
     ${PYTHON} make_certifier_format.py "$INTERNAL_LAYER_SIZES" "$MODEL_WEIGHTS_DIR" > "$NEURAL_NET_FILE"
     # add the epsilon to each model output for the certifier to certify against
@@ -239,7 +254,7 @@ if ! jq empty "$RESULTS_JSON"; then
 fi
 
 
-${PYTHON} test_verified_certified_robust_accuracy.py "$INTERNAL_LAYER_SIZES" "$RESULTS_JSON" "$MODEL_WEIGHTS_DIR" $INPUT_SIZE
+${PYTHON} test_verified_certified_robust_accuracy.py "$DATASET" "$INTERNAL_LAYER_SIZES" "$RESULTS_JSON" "$MODEL_WEIGHTS_DIR" $INPUT_SIZE
 
 echo ""
 echo "Unverified model statistics (to compare to the above verified ones):"

@@ -8,17 +8,19 @@ import os
 
 import sys
 
-if len(sys.argv) != 5:
-    print(f"Usage: {sys.argv[0]} INTERNAL_LAYER_SIZES certifier_results.json model_weights_csv_dir input_size\n");
+if len(sys.argv) != 6:
+    print(f"Usage: {sys.argv[0]} dataset INTERNAL_LAYER_SIZES certifier_results.json model_weights_csv_dir input_size\n");
     sys.exit(1)
 
-INTERNAL_LAYER_SIZES=eval(sys.argv[1])
+dataset=sys.argv[1]
 
-json_results_file=sys.argv[2]
+INTERNAL_LAYER_SIZES=eval(sys.argv[2])
 
-csv_loc=sys.argv[3]+"/"
+json_results_file=sys.argv[3]
 
-input_size=int(sys.argv[4])
+csv_loc=sys.argv[4]+"/"
+
+input_size=int(sys.argv[5])
 
 print(f"Running with internal layer dimensions: {INTERNAL_LAYER_SIZES}")
 print(f"Running with input size: {input_size}")
@@ -37,7 +39,7 @@ doitlib.load_and_set_weights(csv_loc, INTERNAL_LAYER_SIZES, model)
 print("Evaluating the resulting zero-bias gloro model...")
 
 
-x_test, y_test = doitlib.load_mnist_test_data(input_size=input_size)
+x_test, y_test = doitlib.load_test_data(dataset=dataset,input_size=input_size)
 
 loss, accuracy = model.evaluate(x_test, y_test, verbose=2)
 

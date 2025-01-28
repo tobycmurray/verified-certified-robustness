@@ -2,18 +2,23 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sys
 
-if len(sys.argv) != 5:
-    print(f"Usage: {sys.argv[0]} graph_title csv_file upper_bound_txt_file output_pdf_file")
+if len(sys.argv) != 6:
+    print(f"Usage: {sys.argv[0]} graph_title csv_file upper_bound_txt_file gloro_number_txt_file output_pdf_file")
     sys.exit(1)
 
 graph_title=sys.argv[1]
 csv_file=sys.argv[2]
 upper_bound_txt_file=sys.argv[3]
-pdf_file=sys.argv[4]
+gloro_txt_file=sys.argv[4]
+pdf_file=sys.argv[5]
 
 upper_bound=0.0
 with open(upper_bound_txt_file, 'r') as f:
     upper_bound=float(f.read().strip())
+
+gloro_robustness=0.0
+with open(gloro_txt_file, 'r') as f:
+    gloro_robustness=float(f.read().strip())
 
 file_path = csv_file
 data = pd.read_csv(file_path)
@@ -21,26 +26,44 @@ data = pd.read_csv(file_path)
 x = data.iloc[:, 0]  # First column for x-values
 y = data.iloc[:, 1]  # Second column for y-values
 y2 = data.iloc[:, 2]  # Third column for the second y-axis
+y2 = y2 / (60 * 60) # convert seconds to hours
+
+# convert proportions to percentages
+upper_bound=upper_bound * 100
+gloro_robustness=gloro_robustness * 100
+y = y * 100
 
 fig, ax1 = plt.subplots(figsize=(5, 5))
-ax1.plot(x, y, label="Certified", color="blue")
-ax1.set_ylim(0.0,1.0)
+y1max = y.max()
+ax1.plot(x, y, label=f"Verified Robustness (max {y1max}%)", color="blue")
+ax1.set_ylim(0.0,100.0)
 ax1.set_xlabel("Gram Iterations")
-ax1.set_ylabel("Robustness Proportion")
 ax1.tick_params(axis='y', labelcolor="blue")
+ax1.set_ylabel("Robustness Percentage")
 
-ax1.axhline(upper_bound, color="blue", linestyle="--", label=f"Measured ({upper_bound})")
 
+ax1.axhline(gloro_robustness, color="blue", linestyle="--", label=f"Unverified Robustness ({gloro_robustness:.2f}%)")
+ax1.axhline(upper_bound, color="blue", linestyle=":", label=f"Measured Robustness ({upper_bound:.2f}%)")
 
 ax2 = ax1.twinx()
-ax2.plot(x, y2, label="Time", color="green", linestyle='-.')
-ax2.set_ylabel("Seconds to Compute Bounds", color="green")
+ax2.plot(x, y2, label="Certifier Running Time (hours)", color="green", linestyle='-.')
+ax2.set_ylabel("Hours to Compute Bounds", color="green")
 ax2.tick_params(axis='y', labelcolor="green")
 y2max = y2.max()
-ax2.set_ylim(0.0,y2max*1.1)
-plt.title(graph_title)
-ax2.legend(loc="upper right")
-ax1.legend(loc="upper left")
+#ax2.set_yscale('log')
+ax2.set_ylim(0,y2max*1.1)
+
+#plt.title(graph_title)
+
+# Combine both legends to the right of the second y-axis
+lines_1, labels_1 = ax1.get_legend_handles_labels()
+lines_2, labels_2 = ax2.get_legend_handles_labels()
+ax2.legend(lines_1 + lines_2, labels_1 + labels_2, loc='center left', bbox_to_anchor=(1.2, 0.5))
+
+#ax2.legend(loc="upper right",bbox_to_anchor=(0, 1.15))
+#ax1.legend(loc="upper left",bbox_to_anchor=(0, 1.15))
+
+plt.tight_layout(rect=[0, 0, 1.6, 1])
 
 #plt.grid()
 

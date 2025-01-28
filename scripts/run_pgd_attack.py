@@ -30,8 +30,8 @@ from art.utils import load_dataset
 print("")
 print("")
 
-if len(sys.argv) != 8 and len(sys.argv) != 6:
-    print(f"Usage: {sys.argv[0]} INTERNAL_LAYER_SIZES model_weights_csv_dir epsilon MAX_ITER input_size [certifier_results.json disagree_output_dir]\n");
+if len(sys.argv) != 9 and len(sys.argv) != 6:
+    print(f"Usage: {sys.argv[0]} INTERNAL_LAYER_SIZES model_weights_csv_dir epsilon MAX_ITER input_size [certifier_results.json gloro_results.json disagree_output_dir]\n");
     sys.exit(1)
 
 INTERNAL_LAYER_SIZES=eval(sys.argv[1])
@@ -46,10 +46,11 @@ input_size=int(sys.argv[5])
 
 json_results_file=None
 disagree_output_dir=None
-if len(sys.argv) == 8:
+if len(sys.argv) == 9:
     json_results_file=sys.argv[6]
-    disagree_output_dir=sys.argv[7]+"/"
-
+    gloro_results_file=sys.argv[7]
+    disagree_output_dir=sys.argv[8]+"/"
+    
     if os.path.exists(disagree_output_dir):
         raise FileExistsError(f"The directory '{disagree_output_dir}' already exists.")
 
@@ -147,14 +148,18 @@ assert n == x_test.shape[0]
 
 
 robustness_log=[]
-
+gloro_log=[]
 if json_results_file is not None:
     with open(json_results_file, 'r') as f:
         robustness_log = json.load(f)
+    with open(gloro_results_file, 'r') as f:
+        gloro_log = json.load(f)
 
 robustness = [d for d in robustness_log if "certified" in d]
+gloro_robustness = [d for d in gloro_log if "certified" in d]
 
 assert len(robustness)==n or (robustness==[] and json_results_file is None)
+assert len(gloro_robustness)==n or (gloro_robustness==[] and gloro_results_file is None)
 
 disagree=0
 false_positive=0
@@ -165,6 +170,7 @@ max_disagree_norm=-1.0
 min_disagree_norm=-1.0
 
 unsound=0
+gloro_unsound=0
 
 def vector_to_mph(v):
     return list(map(mpf, v.flatten().tolist()))
@@ -217,6 +223,27 @@ while i<n:
                     r = robustness[i]
                     robust = r["certified"]
 
+                    r = gloro_robustness[i]
+                    gloro_said_robust = r["certified"]
+
+                    if gloro_said_robust:
+                        gloro_unsound=gloro_unsound+1
+                        x=x_test[i]
+                        x_adv=x_test_adv[ai][i]
+                        lab_y=x_test_pred[i]                
+                        y_adv=predict_adv[ai][i]
+                        lab_y_adv=np.argmax(y_adv, axis=0)
+                        if disagree_output_dir is not None:
+                            os.makedirs(disagree_output_dir, exist_ok=True)
+                        input_path = os.path.join(disagree_output_dir, f"input_{i}.npy")
+                        np.savetxt(disagree_output_dir+f"/gloro_unsound_{i}_x.csv", x, delimiter=',', fmt='%f')
+                        np.savetxt(disagree_output_dir+f"/gloro_unsound_{i}_x_adv.csv", x_adv, delimiter=',', fmt='%f')
+                        with open(disagree_output_dir+f"/gloro_unsound_{i}_summary.txt", "w") as f:
+                            f.write(f"L2 Norm    : {l2_norm}\n")
+                            f.write(f"Y label    : {lab_y}\n")                    
+                            f.write(f"Y PGD      : {y_adv}\n")
+                            f.write(f"Y PGD label: {lab_y_adv}\n")
+                        
                     if robust:
                         # found an attack when the certifier said the output was robust!
                         unsound=unsound+1
@@ -226,15 +253,15 @@ while i<n:
                         y_adv=predict_adv[ai][i]
                         lab_y_adv=np.argmax(y_adv, axis=0)
                         if disagree_output_dir is not None:
-                            os.makedirs(disagree_output_dir)
+                            os.makedirs(disagree_output_dir, exist_ok=True)
                         input_path = os.path.join(disagree_output_dir, f"input_{i}.npy")
                         np.savetxt(disagree_output_dir+f"/unsound_{i}_x.csv", x, delimiter=',', fmt='%f')
-                        np.savetxt(disagree_output_dir+f"/unsound_{i}_x_adv.csv", x_pgd, delimiter=',', fmt='%f')
+                        np.savetxt(disagree_output_dir+f"/unsound_{i}_x_adv.csv", x_adv, delimiter=',', fmt='%f')
                         with open(disagree_output_dir+f"/unsound_{i}_summary.txt", "w") as f:
                             f.write(f"L2 Norm    : {l2_norm}\n")
                             f.write(f"Y label    : {lab_y}\n")                    
-                            f.write(f"Y PGD      : {y_pgd}\n")
-                            f.write(f"Y PGD label: {lab_y_pgd}\n")
+                            f.write(f"Y PGD      : {y_adv}\n")
+                            f.write(f"Y PGD label: {lab_y_adv}\n")
     if i_disagrees:
         disagree=disagree+1
     i=i+1
@@ -253,3 +280,4 @@ if false_positive > 0:
     print(f"Norms of false positive vectors: min: {min_fp_norm}; max: {max_fp_norm}")
 
 print(f"Number of PGD attacks succeeding against certified robust outputs: {unsound}")
+print(f"Number of PGD attacks succeeding against gloro certified robust outputs: {gloro_unsound}")
