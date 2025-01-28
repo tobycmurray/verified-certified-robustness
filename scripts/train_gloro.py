@@ -52,13 +52,13 @@ def train_gloro(
     # Load data and set up data pipeline.
     _print('loading data...')
 
-    train, test = doitlib.load_mnist_gloro_data(batch_size=batch_size,input_size=input_size)
+    train, test = doitlib.load_gloro_data(batch_size=batch_size,input_size=input_size, dataset=dataset)
     
     
     # Create the model.
     _print('creating model...')
 
-    inputs, outputs = doitlib.build_mnist_model(Input, Flatten, Dense, input_size=input_size, internal_layer_sizes=INTERNAL_LAYER_SIZES)
+    inputs, outputs = doitlib.build_model(Input, Flatten, Dense, input_size=input_size, dataset=dataset, internal_layer_sizes=INTERNAL_LAYER_SIZES)
 
     g = GloroNet(inputs, outputs, epsilon)
 

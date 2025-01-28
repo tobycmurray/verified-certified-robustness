@@ -68,7 +68,8 @@ def printlist(floatlist):
             if count<n:
                 mprint(",")
 
-inputs, outputs = doitlib.build_mnist_model(Input, Flatten, Dense, input_size=input_size, internal_layer_sizes=INTERNAL_LAYER_SIZES)
+    
+inputs, outputs = doitlib.build_model(Input, Flatten, Dense, input_size=input_size, dataset=dataset, internal_layer_sizes=INTERNAL_LAYER_SIZES)
 model = Model(inputs, outputs)
 
 print("Building zero-bias gloro model from saved weights...")

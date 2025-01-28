@@ -202,7 +202,7 @@ echo ""
 
 if [[ "$TRAINING" ]]; then
     # train the gloro model
-    ${PYTHON} train_gloro.py "$DATASET" $EPSILON "$INTERNAL_LAYER_SIZES" $EPOCHS $EVAL_EPSILON $INPUT_SIZE
+    ${PYTHON} train_gloro.py "$DATASET" $EPSILON "$INTERNAL_LAYER_SIZES" $EPOCHS $BATCH_SIZE $EVAL_EPSILON $INPUT_SIZE
 
     if [ ! -d model_weights_csv ]; then
 	echo "Training gloro model failed or results not successfully saved to model_weights_csv/ dir"

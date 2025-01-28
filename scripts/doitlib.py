@@ -3,9 +3,16 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.framework.ops import EagerTensor
 
-def build_mnist_model(Input, Flatten, Dense, input_size=28, internal_layer_sizes=[]):
+def build_model(Input, Flatten, Dense, input_size=28, dataset='mnist', internal_layer_sizes=[]):
     """set input_size to something smaller if the model is downsampled"""
-    inputs = Input((input_size, input_size))
+    if dataset=="mnist":
+        channels=1
+    elif dataset=="cifar10":
+        channels=3
+    else:
+        raise ValueError("Unsupported dataset. Choose 'mnist' or 'cifar10'.")
+    
+    inputs = Input((input_size, input_size, channels))
     z = Flatten()(inputs)
     for size in internal_layer_sizes:
         z = Dense(size, use_bias=False, activation='relu')(z)
@@ -28,12 +35,19 @@ def load_and_set_weights(csv_loc, internal_layer_sizes, model):
 
 
     
-def load_mnist_gloro_data(batch_size=256, augmentation='none', input_size=28):
+def load_gloro_data(batch_size=256, augmentation='none', input_size=28, dataset='mnist'):
     """set input_size to resize the dataset. Returns a pair (train, test)"""
-    train, test, metadata = utils.get_data('mnist', batch_size, augmentation)
+    train, test, metadata = utils.get_data(dataset, batch_size, augmentation)
 
+    """set input_size to something smaller if the model is downsampled"""
+    if dataset=="mnist":
+        default_input_size=28
+    elif dataset=="cifar10":
+        default_input_size=32
+    else:
+        raise ValueError("Unsupported dataset. Choose 'mnist' or 'cifar10'.")
     
-    if input_size != 28:
+    if input_size != default_input_size:
         def resize(image, label):
             image = tf.image.resize(image, [input_size, input_size])  
             return image, label
