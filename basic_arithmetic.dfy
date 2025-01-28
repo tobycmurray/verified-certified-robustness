@@ -3,9 +3,9 @@ module BasicArithmetic {
 // number of decimal places to round reals to, for efficiency purposes
 const ROUNDING_PRECISION := 16
 // maximum number of iterations to run the square-root algorithm for
-const SQRT_ITERATIONS := 20000
+const SQRT_ITERATIONS := 2000000
 // satisfactory error margin for square roots, to optimise the algorithm
-const SQRT_ERR_MARGIN := 0.0000001
+const SQRT_ERR_MARGIN := 0.00000000001
 // print debug messages
 const DEBUG := true
 
