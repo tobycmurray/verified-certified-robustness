@@ -30,26 +30,28 @@ from art.utils import load_dataset
 print("")
 print("")
 
-if len(sys.argv) != 9 and len(sys.argv) != 6:
-    print(f"Usage: {sys.argv[0]} INTERNAL_LAYER_SIZES model_weights_csv_dir epsilon MAX_ITER input_size [certifier_results.json gloro_results.json disagree_output_dir]\n");
+if len(sys.argv) != 10 and len(sys.argv) != 7:
+    print(f"Usage: {sys.argv[0]} dataset INTERNAL_LAYER_SIZES model_weights_csv_dir epsilon MAX_ITER input_size [certifier_results.json gloro_results.json disagree_output_dir]\n");
     sys.exit(1)
 
-INTERNAL_LAYER_SIZES=eval(sys.argv[1])
+dataset=sys.argv[1]
+    
+INTERNAL_LAYER_SIZES=eval(sys.argv[2])
 
-csv_loc=sys.argv[2]+"/"
+csv_loc=sys.argv[3]+"/"
 
-epsilon=float(sys.argv[3])
+epsilon=float(sys.argv[4])
 
-MAX_ITER=int(sys.argv[4])
+MAX_ITER=int(sys.argv[5])
 
-input_size=int(sys.argv[5])
+input_size=int(sys.argv[6])
 
 json_results_file=None
 disagree_output_dir=None
 if len(sys.argv) == 9:
-    json_results_file=sys.argv[6]
-    gloro_results_file=sys.argv[7]
-    disagree_output_dir=sys.argv[8]+"/"
+    json_results_file=sys.argv[7]
+    gloro_results_file=sys.argv[8]
+    disagree_output_dir=sys.argv[9]+"/"
     
     if os.path.exists(disagree_output_dir):
         raise FileExistsError(f"The directory '{disagree_output_dir}' already exists.")
@@ -63,7 +65,7 @@ print(f"Running attacks with epsilon: {epsilon}")
 print(f"MAX_ITER: {MAX_ITER}")
 
 
-inputs, outputs = doitlib.build_mnist_model(Input, Flatten, Dense, input_size=input_size, internal_layer_sizes=INTERNAL_LAYER_SIZES)
+inputs, outputs = doitlib.build_model(Input, Flatten, Dense, input_size=input_size, dataset=dataset, internal_layer_sizes=INTERNAL_LAYER_SIZES)
 model = Model(inputs, outputs)
 
 print("Building zero-bias gloro model from saved weights...")
@@ -71,7 +73,7 @@ print("Building zero-bias gloro model from saved weights...")
 
 doitlib.load_and_set_weights(csv_loc, INTERNAL_LAYER_SIZES, model)
 
-x_test, y_test = doitlib.load_mnist_test_data(input_size=input_size)
+x_test, y_test = doitlib.load_test_data(input_size=input_size, dataset=dataset)
 
 labels_true = np.argmax(y_test, axis=1)
 

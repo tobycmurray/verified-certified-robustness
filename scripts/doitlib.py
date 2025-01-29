@@ -3,15 +3,40 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.framework.ops import EagerTensor
 
+
+def my_load_mnist_data(keras_loader):
+    (x_train, y_train), (x_test, y_test) = keras_loader()
+    x_test = x_test[..., tf.newaxis]  # Add channel dimension for grayscale images
+    return (x_train, y_train), (x_test, y_test)
+
+datasets={
+    "mnist" : {
+        "channels": 1,
+        "default_input_size": 28,
+        "num_classes": 10,
+        "keras_load_data_method": lambda: my_load_mnist_data(tf.keras.datasets.mnist.load_data)
+    },
+    "fashion_mnist" : {
+        "channels": 1,
+        "default_input_size": 28,
+        "num_classes": 10,        
+        "keras_load_data_method": lambda: my_load_mnist_data(tf.keras.datasets.fashion_mnist.load_data)
+    },
+    "cifar10" : {
+        "channels": 3,
+        "default_input_size": 32,
+        "num_classes": 10,        
+        "keras_load_data_method": tf.keras.datasets.cifar10.load_data
+    }
+}
+    
+
 def build_model(Input, Flatten, Dense, input_size=28, dataset='mnist', internal_layer_sizes=[]):
     """set input_size to something smaller if the model is downsampled"""
-    if dataset=="mnist":
-        channels=1
-    elif dataset=="cifar10":
-        channels=3
-    else:
-        raise ValueError("Unsupported dataset. Choose 'mnist' or 'cifar10'.")
-    
+    if dataset not in datasets.keys():
+        raise ValueError(f"Unsupported dataset. Choose one of: {dataset.keys()}")
+
+    channels = datasets[dataset]["channels"]
     inputs = Input((input_size, input_size, channels))
     z = Flatten()(inputs)
     for size in internal_layer_sizes:
@@ -39,14 +64,11 @@ def load_gloro_data(batch_size=256, augmentation='none', input_size=28, dataset=
     """set input_size to resize the dataset. Returns a pair (train, test)"""
     train, test, metadata = utils.get_data(dataset, batch_size, augmentation)
 
-    """set input_size to something smaller if the model is downsampled"""
-    if dataset=="mnist":
-        default_input_size=28
-    elif dataset=="cifar10":
-        default_input_size=32
-    else:
-        raise ValueError("Unsupported dataset. Choose 'mnist' or 'cifar10'.")
-    
+    if dataset not in datasets.keys():
+        raise ValueError(f"Unsupported dataset. Choose one of: {dataset.keys()}")
+
+    default_input_size = datasets[dataset]["default_input_size"]
+        
     if input_size != default_input_size:
         def resize(image, label):
             image = tf.image.resize(image, [input_size, input_size])  
@@ -67,17 +89,14 @@ def load_test_data(dataset='mnist', input_size=None):
     import tensorflow as tf
     import numpy as np
 
-    if dataset == 'mnist':
-        (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
-        x_test = x_test[..., tf.newaxis]  # Add channel dimension for grayscale images                                                              
-        num_classes = 10
-        default_size = 28
-    elif dataset == 'cifar10':
-        (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
-        num_classes = 10
-        default_size = 32
-    else:
-        raise ValueError("Unsupported dataset. Choose 'mnist' or 'cifar10'.")
+    if dataset not in datasets.keys():
+        raise ValueError(f"Unsupported dataset. Choose one of: {dataset.keys()}")
+
+    load_data = datasets[dataset]["keras_load_data_method"]
+    (x_train, y_train), (x_test, y_test) = load_data()
+
+    num_classes = datasets[dataset]["num_classes"]
+    default_size = datasets[dataset]["default_input_size"]
 
     # Normalize pixel values to [0, 1]                                                                                                             
     x_test = x_test.astype('float32') / 255.0

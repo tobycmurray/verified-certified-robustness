@@ -18,27 +18,28 @@ from gloro.models import GloroNet
 from gloro.training.metrics import rejection_rate, vra, clean_acc
 
 
-if len(sys.argv) != 5:
-    print(f"Usage: {sys.argv[0]} INTERNAL_LAYER_SIZES model_weights_csv_dir epsilon input_size\n");
+if len(sys.argv) != 7:
+    print(f"Usage: {sys.argv[0]} dataset INTERNAL_LAYER_SIZES model_weights_csv_dir epsilon input_size max_tries\n");
     sys.exit(1)
 
-INTERNAL_LAYER_SIZES=eval(sys.argv[1])
+dataset=sys.argv[1]
+INTERNAL_LAYER_SIZES=eval(sys.argv[2])
 
-csv_loc=sys.argv[2]+"/"
+csv_loc=sys.argv[3]+"/"
 
-epsilon=float(sys.argv[3])
+epsilon=float(sys.argv[4])
 
-input_size=int(sys.argv[4])
+input_size=int(sys.argv[5])
 
+max_tries=int(sys.argv[6])
 
-
-inputs, outputs = doitlib.build_mnist_model(Input, Flatten, Dense, input_size=input_size, internal_layer_sizes=INTERNAL_LAYER_SIZES)
+inputs, outputs = doitlib.build_model(Input, Flatten, Dense, input_size=input_size, dataset=dataset, internal_layer_sizes=INTERNAL_LAYER_SIZES)
 model = Model(inputs, outputs)
 
 
 doitlib.load_and_set_weights(csv_loc, INTERNAL_LAYER_SIZES, model)
 
-x_test, y_test = doitlib.load_mnist_test_data(input_size=input_size)
+x_test, y_test = doitlib.load_test_data(input_size=input_size, dataset=dataset)
 
 labels_true = np.argmax(y_test, axis=1)
 
@@ -51,7 +52,7 @@ labels_true = np.argmax(y_test, axis=1)
 # Build the gloronet from the saved weights
 g = GloroNet(model=model, epsilon=epsilon)
 
-g.freeze_lc(max_tries=600)
+g.freeze_lc(max_tries=max_tries)
 
 gloro_y_pred = g.predict(x_test)
 gloro_clean_acc = float(clean_acc(y_test, gloro_y_pred).numpy())
@@ -68,7 +69,7 @@ def print_debug_message(msg):
     answer={}
     answer["debug_msg"] = msg
     answers.append(answer)
-    
+print_debug_message(f"For posterity: max_tries:  {max_tries}")    
 print_debug_message(f"For checking: gloro clean accuracy (compare to saved value) is: {gloro_clean_acc}")
 print_debug_message(f"For checking: gloro rejection rate (compare to saved value) is: {gloro_rejection_rate}")
 print_debug_message(f"For checking: gloro robustness (compare to saved value) is: {gloro_robustness}")
