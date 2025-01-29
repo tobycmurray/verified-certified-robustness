@@ -58,7 +58,7 @@ ax2.set_ylim(0,y2max*1.1)
 # Combine both legends to the right of the second y-axis
 lines_1, labels_1 = ax1.get_legend_handles_labels()
 lines_2, labels_2 = ax2.get_legend_handles_labels()
-ax2.legend(lines_1 + lines_2, labels_1 + labels_2, loc='center left', bbox_to_anchor=(1.2, 0.5))
+ax2.legend(lines_1 + lines_2, labels_1 + labels_2, loc='lower center', bbox_to_anchor=(0.5, -0.4), ncol=2)
 
 #ax2.legend(loc="upper right",bbox_to_anchor=(0, 1.15))
 #ax1.legend(loc="upper left",bbox_to_anchor=(0, 1.15))
