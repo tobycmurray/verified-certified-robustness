@@ -52,8 +52,11 @@ case "$DATASET" in
     "cifar10")
 	INPUT_SIZE=32
 	;;
+    "fashion_mnist")
+	INPUT_SIZE=28
+	;;
     *)
-	echo "dataset should be \"mnist\" or \"cifar10\""
+	echo "dataset should be \"mnist\", \"fashion_mnist\", or \"cifar10\""
 	exit 1
 	;;
 esac

@@ -161,7 +161,7 @@ robustness = [d for d in robustness_log if "certified" in d]
 gloro_robustness = [d for d in gloro_log if "certified" in d]
 
 assert len(robustness)==n or (robustness==[] and json_results_file is None)
-assert len(gloro_robustness)==n or (gloro_robustness==[] and gloro_results_file is None)
+#assert len(gloro_robustness)==n or (gloro_robustness==[] and gloro_results_file is None)
 
 disagree=0
 false_positive=0

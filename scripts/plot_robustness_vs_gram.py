@@ -2,15 +2,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sys
 
-if len(sys.argv) != 6:
-    print(f"Usage: {sys.argv[0]} graph_title csv_file upper_bound_txt_file gloro_number_txt_file output_pdf_file")
+if len(sys.argv) != 5:
+    print(f"Usage: {sys.argv[0]} csv_file upper_bound_txt_file gloro_number_txt_file output_pdf_file")
     sys.exit(1)
 
-graph_title=sys.argv[1]
-csv_file=sys.argv[2]
-upper_bound_txt_file=sys.argv[3]
-gloro_txt_file=sys.argv[4]
-pdf_file=sys.argv[5]
+csv_file=sys.argv[1]
+upper_bound_txt_file=sys.argv[2]
+gloro_txt_file=sys.argv[3]
+pdf_file=sys.argv[4]
 
 upper_bound=0.0
 with open(upper_bound_txt_file, 'r') as f:
@@ -33,7 +32,7 @@ upper_bound=upper_bound * 100
 gloro_robustness=gloro_robustness * 100
 y = y * 100
 
-fig, ax1 = plt.subplots(figsize=(5, 5))
+fig, ax1 = plt.subplots(figsize=(4.5, 3.5))
 y1max = y.max()
 ax1.plot(x, y, label=f"Verified Robustness (max {y1max}%)", color="blue")
 ax1.set_ylim(0.0,100.0)
@@ -59,7 +58,7 @@ ax2.set_ylim(0,25)
 # Combine both legends to the right of the second y-axis
 lines_1, labels_1 = ax1.get_legend_handles_labels()
 lines_2, labels_2 = ax2.get_legend_handles_labels()
-ax2.legend(lines_1 + lines_2, labels_1 + labels_2, loc='lower center', bbox_to_anchor=(0.5, -0.4), ncol=2)
+ax2.legend(lines_1 + lines_2, labels_1 + labels_2, loc='lower center', bbox_to_anchor=(0.5, -0.6), ncol=2)
 
 #ax2.legend(loc="upper right",bbox_to_anchor=(0, 1.15))
 #ax1.legend(loc="upper left",bbox_to_anchor=(0, 1.15))
