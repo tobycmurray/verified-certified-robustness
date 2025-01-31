@@ -217,17 +217,34 @@ def script(
     robustness = 1.0 - reject_rate
     the_vra = float(vra(y_test, y_pred).numpy())
 
+    
     # save the statistics calculated by gloro
     data = {
         "comment": "these statistics are unverified and calculated by the gloro implementation",
+        "eval_epsilon": eval_epsilon,
         "accuracy": accuracy,
         "rejection_rate": reject_rate,
         "robustness": robustness,
         "vra": the_vra
     }
-    file_path = os.path.join(save_dir, "gloro_model_stats.json")
+    file_path = os.path.join(save_dir, "gloro_model_results.json")
+
+    answers=[data]
+    bot_index = tf.cast(tf.shape(y_pred)[1] - 1, 'int64')
+    bots=0
+    preds = tf.argmax(y_pred, axis=1)
+    for p in preds:
+        answer = {}
+        if p == bot_index:
+            bots=bots+1
+            answer["certified"]=False
+        else:
+            answer["certified"]=True
+        answers.append(answer)
+
+    
     with open(file_path, "w") as json_file:
-        json.dump(data, json_file, indent=4)
+        json.dump(answers, json_file, indent=4)
 
     
     print("SUMMARY")

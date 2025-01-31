@@ -261,7 +261,7 @@ ${PYTHON} test_verified_certified_robust_accuracy.py "$DATASET" "$INTERNAL_LAYER
 
 echo ""
 echo "Unverified model statistics (to compare to the above verified ones):"
-cat "${MODEL_WEIGHTS_DIR}/gloro_model_stats.json"
+cat "${MODEL_WEIGHTS_DIR}/gloro_model_results.json" | head -10
 
 # get timestamps
 CERTIFIER_FINISH_TIME=$(grep '\]$' "${RESULTS_JSON}.timestamps" | cut -d' ' -f-2)
