@@ -21,6 +21,8 @@ neg_float = -np.finfo(np.float32).tiny
 
 # Manually set weights
 custom_weights = np.array([[pos_float, neg_float]], dtype=np.float32)  # Shape (1,2)
+print(f"Initial weights: {np.array2string(custom_weights, formatter={'float_kind': lambda x: f'{x:.150f}'})}")
+
 saved_custom_weights = custom_weights
 model.layers[0].set_weights([custom_weights])
 
@@ -52,7 +54,7 @@ print(g.layers[1].get_weights())
 
 trained_weights=g.layers[1].get_weights()
 manhattan_distance = np.sum(np.abs(trained_weights - saved_custom_weights))
-print(f"Manhattan distance between new and old weights is: {manhattan_distance}")
+print(f"Manhattan distance between new and old weights is: {manhattan_distance:.150f}")
 
 save_dir="adversarial_gloro-results/"
 layer_weights = [layer.get_weights()[0] for layer in g.layers if len(layer.get_weights()) > 0]
@@ -70,11 +72,11 @@ if not os.path.exists(save_dir):
 
 # Loop through each layer, extract weights and biases, and save them
 for i, weights in enumerate(layer_weights):
-    np.savetxt(os.path.join(save_dir, f'layer_{i}_weights.csv'), weights, delimiter=',', fmt='%.80f')
+    np.savetxt(os.path.join(save_dir, f'layer_{i}_weights.csv'), weights, delimiter=',', fmt='%.150f')
 
 # Loop through each layer, extract weights and biases, and save them
 for i, c in enumerate(lipschitz_constants):
-    np.savetxt(os.path.join(save_dir, f'logit_{i}_gloro_lipschitz.csv'), [c], delimiter=',', fmt='%f')
+    np.savetxt(os.path.join(save_dir, f'logit_{i}_gloro_lipschitz.csv'), [c], delimiter=',', fmt='%.150f')
         
 print('model weights extracted.')
 
@@ -86,7 +88,7 @@ model2 = keras.Sequential([
 model2.layers[0].set_weights([custom_weights])
 
 # Test with positive and negative input
-test_inputs = np.array([[1.0], [-1.0], [0.2], [-0.2]], dtype=np.float32)
+test_inputs = np.array([[0], [1.0], [-1.0], [0.2], [-0.2], [1.2], [-1.2], [100000000000000000000000000000000000]], dtype=np.float32)
 
 gloro_outputs = g.predict(test_inputs)
 print("Gloro outputs for test inputs:")
@@ -100,9 +102,15 @@ print(f"The gloro model certified this proportion of the otuputs as robust at ep
 
 outputs = model2.predict(test_inputs)
 
+inputs_outputs = {}
+
 print("Outputs for test inputs (to run the certifier on):")
 i = 0
 while i<len(test_inputs):
     print(f"Input:   {test_inputs[i]}")
-    print(f"Output:  {np.array2string(outputs[i], formatter={'float_kind': lambda x: f'{x:.80f}'})}")
+    print(f"Output:  {np.array2string(outputs[i], formatter={'float_kind': lambda x: f'{x:.150f}'})}")
     i+=1
+
+a=outputs[0]
+b=outputs[1]
+print(f"The distance between the outputs for inputs {test_inputs[0]} and {test_inputs[1]} is: {np.linalg.norm(a - b):.150f}")
