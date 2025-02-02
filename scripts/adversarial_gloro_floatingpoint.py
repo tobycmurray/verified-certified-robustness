@@ -79,7 +79,7 @@ else:
 
 print("")
 
-save_dir="adversarial_gloro-results/"
+save_dir="adversarial_gloro_floatingpoint-results/"
 layer_weights = [layer.get_weights()[0] for layer in g.layers if len(layer.get_weights()) > 0]
 
 lipschitz_constants = g.lipschitz_constant()

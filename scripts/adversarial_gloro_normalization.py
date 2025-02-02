@@ -104,7 +104,7 @@ else:
 
 print("")
 
-save_dir="adversarial_gloro_lower-results/"
+save_dir="adversarial_gloro_normalization-results/"
 
 lipschitz_constants = g.lipschitz_constant()
 
