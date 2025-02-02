@@ -5,6 +5,7 @@ from tensorflow.keras.layers import Dense
 
 import sys
 import os
+import math
 
 from gloro.models import GloroNet
 from gloro.training.metrics import rejection_rate
@@ -15,8 +16,7 @@ model = keras.Sequential([
     Dense(2, activation=None, use_bias=False)  # 2 neurons, no bias, no activation
 ])
 
-pos_float = np.finfo(np.float32).tiny
-neg_float = -np.finfo(np.float32).tiny
+tiny = np.finfo(np.float32).tiny
 
 def fmt_symbolic(num):
     if num==np.finfo(np.float32).tiny:
@@ -31,33 +31,32 @@ def fmt_symbolic(num):
 def fmt_array(array):
     return np.array2string(array, separator=",", formatter={'float_kind': fmt_symbolic})
 
-#LAYER_1_CONSTANT=0.000001
-LAYER_1_CONSTANT=0.00001
-LAYER_2_WEIGHTS=[1.0, -1.0]
-ACTUAL_LIPSCHITZ_CONSTANT=abs(LAYER_1_CONSTANT)*abs(LAYER_2_WEIGHTS[0]-LAYER_2_WEIGHTS[1])
+WEIGHTS=[[0.00001],[1.0, -1.0]]
 
+# lipschitz constants of each layer -- the value for the second layer is the margin Lipschitz constants for the two logits
+LIPSCHITZ_CONSTANTS=[abs(WEIGHTS[0][0]),abs(WEIGHTS[1][0]-WEIGHTS[1][1])]
+LIPSCHITZ_CONSTANT=math.prod(LIPSCHITZ_CONSTANTS)
+
+NUM_LAYERS=len(WEIGHTS)
+
+initial_weights=[np.array([w], dtype=np.float32) for w in WEIGHTS]
 
 print("")
-print(f"The actual Lipschitz constant for this network is: {ACTUAL_LIPSCHITZ_CONSTANT:.10f}")
+print(f"The actual Lipschitz constant for this network is: {LIPSCHITZ_CONSTANT}")
 
 print("")
 
-# Manually set weights
-# 10000000000.0 causes power iteration to return the wrong value due to imprecision / overflow
-# let's try something small in the hope that the accuracy threshold is reached first before power iteration finishes
-custom_weights1 = np.array([[LAYER_1_CONSTANT]], dtype=np.float32)  # Shape (1,1)
-custom_weights2 = np.array([LAYER_2_WEIGHTS], dtype=np.float32)  # Shape (1,2)
+
 print("Initialising model with custom weights...")
-print(f"Custom weights layer 1: {fmt_array(custom_weights1)}")
-print(f"Custom weights layer 2: {fmt_array(custom_weights2)}")
-
-model.layers[0].set_weights([custom_weights1])
-model.layers[1].set_weights([custom_weights2])
+for i in range(len(initial_weights)):
+    print(f"Layer {i}: {initial_weights[i]}")
+    model.layers[i].set_weights([initial_weights[i]])
 
 
 
-# Define training data
-X_train = np.array([[pos_float], [neg_float]], dtype=np.float32)
+# Define training data to ensure that model training won't update the weights
+# alternatively, we could train for 0 epochs
+X_train = np.array([[tiny], [-tiny]], dtype=np.float32)
 Y_train = np.array([0, 1], dtype=np.int32)
     
 epsilon=1.0
@@ -69,14 +68,10 @@ g = GloroNet(model=model, epsilon=epsilon)
 print("Compiling model...")
 g.compile(optimizer=keras.optimizers.Adam(), loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True))
 
-initial_weights1 = g.layers[1].get_weights()[0]
-initial_weights2 = g.layers[2].get_weights()[0]
 
 print("Training gloro model with this training data: ")
-i=0
-while i<len(X_train):
+for i in range(len(X_train)):
     print(f"X: {fmt_symbolic(X_train[i])} -> Y: {Y_train[i]}")
-    i+=1
 
 EPOCHS=10
 print(f"Training gloro model for {EPOCHS} epochs...")
@@ -89,28 +84,26 @@ g.fit(X_train, Y_train, epochs=EPOCHS)
 #sys.stdout = saved_stdout
 #devnull.close()
 
-trained_weights1=g.layers[1].get_weights()[0]
-trained_weights2=g.layers[2].get_weights()[0]
+trained_weights = [layer.get_weights()[0] for layer in g.layers if len(layer.get_weights()) > 0]
+assert len(trained_weights) == len(initial_weights)
 
-layer_weights = [layer.get_weights()[0] for layer in g.layers if len(layer.get_weights()) > 0]
-
-if not np.array_equal(initial_weights1,trained_weights1) or not np.array_equal(initial_weights2,trained_weights2):
-    print("Training modified the weights!")
-    print([initial_weights1,initial_weights2])
-    print(layer_weights)
-    sys.exit(1)
-else:
-    print("Training did not modify weights, as expected.")
-
+for i in range(len(initial_weights)):
+    if not np.array_equal(initial_weights[i],trained_weights[i]):
+        print(f"Training modified the weights in layer {i}!")
+        print("     Original weights: ")
+        print(initial_weights[i])
+        print("     New weights: ")
+        print(trained_weights[i])
+        sys.exit(1)
+        
+print("Training did not modify weights, as expected.")
 print("")
 
 save_dir="adversarial_gloro_normalization-results/"
 
 lipschitz_constants = g.lipschitz_constant()
 
-
 sub_lipschitz = g.sub_lipschitz
-
 
 print("Gloro model lipschitz constants: ")
 print(lipschitz_constants)
@@ -118,9 +111,9 @@ print(lipschitz_constants)
 print("Gloro model sub lipschitz constants (for all layers but the final one): ")
 print(sub_lipschitz)
 
-print("The safe value for the sub lipschitz constant is: ", abs(LAYER_1_CONSTANT))
+print("The safe value for the sub lipschitz constant is: ", LIPSCHITZ_CONSTANTS[0])
 
-if sub_lipschitz < LAYER_1_CONSTANT:
+if sub_lipschitz < LIPSCHITZ_CONSTANTS[0]:
     print("Gloro computed unsafe Lipschitz bounds")
 else:
     print("Gloro bounds might be safe.")
@@ -133,7 +126,7 @@ if not os.path.exists(save_dir):
     os.makedirs(save_dir)
 
 # Loop through each layer, extract weights and biases, and save them with very high precision
-for i, weights in enumerate(layer_weights):
+for i, weights in enumerate(trained_weights):
     np.savetxt(os.path.join(save_dir, f'layer_{i}_weights.csv'), weights, delimiter=',', fmt='%.150f')
 
 # Loop through each layer, extract weights and biases, and save them with very high precision
@@ -148,8 +141,9 @@ model2 = keras.Sequential([
     Dense(1, input_shape=(1,), activation=None, use_bias=False),  # 2 neurons, no bias, no activation    
     Dense(2, input_shape=(1,), activation=None, use_bias=False)  # 2 neurons, no bias, no activation
 ])
-model2.layers[0].set_weights([trained_weights1])
-model2.layers[1].set_weights([trained_weights2])
+
+for i in range(len(trained_weights)):
+    model2.layers[i].set_weights([trained_weights[i]])
 
 # Test with positive and negative input
 test_inputs = np.array([[0], [1.0], [-1.0], [0.2], [-0.2], [1.2], [-1.2], [100000000000000000000000000000000000]], dtype=np.float32)
@@ -158,11 +152,18 @@ print("")
 print("Running the gloro model on the test inputs...")
 
 gloro_outputs = g.predict(test_inputs)
+bot_index = tf.cast(tf.shape(gloro_outputs)[1] - 1, 'int64')
+preds = tf.argmax(gloro_outputs, axis=1)
+
 print("Gloro outputs for test inputs:")
 i = 0
 while i<len(test_inputs):
     print(f"Input:   {test_inputs[i]}")
     print(f"Output:  {gloro_outputs[i]}")
+    if preds[i] == bot_index:
+        print(f"Gloro says this output was NOT robust")
+    else:
+        print(f"Gloro says this output was robust")
     i+=1
 
 print(f"The gloro model certified this percentage of the otuputs as robust at epsilon {epsilon}: {(1.0 - rejection_rate(gloro_outputs,gloro_outputs))*100}%")
