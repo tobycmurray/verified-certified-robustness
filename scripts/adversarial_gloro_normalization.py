@@ -77,12 +77,12 @@ EPOCHS=10
 print(f"Training gloro model for {EPOCHS} epochs...")
 
 # training produces lots of text so turn that off
-#saved_stdout = sys.stdout
-#devnull = open(os.devnull, 'w')
-#sys.stdout = devnull
+saved_stdout = sys.stdout
+devnull = open(os.devnull, 'w')
+sys.stdout = devnull
 g.fit(X_train, Y_train, epochs=EPOCHS)
-#sys.stdout = saved_stdout
-#devnull.close()
+sys.stdout = saved_stdout
+devnull.close()
 
 trained_weights = [layer.get_weights()[0] for layer in g.layers if len(layer.get_weights()) > 0]
 assert len(trained_weights) == len(initial_weights)
