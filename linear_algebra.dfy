@@ -346,6 +346,315 @@ method SumPositiveImpl(v: Vector) returns (r: real)
   }
 }
 
+function ArrayRow(M: array2<real>, acc: seq<real>, row: nat) : (r: Vector)
+  reads M
+  requires M.Length0 > 0 && M.Length1 > 0
+  requires row < M.Length0 && |acc| <= M.Length1
+  requires forall j | 0 <= j < |acc| :: acc[j] == M[row,j]
+  ensures |r| == M.Length1
+  ensures forall j | 0 <= j < |r| :: r[j] == M[row,j]
+  decreases M.Length1 - |acc|
+{
+  if |acc| == M.Length1 then acc
+  else ArrayRow(M, acc+[M[row,|acc|]], row)
+}
+
+/* Machinery to convert between Matrices as Dafny sequences, to two-dimensional arrays */
+function ArrayToMatrix(M: array2<real>, acc: seq<seq<real>>) : (r: Matrix)
+  reads M
+  requires M.Length0 > 0 && M.Length1 > 0
+  requires |acc| <= M.Length0 && (forall j | 0 <= j < |acc| :: |acc[j]| == M.Length1)
+  ensures Rows(r) == M.Length0 && Cols(r) == M.Length1
+  requires forall i,j | 0 <= i < |acc| && 0 <= j < M.Length1 :: acc[i][j] == M[i,j]
+  ensures forall i,j | 0 <= i < M.Length0 && 0 <= j < M.Length1 :: r[i][j] == M[i,j]
+  decreases M.Length0 - |acc|
+{
+  if |acc| == M.Length0 then acc
+  else ArrayToMatrix(M, acc+[ArrayRow(M, [], |acc|)])
+}
+
+function A2M(M: array2<real>) : (r: Matrix)
+  reads M
+  requires M.Length0 > 0 && M.Length1 > 0
+  ensures Rows(r) == M.Length0 && Cols(r) == M.Length1
+  ensures forall i,j | 0 <= i < M.Length0 && 0 <= j < M.Length1 :: r[i][j] == M[i,j]
+{
+  ArrayToMatrix(M, [])
+}
+
+method M2A(M: Matrix, a: array2<real>)
+  modifies a
+  requires a.Length0 == Rows(M)
+  requires a.Length1 == Cols(M)
+  ensures forall i,j | 0 <= i < Rows(M) && 0 <= j < Cols(M) :: a[i, j] == M[i][j]
+{
+  var row := 0;
+  while row < Rows(M)
+    invariant 0 <= row && row <= Rows(M)
+    invariant forall i | 0 <= i < row :: (forall j | 0 <= j < Cols(M) :: a[i, j] == M[i][j]) 
+  {
+    var col := 0;
+    while col < Cols(M)
+      invariant 0 <= row && row <= Rows(M)
+      invariant 0 <= col && col <= Cols(M)
+      invariant forall i,j | 0 <= i < row && 0 <= j < Cols(M) :: a[i, j] == M[i][j]
+      invariant forall j | 0 <= j < col :: a[row, j] == M[row][j]
+    {
+      a[row, col] := M[row][col];
+      col := col + 1;
+    }
+    row := row + 1;
+  }
+  assert forall i,j | 0 <= i < Rows(M) && 0 <= j < Cols(M) :: a[i, j] == M[i][j];
+}
+
+lemma MatrixEquality(M1: Matrix, M2: Matrix)
+  requires Rows(M1) == Rows(M2)
+  requires Cols(M1) == Cols(M2)
+  requires forall i,j | 0 <= i < Rows(M1) && 0 <= j < Cols(M1) :: M1[i][j] == M2[i][j]
+  ensures M1 == M2
+{
+  assert |M1| == |M2|;
+  assert forall i | 0 <= i < |M1| :: |M1[i]| == |M2[i]|;
+  assert forall i | 0 <= i < |M1| :: (forall j | 0 <= j < |M1[i]| :: M1[i][j] == M2[i][j]);
+  assert forall i | 0 <= i < |M1| :: M1[i] == M2[i];
+  assert M1 == M2;
+}
+
+// TODO: remove this?
+method Test(M: Matrix) returns (r: Matrix)
+  ensures r == M 
+{
+  var a := new real[Rows(M), Cols(M)];
+  M2A(M, a);
+  assert forall i,j | 0 <= i < Rows(M) && 0 <= j < Cols(M) :: a[i, j] == M[i][j];
+  r := A2M(a);
+  MatrixEquality(r,M);
+}
+
+/* lemmas to reason about the behaviour of MM(Transpose(M),M)
+ *
+ * first we need a bunch of lemmas about the basic functions
+ */
+lemma ColumnCorrect(M: Matrix, col: nat, i: nat)
+  requires col < Cols(M)
+  requires i < Rows(M)
+  ensures Column(col,M)[i] == M[i][col]
+{
+  if |M| > 1 && i > 0 {
+    ColumnCorrect(M[1..], col, i-1);
+  }
+}
+
+lemma MMGetRowElements(v: Vector, M2: Matrix, col: nat, i: nat)
+  requires col < Cols(M2)
+  requires |v| == Rows(M2)
+  requires i < Cols(M2) - col
+  ensures MMGetRow(v, M2, col)[i] == Dot(v, Column(i+col, M2))
+  decreases i
+{
+  if col == Cols(M2)-1 {
+    return;
+  } else {
+    if i == 0 {
+      return;
+    } else {
+      assert i > 0;
+      MMGetRowElements(v, M2, col+1, i-1);
+      return;
+    }
+  }
+}
+
+/* each element of matrix multiplication is the corresponding dot product */
+lemma MMElements(M1: Matrix, M2: Matrix, M3: Matrix, i: nat, j:nat)
+  requires Cols(M1) == Rows(M2)
+  requires M3 == MM(M1,M2)
+  requires i < Rows(M1) && j < Cols(M2)
+  ensures Rows(M3) == Rows(M1)
+  ensures Cols(M3) == Cols(M2)
+  ensures M3[i][j] == Dot(M1[i],Column(j,M2))
+{
+  if |M1| == 1 {
+    MMGetRowElements(M1[0], M2, 0, j);
+  } else {
+    MMGetRowElements(M1[0], M2, 0, j);
+    if i > 0 {
+      MMElements(M1[1..], M2, M3[1..], i-1, j);
+    } else {
+      // need a recursive call to prove the Rows conclusion from the induction hypothesis
+      MMElements(M1[1..], M2, M3[1..], 0, 0);
+      return;
+    }
+  }
+}
+
+/* each row of a transposed matrix is the corresponding column of the original matrix */
+lemma TransposeTransposes(M: Matrix, i: nat, j: nat)
+  requires i < Cols(M) - j
+  requires j < Cols(M)
+  ensures Rows(Transpose(M,j)) == Cols(M) - j
+  ensures Cols(Transpose(M,j)) == Rows(M)
+  ensures Transpose(M,j)[i] == Column(i+j, M)
+  decreases Cols(M) - j
+{
+  if j == Cols(M) - 1 {
+  } else {
+    if i == 0 {
+    } else {
+      TransposeTransposes(M,i-1,j+1);
+    }
+  }
+}
+
+/* finally we characterise each element of MM(Transpose(M),M) as the dot
+ * product of the corresponding column vectors of M 
+ */
+lemma MTMElement(M: Matrix, i: nat, j: nat)
+  requires i < Cols(M) && j < Cols(M)
+  ensures Rows(MM(Transpose(M),M)) == Cols(M)
+  ensures Cols(MM(Transpose(M),M)) == Cols(M)
+  ensures MM(Transpose(M),M)[i][j] == Dot(Column(i,M),Column(j,M))
+{
+  TransposeTransposes(M, i, 0);
+  MMElements(Transpose(M),M,MM(Transpose(M),M),i,j); 
+}
+
+/* dot product is symmetric */
+lemma DotSym(v: Vector, u: Vector)
+  requires |v| == |u|
+  ensures Dot(v,u) == Dot(u,v)
+{
+  reveal Dot();
+  if |v| == 1 {
+  } else {
+    DotSym(v[1..], u[1..]);
+  }
+}
+
+/* therefore, MM(Transpose(M),M) is a symmetric matrix.
+ * later, we can take advantage of this to save having to recompute entries already computed
+ */
+lemma MTMSym(M: Matrix, i: nat, j: nat)
+  requires i < Cols(M) && j < Cols(M)
+  ensures Rows(MM(Transpose(M),M)) == Cols(M)
+  ensures Cols(MM(Transpose(M),M)) == Cols(M)
+  ensures MM(Transpose(M),M)[i][j] == MM(Transpose(M),M)[j][i]
+{
+  MTMElement(M, i, j);
+  MTMElement(M, j, i);
+  DotSym(Column(i,M), Column(j,M));
+}
+
+lemma DotColumnsInit(M: Matrix, i: nat, j: nat, k: nat, dot: real)
+  requires i < Cols(M) && j < Cols(M) && k == Rows(M)-1
+  requires dot == M[k][i] * M[k][j]
+  ensures dot == Dot(Column(i,M[k..]), Column(j,M[k..]))
+{
+  reveal Dot();
+}
+
+lemma DotColumnsInductive(M: Matrix, i: nat, j: nat, k: nat, dot: real)
+  requires i < Cols(M) && j < Cols(M) && 0 < k < Rows(M)
+  requires dot == Dot(Column(i,M[k..]), Column(j,M[k..]))
+  ensures dot + M[k-1][i] * M[k-1][j] == Dot(Column(i,M[k-1..]), Column(j,M[k-1..]))
+{
+  reveal Dot(); 
+}
+
+lemma ComputedMTM(r: Matrix, M: Matrix)
+  requires Rows(r) == Cols(M)
+  requires Cols(r) == Cols(M)
+  requires (forall y | 0 <= y < Cols(M) :: forall x | y <= x < Cols(M) :: r[y][x] == Dot(Column(y,M),Column(x,M)) && r[x][y] == r[y][x])
+  ensures r == MM(Transpose(M),M)
+{
+  assert Rows(r) == Rows(MM(Transpose(M),M)) by { MTMElement(M,0,0); } 
+  forall i,j | 0 <= i < Rows(r) && 0 <= j < Cols(r) 
+    ensures r[i][j] == MM(Transpose(M),M)[i][j] {
+    if j >= i {
+      assert r[i][j] == Dot(Column(i,M),Column(j,M));
+      MTMElement(M, i, j);
+      assert r[i][j] == MM(Transpose(M),M)[i][j];
+    } else {
+      assert r[j][i] == Dot(Column(j,M),Column(i,M));
+      assert r[i][j] == Dot(Column(j,M),Column(i,M));
+      DotSym(Column(j,M),Column(i,M));
+      MTMElement(M, i, j);
+    }
+  }
+  MatrixEquality(r,MM(Transpose(M),M));
+}
+
+method MTM(M: Matrix) returns (r: Matrix)
+  ensures r == MM(Transpose(M),M)
+{
+  var aM := new real[Rows(M), Cols(M)];
+  M2A(M, aM);
+  var rM := new real[Cols(M), Cols(M)]; // results go in here
+  var i: nat := 0;
+  while i < rM.Length0
+    /*    outer loop looks like this (Xs are the invariant of what has been done so far)
+     +---------+
+     | X X X X |
+     | X X X X |
+     | X X     |
+     | X X     |
+     +---------+
+           i
+    */
+    invariant (forall x,y | 0 <= x < Rows(M) && 0 <= y < Cols(M) :: aM[x,y] == M[x][y])
+              && i >= 0 && i <= Cols(M) &&
+              (forall y | 0 <= y < i :: forall x | y <= x < Cols(M) :: rM[y,x] == Dot(Column(y,M),Column(x,M)) && rM[x,y] == rM[y,x])  {
+    print "{ \"debug_msg\": \"MTM outer loop, i: ", i, " of : ", rM.Length0, "\" },\n";
+    var j: nat := i;
+    while j < rM.Length1 
+      /*    inner loop looks like this, where the Ys are the invariant involving j
+       +---------+
+       | X X X X X |
+       | X X X X X |
+       | X X Y Y   |
+       | X X Y     |
+       | X X       |
+       +-----------+
+             i   j
+    */
+      invariant i >= 0 && i <= Cols(M) && 
+                j >= i && j <= Cols(M) && 
+                (forall y | 0 <= y < i :: forall x | y <= x < Cols(M) :: rM[y,x] == Dot(Column(y,M),Column(x,M)) && rM[x,y] == rM[y,x]) &&
+                (forall x | i <= x < j :: rM[i,x] == Dot(Column(i,M),Column(x,M)) && rM[x,i] == rM[i,x]) &&
+                (forall x,y | 0 <= x < Rows(M) && 0 <= y < Cols(M) :: aM[x,y] == M[x][y])
+    {
+      var k: nat := aM.Length0-1;
+      var dot: real := aM[k,i] * aM[k,j];
+      DotColumnsInit(M,i,j,k,dot);
+      while k != 0 
+        invariant k < Rows(M) && k >= 0 && dot == Dot(Column(i,M[k..]),Column(j,M[k..])) && 
+                  (forall x,y | 0 <= x < Rows(M) && 0 <= y < Cols(M) :: aM[x,y] == M[x][y]) &&
+                  (forall y | 0 <= y < i :: forall x | y <= x < Cols(M) :: rM[y,x] == Dot(Column(y,M),Column(x,M)) && rM[x,y] == rM[y,x]) &&
+                  (forall x | i <= x < j :: rM[i,x] == Dot(Column(i,M),Column(x,M)) && rM[x,i] == rM[i,x])                         
+        decreases k
+      {
+        DotColumnsInductive(M,i,j,k,dot);
+        k := k - 1;
+        dot := dot + aM[k,i] * aM[k,j];
+        //assert dot == Dot(Column(i,M[k..]),Column(j,M[k..]));
+      }
+      assert dot == Dot(Column(i,M), Column(j,M));
+      rM[i,j] := dot;
+      rM[j,i] := dot;
+
+      j := j + 1;
+    }
+    i := i + 1;
+  }
+  assert i == Cols(M);
+  assert (forall y | 0 <= y < Cols(M) :: forall x | y <= x < Cols(M) :: rM[y,x] == Dot(Column(y,M),Column(x,M)) && rM[x,y] == rM[y,x]) ;
+  r := A2M(rM);
+  assert Rows(r) == Cols(M) && Cols(r) == Cols(M);
+  ComputedMTM(r, M);
+}
+
+
 /* ================================= Lemmas ================================= */
 
 /**

@@ -80,11 +80,11 @@ method GramIterationSimple(G: Matrix, GRAM_ITERATIONS: int) returns (s: real)
     invariant SpecNorm(G) <= Power2Root(SpecNorm(G'), i)
   {
     if DEBUG { print "{ \"debug_msg\": \"Gram iteration for matrix of size ", |G|, "x", |G[0]|, ". Iteration ", i+1, " of ", GRAM_ITERATIONS, "\" },\n"; }
+    if DEBUG { print "{ \"debug_msg\": \"Will call MTM\" },\n"; }
 
     Assumption1(G');
     Power2RootMonotonic(SpecNorm(G'), Sqrt(SpecNorm(MM(Transpose(G'), G'))), i);
-    var G_transpose := TransposeImpl(G');
-    G' := MMImpl(G_transpose, G');
+    G' := MTM(G');
     Power2RootDef(SpecNorm(G'), i);
     i := i + 1;
   }
