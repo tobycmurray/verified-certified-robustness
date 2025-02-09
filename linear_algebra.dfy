@@ -593,35 +593,35 @@ method MTM(M: Matrix) returns (r: Matrix)
   var rM := new real[Cols(M), Cols(M)]; // results go in here
   var i: nat := 0;
   while i < rM.Length0
-    /*    outer loop looks like this (Xs are the invariant of what has been done so far)
-     +---------+
-     | X X X X |
-     | X X X X |
-     | X X     |
-     | X X     |
-     +---------+
-           i
-    */
-    invariant (forall x,y | 0 <= x < Rows(M) && 0 <= y < Cols(M) :: aM[x,y] == M[x][y])
-              && i >= 0 && i <= Cols(M) &&
-              (forall y | 0 <= y < i :: forall x | y <= x < Cols(M) :: rM[y,x] == Dot(Column(y,M),Column(x,M)) && rM[x,y] == rM[y,x])  {
-    print "{ \"debug_msg\": \"MTM outer loop, i: ", i, " of : ", rM.Length0, "\" },\n";
+    invariant i >= 0 && i <= Cols(M) &&
+              (forall x,y | 0 <= x < Rows(M) && 0 <= y < Cols(M) :: aM[x,y] == M[x][y]) &&
+              (forall y | 0 <= y < i :: forall x | y <= x < Cols(M) :: rM[y,x] == Dot(Column(y,M),Column(x,M))) &&
+              (forall y,x | 0 <= y < i && 0 <= x < y :: rM[y,x] == rM[x,y])
+  {
+    print "{ \"debug_msg\": \"MTM outer loop, i: ", i, " of : ", Cols(M), "\" },\n";
+
+    // copy the existing elements over, ensuring we write each row sequentially to maximise cache hit rate
+    var c := 0;
+    while c < i
+      invariant c <= i && i >= 0 && i <= Cols(M) &&
+                (forall x | 0 <= x < c :: rM[i,x] == rM[x,i]) &&
+                (forall x,y | 0 <= x < Rows(M) && 0 <= y < Cols(M) :: aM[x,y] == M[x][y]) &&
+                (forall y | 0 <= y < i :: forall x | y <= x < Cols(M) :: rM[y,x] == Dot(Column(y,M),Column(x,M))) &&
+                (forall y,x | 0 <= y < i && 0 <= x < y :: rM[y,x] == rM[x,y])
+    {
+      rM[i,c] := rM[c,i];
+      c := c + 1;
+    }
+
+    // compute the new elements, again ensuring we write sequentially to each row
     var j: nat := i;
     while j < rM.Length1 
-      /*    inner loop looks like this, where the Ys are the invariant involving j
-       +---------+
-       | X X X X X |
-       | X X X X X |
-       | X X Y Y   |
-       | X X Y     |
-       | X X       |
-       +-----------+
-             i   j
-    */
       invariant i >= 0 && i <= Cols(M) && 
                 j >= i && j <= Cols(M) && 
-                (forall y | 0 <= y < i :: forall x | y <= x < Cols(M) :: rM[y,x] == Dot(Column(y,M),Column(x,M)) && rM[x,y] == rM[y,x]) &&
-                (forall x | i <= x < j :: rM[i,x] == Dot(Column(i,M),Column(x,M)) && rM[x,i] == rM[i,x]) &&
+                (forall y,x | 0 <= y < i && 0 <= x < y :: rM[y,x] == rM[x,y]) &&
+                (forall y | 0 <= y < i :: forall x | y <= x < Cols(M) :: rM[y,x] == Dot(Column(y,M),Column(x,M))) &&
+                (forall x | i <= x < j :: rM[i,x] == Dot(Column(i,M),Column(x,M))) &&
+                (forall x | 0 <= x < i :: rM[i,x] == rM[x,i]) &&
                 (forall x,y | 0 <= x < Rows(M) && 0 <= y < Cols(M) :: aM[x,y] == M[x][y])
     {
       var k: nat := aM.Length0-1;
@@ -630,8 +630,10 @@ method MTM(M: Matrix) returns (r: Matrix)
       while k != 0 
         invariant k < Rows(M) && k >= 0 && dot == Dot(Column(i,M[k..]),Column(j,M[k..])) && 
                   (forall x,y | 0 <= x < Rows(M) && 0 <= y < Cols(M) :: aM[x,y] == M[x][y]) &&
-                  (forall y | 0 <= y < i :: forall x | y <= x < Cols(M) :: rM[y,x] == Dot(Column(y,M),Column(x,M)) && rM[x,y] == rM[y,x]) &&
-                  (forall x | i <= x < j :: rM[i,x] == Dot(Column(i,M),Column(x,M)) && rM[x,i] == rM[i,x])                         
+                  (forall y,x | 0 <= y < i && 0 <= x < y :: rM[y,x] == rM[x,y]) &&
+                  (forall y | 0 <= y < i :: forall x | y <= x < Cols(M) :: rM[y,x] == Dot(Column(y,M),Column(x,M))) &&
+                  (forall x | i <= x < j :: rM[i,x] == Dot(Column(i,M),Column(x,M))) &&
+                  (forall x | 0 <= x < i :: rM[i,x] == rM[x,i])
         decreases k
       {
         DotColumnsInductive(M,i,j,k,dot);
@@ -641,14 +643,10 @@ method MTM(M: Matrix) returns (r: Matrix)
       }
       assert dot == Dot(Column(i,M), Column(j,M));
       rM[i,j] := dot;
-      rM[j,i] := dot;
-
       j := j + 1;
     }
     i := i + 1;
   }
-  assert i == Cols(M);
-  assert (forall y | 0 <= y < Cols(M) :: forall x | y <= x < Cols(M) :: rM[y,x] == Dot(Column(y,M),Column(x,M)) && rM[x,y] == rM[y,x]) ;
   r := A2M(rM);
   assert Rows(r) == Cols(M) && Cols(r) == Cols(M);
   ComputedMTM(r, M);
