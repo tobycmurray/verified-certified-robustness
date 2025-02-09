@@ -408,6 +408,32 @@ method M2A(M: Matrix, a: array2<real>)
   assert forall i,j | 0 <= i < Rows(M) && 0 <= j < Cols(M) :: a[i, j] == M[i][j];
 }
 
+method M2ATranspose(M: Matrix, a: array2<real>)
+  modifies a
+  requires a.Length1 == Rows(M)
+  requires a.Length0 == Cols(M)
+  ensures forall i,j | 0 <= i < Rows(M) && 0 <= j < Cols(M) :: a[j, i] == M[i][j]
+{
+  var col := 0;
+  while col < Cols(M)
+    invariant 0 <= col && col <= Cols(M)
+    invariant forall j,i | 0 <= j < col && 0 <= i < Rows(M) :: a[j, i] == M[i][j] 
+  {
+    var row := 0;
+    while row < Rows(M)
+      invariant 0 <= row && row <= Rows(M)
+      invariant 0 <= col && col <= Cols(M)
+      invariant forall i,j | 0 <= j < col && 0 <= i < Rows(M) :: a[j, i] == M[i][j]
+      invariant forall i | 0 <= i < row :: a[col, i] == M[i][col]
+    {
+      a[col, row] := M[row][col]; // write sequentially along the rows to avoid cache slowdown
+      row := row + 1;
+    }
+    col := col + 1;
+  }
+  assert forall i,j | 0 <= i < Rows(M) && 0 <= j < Cols(M) :: a[j, i] == M[i][j];
+}
+
 lemma MatrixEquality(M1: Matrix, M2: Matrix)
   requires Rows(M1) == Rows(M2)
   requires Cols(M1) == Cols(M2)
@@ -588,13 +614,13 @@ lemma ComputedMTM(r: Matrix, M: Matrix)
 method MTM(M: Matrix) returns (r: Matrix)
   ensures r == MM(Transpose(M),M)
 {
-  var aM := new real[Rows(M), Cols(M)];
-  M2A(M, aM);
+  var aM := new real[Cols(M), Rows(M)];
+  M2ATranspose(M, aM); // transpose as we copy to the array so that columns sit on cache lines (hopefully)
   var rM := new real[Cols(M), Cols(M)]; // results go in here
   var i: nat := 0;
   while i < rM.Length0
     invariant i >= 0 && i <= Cols(M) &&
-              (forall x,y | 0 <= x < Rows(M) && 0 <= y < Cols(M) :: aM[x,y] == M[x][y]) &&
+              (forall x,y | 0 <= x < Rows(M) && 0 <= y < Cols(M) :: aM[y,x] == M[x][y]) &&
               (forall y | 0 <= y < i :: forall x | y <= x < Cols(M) :: rM[y,x] == Dot(Column(y,M),Column(x,M))) &&
               (forall y,x | 0 <= y < i && 0 <= x < y :: rM[y,x] == rM[x,y])
   {
@@ -605,7 +631,7 @@ method MTM(M: Matrix) returns (r: Matrix)
     while c < i
       invariant c <= i && i >= 0 && i <= Cols(M) &&
                 (forall x | 0 <= x < c :: rM[i,x] == rM[x,i]) &&
-                (forall x,y | 0 <= x < Rows(M) && 0 <= y < Cols(M) :: aM[x,y] == M[x][y]) &&
+                (forall x,y | 0 <= x < Rows(M) && 0 <= y < Cols(M) :: aM[y,x] == M[x][y]) &&
                 (forall y | 0 <= y < i :: forall x | y <= x < Cols(M) :: rM[y,x] == Dot(Column(y,M),Column(x,M))) &&
                 (forall y,x | 0 <= y < i && 0 <= x < y :: rM[y,x] == rM[x,y])
     {
@@ -622,14 +648,14 @@ method MTM(M: Matrix) returns (r: Matrix)
                 (forall y | 0 <= y < i :: forall x | y <= x < Cols(M) :: rM[y,x] == Dot(Column(y,M),Column(x,M))) &&
                 (forall x | i <= x < j :: rM[i,x] == Dot(Column(i,M),Column(x,M))) &&
                 (forall x | 0 <= x < i :: rM[i,x] == rM[x,i]) &&
-                (forall x,y | 0 <= x < Rows(M) && 0 <= y < Cols(M) :: aM[x,y] == M[x][y])
+                (forall x,y | 0 <= x < Rows(M) && 0 <= y < Cols(M) :: aM[y,x] == M[x][y])
     {
-      var k: nat := aM.Length0-1;
-      var dot: real := aM[k,i] * aM[k,j];
+      var k: nat := aM.Length1-1;
+      var dot: real := aM[i,k] * aM[j,k];
       DotColumnsInit(M,i,j,k,dot);
       while k != 0 
         invariant k < Rows(M) && k >= 0 && dot == Dot(Column(i,M[k..]),Column(j,M[k..])) && 
-                  (forall x,y | 0 <= x < Rows(M) && 0 <= y < Cols(M) :: aM[x,y] == M[x][y]) &&
+                  (forall x,y | 0 <= x < Rows(M) && 0 <= y < Cols(M) :: aM[y,x] == M[x][y]) &&
                   (forall y,x | 0 <= y < i && 0 <= x < y :: rM[y,x] == rM[x,y]) &&
                   (forall y | 0 <= y < i :: forall x | y <= x < Cols(M) :: rM[y,x] == Dot(Column(y,M),Column(x,M))) &&
                   (forall x | i <= x < j :: rM[i,x] == Dot(Column(i,M),Column(x,M))) &&
@@ -638,7 +664,7 @@ method MTM(M: Matrix) returns (r: Matrix)
       {
         DotColumnsInductive(M,i,j,k,dot);
         k := k - 1;
-        dot := dot + aM[k,i] * aM[k,j];
+        dot := dot + aM[i,k] * aM[j,k];
         //assert dot == Dot(Column(i,M[k..]),Column(j,M[k..]));
       }
       assert dot == Dot(Column(i,M), Column(j,M));
