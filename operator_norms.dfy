@@ -186,12 +186,18 @@ lemma SafeFrobeniusNorm(m: Matrix)
 }
 
 
+function MatrixSymmetric(m: Matrix) : (b: bool)
+  requires Rows(m) == Cols(m)
+{
+  forall i,j | 0 <= i < Rows(m) && 0 <= j < i :: m[i][j] == m[j][i]
+}
 
 method Truncate(m: Matrix) returns (r: Matrix, e: Matrix)
   requires Rows(m) == Cols(m)
-  requires forall i,j | 0 <= i < Rows(m) && 0 <= j < Cols(m) :: m[i][j] == m[j][i]
+  requires MatrixSymmetric(m)
   ensures SpecNorm(m) <= SpecNorm(r) + SpecNorm(e)
 {
+  opaque ensures Abs(SpecNorm(r)-SpecNorm(m)) <= SpecNorm(e) {
   var rM := new real[Rows(m), Rows(m)];
   var eM := new real[Rows(m), Rows(m)];
   var i := 0;
@@ -236,6 +242,7 @@ method Truncate(m: Matrix) returns (r: Matrix, e: Matrix)
   r := A2M(rM);
   e := A2M(eM);
   Assumption4(m,r,e);
+  }
 }
 
 ghost function ExpandWF(a: seq<(real,real)>) : (b: bool)
@@ -250,6 +257,13 @@ ghost opaque function Expand(a: seq<(real,real)>, v: real) : (r: real)
   if a == [] then v
   else Expand(a[1..],Sqrt((v + a[0].1)*a[0].0))
 }
+
+lemma ExpandRecurse(a: seq<(real,real)>, v: real)
+  requires ExpandWF(a)
+  requires v >= 0.0
+  requires a != []
+  ensures Expand(a, v) == Expand(a[1..],Sqrt((v + a[0].1)*a[0].0))
+{ reveal Expand(); }
 
 method ExpandImpl(a: seq<(real,real)>, v: real) returns (r: real)
   requires ExpandWF(a)
@@ -299,10 +313,17 @@ lemma ExtendExWellformed(r: real, e: real, ex: seq<(real,real)>)
 method Gram(m: Matrix) returns (r: Matrix)
   ensures Sqrt(SpecNorm(r)) >= SpecNorm(m)
   ensures Rows(r) == Cols(r)
-  ensures forall i,j | 0 <= i < Rows(r) && 0 <= j < Cols(r) :: r[i][j] == r[j][i]
+  ensures MatrixSymmetric(r)
 {
   r := MTM(m);
   Assumption1(m);
+}
+
+function IsMatrixDiv(m: Matrix, r: Matrix, x: real) : (b: bool)
+  requires x > 0.0
+  requires Rows(r) == Rows(m) && Cols(r) == Cols(m)
+{
+  forall i,j | 0 <= i < Rows(r) && 0 <= j < Cols(r) :: r[i][j] == m[i][j]/x
 }
 
 lemma MatrixDivLemma(m: Matrix, x: real, r: Matrix)
@@ -310,28 +331,43 @@ lemma MatrixDivLemma(m: Matrix, x: real, r: Matrix)
   requires r == MatrixDiv(m, x)
   ensures SpecNorm(m) <= SpecNorm(r)*x
   ensures Rows(r) == Rows(m) && Cols(r) == Cols(m)
-  ensures forall i,j | 0 <= i < Rows(r) && 0 <= j < Cols(r) :: r[i][j] == m[i][j]/x
+  ensures IsMatrixDiv(m, r, x)
 {
   Assumption3(m, x);
 }
 
+
+lemma MatrixSymmetricDiv(m: Matrix, r: Matrix, x: real)
+  requires Rows(r) == Rows(m) && Cols(r) == Cols(m)
+  requires Rows(m) == Cols(m)
+  requires MatrixSymmetric(m)
+  requires x > 0.0
+  requires IsMatrixDiv(m, r, x)
+  ensures MatrixSymmetric(r)
+{
+}
+
 method Normalise(m: Matrix) returns (r: Matrix, scale_factor: real)
   requires Rows(m) == Cols(m)
-  requires forall i,j | 0 <= i < Rows(m) && 0 <= j < Cols(m) :: m[i][j] == m[j][i]
+  requires MatrixSymmetric(m)
   ensures Rows(r) == Rows(m) && Cols(r) == Cols(m)
   ensures scale_factor > 0.0
-  //ensures forall i,j | 0 <= i < Rows(r) && 0 <= j < Cols(r) :: r[i][j] == m[i][j]/scale_factor
   ensures SpecNorm(m) <= SpecNorm(r)*scale_factor
-  ensures forall i,j | 0 <= i < Rows(r) && 0 <= j < Cols(r) :: r[i][j] == r[j][i]  
+  ensures MatrixSymmetric(r)
 {
-  hide SpecNorm;
-  scale_factor := 1.0;
-  if !MatrixIsZero(m) {
-    SafeFrobeniusNorm(m);
-    scale_factor := FrobeniusNormUpperBound(m);
+  opaque ensures scale_factor > 0.0 {
+    scale_factor := 1.0;
+    if !MatrixIsZero(m) {
+      SafeFrobeniusNorm(m);
+      scale_factor := FrobeniusNormUpperBound(m);
+    }
   }
-  r := MatrixDivImpl(m, scale_factor);
-  MatrixDivLemma(m, scale_factor, r);
+  opaque ensures Rows(r) == Rows(m) && Cols(r) == Cols(m) && IsMatrixDiv(m,r,scale_factor)
+                 && SpecNorm(m) <= SpecNorm(r)*scale_factor {
+    r := MatrixDivImpl(m, scale_factor);
+    MatrixDivLemma(m, scale_factor, r);
+  }
+  MatrixSymmetricDiv(m,r,scale_factor);
 }
 
 lemma WTFLemma1(x: real, u: real, v: real, s: real, a: real, b: real)
@@ -356,28 +392,23 @@ lemma ExpandMono2(x: real, ex: seq<(real,real)>, v1: real, v2: real)
 
 lemma ExpandInductive(G: Matrix, old_ex: seq<(real,real)>, ex: seq<(real,real)>, b: real, G': Matrix, scale_factor: real, f: real)
   requires ExpandWF(old_ex)
+  requires ExpandWF(ex)  
   requires b >= 0.0
   requires SpecNorm(G) <= Expand(old_ex,Sqrt(b))
   requires b == (SpecNorm(G') + f)*scale_factor
   requires ex == [(scale_factor,f)]+old_ex
   requires scale_factor >= 0.0 && f >= 0.0
-  ensures ExpandWF(ex)
   ensures SpecNorm(G) <= Expand(ex, SpecNorm(G'))
 {
-  reveal Expand();
-  calc {
-    SpecNorm(G)
-    <=
-    Expand(old_ex,Sqrt(b))
-    ==
-    Expand(old_ex, Sqrt((SpecNorm(G') + f)*scale_factor))
-    ==
-    Expand([(scale_factor,f)]+old_ex, SpecNorm(G'))
-    ==
-    Expand(ex, SpecNorm(G'));
-  }
-  hide Expand();
+
+  ghost var v: real := SpecNorm(G');
+  assert ex[1..] == old_ex;
+  assert ex[0].0 == scale_factor;
+  assert ex[0].1 == f;
+  assert !(ex == []);
+  ExpandRecurse(ex, SpecNorm(G'));  
 }
+
 
 method GramIterationSimple(G: Matrix, GRAM_ITERATIONS: int) returns (s: real)
   requires GRAM_ITERATIONS >= 0
@@ -420,7 +451,6 @@ method GramIterationSimple(G: Matrix, GRAM_ITERATIONS: int) returns (s: real)
     G' := Trunc;
     i := i + 1;
     ExtendExWellformed(scale_factor,f,ex);
-    hide Expand;
     var old_ex := ex;
     ex := [(scale_factor,f)]+old_ex;
     ExpandInductive(G,old_ex,ex,b,G',scale_factor,f);
