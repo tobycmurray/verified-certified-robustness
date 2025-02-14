@@ -394,8 +394,20 @@ method GramIterationSimple(G: Matrix, GRAM_ITERATIONS: int) returns (s: real)
   s := FrobeniusNormUpperBound(G');
   ExpandMono(ex,FrobeniusNorm(G'),s);
   if DEBUG { print "{ \"debug_msg\": \"Gram iteration expanding...\" },\n"; }
-  s := ExpandImpl(ex,s);
-  SpecNormUpperBoundProperty(s, G);
+  var ret := ExpandImpl(ex,s);
+  calc {
+    SpecNorm(G)
+    <=
+    Expand(ex,SpecNorm(G'))
+    <=
+    FrobeniusNorm(G')
+    <=
+    s
+    <=
+    ret;
+  }
+  SpecNormUpperBoundProperty(ret, G);
+  s := ret;
   if DEBUG { print "{ \"debug_msg\": \"Gram iteration done\" },\n"; }  
 }
 
