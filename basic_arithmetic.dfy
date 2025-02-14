@@ -296,6 +296,33 @@ method RoundUp(x: real) returns (r: real)
   }
 }
 
+method RoundDown(x: real) returns (r: real)
+  requires x <= 0.0
+  ensures r <= x
+{
+  var i := 0;
+  r := x;
+  while r != r.Floor as real && i < ROUNDING_PRECISION
+    decreases ROUNDING_PRECISION - i
+    invariant r == x * Pow(10.0, i)
+  {
+    r := r * 10.0;
+    i := i + 1;
+  }
+  if r != r.Floor as real {
+    r := r - 1.0;
+  }
+  // this line must be executed even if r == r.Floor because otherwise Dafny
+  // will continue to store trailing zeros after the decimal point in r
+  r := r.Floor as real;
+  while i > 0
+    invariant r <= x * Pow(10.0, i)
+  {
+    r := r / 10.0;
+    i := i - 1;
+  }
+}
+
 /**
  * Prints the first n digits of x.
  */

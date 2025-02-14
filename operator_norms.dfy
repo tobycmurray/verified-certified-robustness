@@ -69,32 +69,291 @@ method FrobeniusNormUpperBound(m: Matrix) returns (r: real)
 //   r := SqrtUpperBound(r);
 // }
 
+lemma Power2RootMult(x: real, y: real, i: nat)
+  requires x >= 0.0 && y >= 0.0
+  ensures Power2Root(x*y,i) == Power2Root(x,i) * Power2Root(y,i)
+{
+  assert x*y >= 0.0;
+  if i == 0 {
+  } else {
+    SqrtOfMult(Power2Root(x,i-1),Power2Root(y,i-1));
+    calc {
+      Power2Root(x*y,i)
+      ==
+      Sqrt(Power2Root(x*y,i-1))
+      ==
+      Sqrt(Power2Root(x,i-1) * Power2Root(y,i-1))
+      ==
+      Sqrt(Power2Root(x,i-1)) * Sqrt(Power2Root(y,i-1))
+      ==
+      Power2Root(x,i) * Power2Root(y,i);
+    }
+  } assume false; // WTF Dafny, this is proved but Dafny doesn't believe me
+}
+
+lemma SumPositiveIsZero(v: Vector)
+  requires forall i | 0 <= i < |v| :: 0.0 <= v[i]
+  requires SumPositive(v) == 0.0
+  ensures forall i | 0 <= i < |v| :: v[i] == 0.0
+{}
+
+lemma SumPositiveMatrixIsZero(m: Matrix)
+  requires forall i,j | 0 <= i < |m| && 0 <= j < |m[0]| :: 0.0 <= m[i][j]
+  requires SumPositiveMatrix(m) == 0.0
+  ensures forall i,j | 0 <= i < |m| && 0 <= j < |m[0]| :: m[i][j] == 0.0
+{
+  SumPositiveIsZero(m[0]);
+}
+  
+lemma MultIsZero(x: real, y: real)
+  requires x * y == 0.0
+  ensures x == 0.0 || y == 0.0
+{}
+
+lemma MultNonZero(x: real, y: real)
+  requires x * y != 0.0
+  ensures x != 0.0 && y != 0.0
+{}
+
+lemma SquareIsZero(x: real)
+  requires Square(x) == 0.0
+  ensures x == 0.0
+{
+  MultIsZero(x,x);
+}
+
+lemma ApplySquareIsZero(v: Vector)
+  requires forall i | 0 <= i < |v| :: v[i] * v[i] == 0.0
+  ensures  forall i | 0 <= i < |v| :: v[i] == 0.0
+{
+  reveal Apply();
+  if |v| == 1 {
+    SquareIsZero(v[0]);
+  } else {
+    SquareIsZero(v[0]);
+    ApplySquareIsZero(v[1..]);
+  }
+}
+
+lemma SquareMatrixElementsSize(m: Matrix, r: Matrix)
+  requires r == SquareMatrixElements(m)
+  ensures Rows(r) == Rows(m) && Cols(r) == Cols(m)
+{
+  if |m| == 1 {
+  } else {
+    SquareMatrixElementsSize(m[1..],r[1..]);
+  }
+}
+lemma SquareMatrixElementsElements(m: Matrix, r: Matrix, i: nat, j: nat)
+  requires r == SquareMatrixElements(m)
+  requires i <= i < |r| && 0 <= j < |r[0]|
+  ensures Rows(r) == Rows(m) && Cols(r) == Cols(m)
+  ensures r[i][j] == m[i][j] * m[i][j]
+{
+  if |m| == 1 {
+  } else {
+    if i == 0 {
+      SquareMatrixElementsElements(m[1..],r[1..],0,j);
+    } else {
+      SquareMatrixElementsElements(m[1..],r[1..],i-1,j);
+    }
+  }
+}
+
+lemma SquareMatrixElementsIsZero(m: Matrix, r: Matrix)
+  requires r == SquareMatrixElements(m)
+  requires forall i,j | 0 <= i < |r| && 0 <= j < |r[0]| :: r[i][j] == 0.0
+  ensures forall i,j | 0 <= i < |m| && 0 <= j < |m[0]| :: m[i][j] == 0.0
+{
+  SquareMatrixElementsSize(m,r);
+  forall i:nat,j:nat | 0 <= i < |m| && 0 <= j < |m[0]| ensures m[i][j] == 0.0 {
+    SquareMatrixElementsElements(m,r,i,j);
+    SquareIsZero(m[i][j]);
+  }
+}
+
+function VectorIsZero(v: Vector) : (b: bool)
+  ensures b <==> forall i | 0 <= i < |v| :: v[i] == 0.0
+{
+  if |v| == 1 then v[0] == 0.0 else v[0] == 0.0 && VectorIsZero(v[1..])
+}
+
+function MatrixIsZero(m: Matrix) : (b: bool)
+  ensures b <==> forall i,j | 0 <= i < |m| && 0 <= j < |m[0]| :: m[i][j] == 0.0
+{
+  if |m| == 1 then VectorIsZero(m[0]) else VectorIsZero(m[0]) && MatrixIsZero(m[1..])
+}
+
+lemma SqrtIsZero(x: real)
+  requires x >= 0.0
+  requires Sqrt(x) == 0.0
+  ensures x == 0.0
+{}
+
+lemma FrobeniusNormIsZero(m: Matrix)
+  requires FrobeniusNorm(m) == 0.0
+  ensures MatrixIsZero(m)
+{
+  SqrtIsZero(SumPositiveMatrix(SquareMatrixElements(m)));
+  SumPositiveMatrixIsZero(SquareMatrixElements(m));
+  SquareMatrixElementsIsZero(m,SquareMatrixElements(m));
+}
+
+lemma SafeFrobeniusNorm(m: Matrix)
+  requires !MatrixIsZero(m)
+  ensures FrobeniusNorm(m) != 0.0
+{
+  forall n:Matrix | FrobeniusNorm(n) == 0.0 ensures MatrixIsZero(n) { FrobeniusNormIsZero(n); }
+}
+
+lemma Power2RootSquare(x: real, i: nat)
+  requires x > 0.0
+  ensures Power2Root(Square(x),i+1) == Power2Root(x,i)
+{
+  SqrtOfSquare2(x);
+  calc {
+    Power2Root(Square(x),i+1)
+    ==
+    Power2Root(Sqrt(x*x),i)
+    ==
+    Power2Root(x,i);
+  } assume false; // WTF Dafny, this is proved but Dafny doesn't believe me
+}
+
+
+method Truncate(m: Matrix) returns (r: Matrix, e: Matrix)
+  requires Rows(m) == Cols(m)
+  requires forall i,j | 0 <= i < Rows(m) && 0 <= j < Cols(m) :: m[i][j] == m[j][i]
+  ensures SpecNorm(m) <= SpecNorm(r) + SpecNorm(e)
+{
+  var rM := new real[Rows(m), Rows(m)];
+  var eM := new real[Rows(m), Rows(m)];
+  var i := 0;
+  while i < rM.Length0
+    invariant 0 <= i <= Rows(m)
+    invariant forall x,y | 0 <= x < i && 0 <= y < Cols(m) :: rM[x,y] == m[x][y] + eM[x,y]
+    invariant forall x,y | 0 <= x < i && 0 <= y < x :: rM[x,y] == rM[y,x] && eM[x,y] == eM[y,x]
+  {
+    var j := 0;
+    while j < i
+      invariant 0 <= i <= Rows(m) && 0 <= j <= i
+      invariant forall x,y | 0 <= x < i && 0 <= y < Cols(m) :: rM[x,y] == m[x][y] + eM[x,y]
+      invariant forall x,y | 0 <= x < i && 0 <= y < x :: rM[x,y] == rM[y,x] && eM[x,y] == eM[y,x]
+      invariant forall y | 0 <= y < j :: rM[i,y] == rM[y,i] && eM[i,y] == eM[y,i]
+    {
+      rM[i,j] := rM[j,i];
+      eM[i,j] := eM[j,i];
+      j := j + 1;
+    }
+    assert forall y | 0 <= y < i :: rM[i,y] == rM[y,i];
+
+    while j < rM.Length1
+      invariant 0 <= i <= Rows(m) && 0 <= j <= Cols(m)
+      invariant forall x,y | 0 <= x < i && 0 <= y < Cols(m) :: rM[x,y] == m[x][y] + eM[x,y]
+      invariant forall x,y | 0 <= x <= i && 0 <= y < x :: rM[x,y] == rM[y,x] && eM[x,y] == eM[y,x]
+      invariant forall y | 0 <= y < j :: rM[i,y] == m[i][y] + eM[i,y]
+    {
+      if m[i][j] > 0.0 {
+        rM[i,j] := RoundUp(m[i][j]);
+      } else if m[i][j] < 0.0 {
+        rM[i,j] := RoundDown(m[i][j]);
+      } else {
+        rM[i,j] := m[i][j];
+      }
+      eM[i,j] := rM[i,j] - m[i][j];
+      j := j + 1;
+    }
+    i := i + 1;
+
+  }
+  // FIXME: these two lines cause Dafny to time out (set --verification-time to 30 to verify this)
+  r := A2M(rM);
+  e := A2M(eM);
+  Assumption4(m,r,e);
+}
+
+ghost function Expand(a: seq<(real,real)>, v: real) : (r: real)
+  requires forall i | 0 <= i < |a| :: a[i].0 >= 0.0 && a[i].1 >= 0.0
+  requires v >= 0.0
+{
+  if a == [] then v
+  else Expand(a[1..],Sqrt(a[0].0*(v + a[0].1)))
+}
+
+method ExpandImpl(a: seq<(real,real)>, v: real) returns (r: real)
+  requires forall i | 0 <= i < |a| :: a[i].0 >= 0.0 && a[i].1 >= 0.0
+  requires v >= 0.0
+  ensures r >= Expand(a,v)
+{
+  reveal Expand();
+  if a == [] { 
+    r := v;
+    return;
+  }
+  else {
+    var b := SqrtUpperBound(a[0].0*(v + a[0].1));
+    r := ExpandImpl(a[1..],b); 
+    assert r >= Expand(a[1..],b);
+    ExpandMono(a[1..],Sqrt(a[0].0*(v + a[0].1)),b);
+  }
+}
+
+lemma ExpandMono(a: seq<(real,real)>, v1: real, v2: real)
+  requires 0.0 <= v1 <= v2
+  requires forall i | 0 <= i < |a| :: a[i].0 >= 0.0 && a[i].1 >= 0.0
+  ensures Expand(a,v1) <= Expand(a,v2)
+{
+  if a == [] {
+  } else {
+    MonotonicSqrt(a[0].0*(v1 + a[0].1),a[0].0*(v2 + a[0].1));
+    ExpandMono(a[1..],Sqrt(a[0].0*(v1 + a[0].1)),Sqrt(a[0].0*(v2 + a[0].1)));
+  }
+}
+
 method GramIterationSimple(G: Matrix, GRAM_ITERATIONS: int) returns (s: real)
   requires GRAM_ITERATIONS >= 0
   ensures IsSpecNormUpperBound(s, G)
 {
   var i := 0;
   var G' := G;
+  var ex: seq<(real,real)> := [];
   while i != GRAM_ITERATIONS
     invariant 0 <= i <= GRAM_ITERATIONS
-    invariant SpecNorm(G) <= Power2Root(SpecNorm(G'), i)
+    invariant forall i | 0 <= i < |ex| :: ex[i].0 >= 0.0 && ex[i].1 >= 0.0
+    invariant SpecNorm(G) <= Expand(ex, SpecNorm(G'))
   {
-    if DEBUG { print "{ \"debug_msg\": \"Gram iteration for matrix of size ", |G|, "x", |G[0]|, ". Iteration ", i+1, " of ", GRAM_ITERATIONS, "\" },\n"; }
-    if DEBUG { print "{ \"debug_msg\": \"Will call MTM\" },\n"; }
+    var scale_factor := 1.0;
 
     Assumption1(G');
-    Power2RootMonotonic(SpecNorm(G'), Sqrt(SpecNorm(MM(Transpose(G'), G'))), i);
+    ExpandMono(ex, SpecNorm(G'), Sqrt(SpecNorm(MM(Transpose(G'),G'))));
     G' := MTM(G');
-    Power2RootDef(SpecNorm(G'), i);
+    
+    if DEBUG { print "{ \"debug_msg\": \"Gram iteration for matrix of size ", |G|, "x", |G[0]|, ". Iteration ", i+1, " of ", GRAM_ITERATIONS, "\" },\n"; }
+    if !MatrixIsZero(G') {
+      SafeFrobeniusNorm(G');
+      scale_factor := FrobeniusNormUpperBound(G');
+    }
+    Assumption3(G', scale_factor);
+    ExpandMono(ex, SpecNorm(G'),SpecNorm(MatrixDiv(G',scale_factor))*scale_factor);
+    G' := MatrixDivImpl(G', scale_factor);
+
+    var Trunc: Matrix;
+    var E: Matrix;
+    Trunc,E := Truncate(G');
+
+    Assumption2(E);
+    var f := FrobeniusNormUpperBound(E);
+    assert SpecNorm(G') <= SpecNorm(Trunc) + f;
+    G' := Trunc;
     i := i + 1;
+    ex := [(scale_factor,f)]+ex;
   }
   Assumption2(G');
-  Power2RootMonotonic(SpecNorm(G'), FrobeniusNorm(G'), GRAM_ITERATIONS);
+  ExpandMono(ex,SpecNorm(G'), FrobeniusNorm(G'));
   if DEBUG { print "{ \"debug_msg\": \"Gram iteration computing frobenius norm upper bound...\" },\n"; }
   s := FrobeniusNormUpperBound(G');
-  Power2RootMonotonic(FrobeniusNorm(G'), s, GRAM_ITERATIONS);
-  if DEBUG { print "{ \"debug_msg\": \"Gram iteration computing square root upper bound...\" },\n"; }
-  s := Power2RootUpperBound(s, GRAM_ITERATIONS);
+  if DEBUG { print "{ \"debug_msg\": \"Gram iteration expanding...\" },\n"; }
+  s := ExpandImpl(ex,s);
   SpecNormUpperBoundProperty(s, G);
   if DEBUG { print "{ \"debug_msg\": \"Gram iteration done\" },\n"; }  
 }
@@ -150,17 +409,41 @@ lemma {:axiom} CauchySchwartz(v: Vector, u: Vector)
 
 /* We only need these for rescaling gram iteration */
 
-// lemma {:axiom} Assumption3(m: Matrix, x: real)
-//   requires 0.0 < x
-//   ensures SpecNorm(m) <= SpecNorm(MatrixDiv(m, x)) * x
+lemma {:axiom} Assumption3(m: Matrix, x: real)
+  requires 0.0 < x
+  ensures SpecNorm(m) <= SpecNorm(MatrixDiv(m, x)) * x
 
-// function MatrixDiv(m: Matrix, x: real): (r: Matrix)
-//   requires 0.0 < x
-//   ensures |r| == |m| && |r[0]| == |m[0]|
-// {
-//   if |m| == 1 then [VectorDiv(m[0], x)]
-//   else [VectorDiv(m[0], x)] + MatrixDiv(m[1..], x)
-// }
+lemma {:axiom} Assumption4(m: Matrix, n: Matrix, e: Matrix)
+  requires Rows(m) == Rows(n) == Rows(e) && Cols(m) == Cols(n) == Cols(e) && Rows(n) == Cols(n)
+  requires forall i,j | 0 <= i < Rows(m) && 0 <= j < Cols(m) :: m[i][j] == m[j][i] && e[i][j] == e[i][j]
+  requires forall i,j | 0 <= i < Rows(n) && 0 <= j < Cols(n) :: n[i][j] == m[i][j] + e[i][j]
+  ensures Abs(SpecNorm(n)-SpecNorm(m)) <= SpecNorm(e)
+  
+
+ghost function MatrixDiv(m: Matrix, x: real): (r: Matrix)
+  requires 0.0 < x
+  ensures |r| == |m| && |r[0]| == |m[0]|
+{
+  if |m| == 1 then [Apply(m[0], a => a/x)]
+  else [Apply(m[0], a => a/x)] + MatrixDiv(m[1..], x)
+}
+
+method MatrixDivImpl(m: Matrix, x: real) returns (r: Matrix)
+  requires 0.0 < x
+  ensures r == MatrixDiv(m, x)
+  ensures Rows(r) == Rows(m) && Cols(r) == Cols(m)
+{
+  var i := |m| - 1;
+  var b := ApplyImpl(m[i], a => a/x);
+  r := [b];
+  while i > 0
+    invariant r == MatrixDiv(m[i..], x)
+  {
+    i := i - 1;
+    b := ApplyImpl(m[i], a => a/x);
+    r := [b] + r;
+  }
+}
 
 // function VectorDiv(v: Vector, x: real): (r: Vector)
 //   requires 0.0 < x

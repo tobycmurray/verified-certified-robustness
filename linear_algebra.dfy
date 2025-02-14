@@ -613,6 +613,8 @@ lemma ComputedMTM(r: Matrix, M: Matrix)
 
 method MTM(M: Matrix) returns (r: Matrix)
   ensures r == MM(Transpose(M),M)
+  ensures Rows(r) == Cols(r)
+  ensures forall i,j | 0 <= i < Rows(r) && 0 <= j < Cols(r) :: r[i][j] == r[j][i]
 {
   var aM := new real[Cols(M), Rows(M)];
   M2ATranspose(M, aM); // transpose as we copy to the array so that columns sit on cache lines (hopefully)
