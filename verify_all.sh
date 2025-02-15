@@ -31,16 +31,28 @@ Z3_PATH=$(which z3)
 FILES=(basic_arithmetic linear_algebra main neural_networks parsing robustness_certification l2_extra)
 ISOLATE_ASSERTIONS_FILES=(operator_norms)
 
+# check we are not going to miss any files
+ALL_FILES=("${FILES[@]}" "${ISOLATE_ASSERTIONS_FILES[@]}")
+
+for file in *.dfy; do
+    # Extract the file name without extension
+    BASENAME="${file%.dfy}"
+
+    if [[ ! " ${ALL_FILES[@]} " =~ " ${BASENAME} " ]]; then
+        echo "Warning: unexpected .dfy file in the current directory will not be verified: $file"
+    fi
+done
+
 for i in ${FILES[@]}
 do
-    echo Verifying $i.dfy...
-    echo "dafny verify $i.dfy --solver-path ${Z3_PATH}"
-    dafny verify $i.dfy --solver-path "${Z3_PATH}"
+    CMD="dafny verify $i.dfy --solver-path \"${Z3_PATH}\""
+    echo "$CMD"
+    eval "$CMD"
 done
 
 for i in ${ISOLATE_ASSERTIONS_FILES[@]}
 do
-    echo Verifying $i.dfy...
-    echo "dafny verify $i.dfy --isolate-assertions --solver-path ${Z3_PATH}"
-    dafny verify $i.dfy --isolate-assertions --solver-path "${Z3_PATH}"
+    CMD="dafny verify $i.dfy --isolate-assertions --solver-path \"${Z3_PATH}\""
+    echo "$CMD"
+    eval "$CMD"
 done
