@@ -2,13 +2,14 @@ include "basic_arithmetic.dfy"
 include "linear_algebra.dfy"
 include "operator_norms.dfy"
 include "neural_networks.dfy"
+include "l2_extra.dfy"
 
 module RobustnessCertification {
 import opened BasicArithmetic
 import opened LinearAlgebra
 import opened OperatorNorms
 import opened NeuralNetworks
-
+import opened L2Extra
 
 /* ============================ Ghost Functions ============================= */
 
