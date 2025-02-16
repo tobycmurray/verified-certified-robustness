@@ -25,7 +25,7 @@ data = pd.read_csv(file_path)
 x = data.iloc[:, 0]  # First column for x-values
 y = data.iloc[:, 1]  # Second column for y-values
 y2 = data.iloc[:, 2]  # Third column for the second y-axis
-y2 = y2 / (60 * 60) # convert seconds to hours
+y2 = y2 / (60) # convert seconds to minutes
 
 # convert proportions to percentages
 upper_bound=upper_bound * 100
@@ -46,12 +46,12 @@ ax1.axhline(gloro_robustness, color="blue", linestyle="--", label=f"Unverified R
 ax1.axhline(upper_bound, color="blue", linestyle=":", label=f"Measured Robustness ({upper_bound:.2f}%)")
 
 ax2 = ax1.twinx()
-ax2.plot(x, y2, label="Certifier Running Time (hours)", color="green", linestyle='-.')
-ax2.set_ylabel("Hours to Compute Bounds", color="green")
+ax2.plot(x, y2, label="Certifier Running Time (minutes)", color="green", linestyle='-.')
+ax2.set_ylabel("Minutes to Compute Bounds", color="green")
 ax2.tick_params(axis='y', labelcolor="green")
 y2max = y2.max()
 #ax2.set_yscale('log')
-ax2.set_ylim(0,25)
+ax2.set_ylim(0,20)
 
 #plt.title(graph_title)
 
