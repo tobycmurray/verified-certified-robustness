@@ -69,5 +69,15 @@ plt.tight_layout(rect=[0, 0, 1.6, 1])
 
 plt.savefig(pdf_file, format="pdf", bbox_inches="tight")
 
+ax1.set_ylim(95.0,96.0)
+ax1.set_xlim(7,12)
+
+plt.tight_layout(rect=[0, 0, 1.6, 1])
+ax2.clear()
+ax2.set_axis_off()
+name_part = pdf_file.rsplit(".pdf", 1)[0]
+
+plt.savefig(name_part+"-zoom.pdf", format="pdf", bbox_inches="tight")
+
 # Show the plot
 #plt.show()
