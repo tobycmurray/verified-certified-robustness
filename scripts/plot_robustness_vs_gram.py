@@ -32,11 +32,11 @@ upper_bound=upper_bound * 100
 gloro_robustness=gloro_robustness * 100
 y = y * 100
 
-fig, ax1 = plt.subplots(figsize=(4.5, 3.5))
+fig, ax1 = plt.subplots(figsize=(4.5, 4.0))
 y1max = y.max()
-ax1.plot(x, y, label=f"Verified Robustness (max {y1max}%)", color="blue")
+ax1.plot(x, y, label=f"Verified Robustness (max {y1max:.2f}%)", color="blue")
 ax1.set_ylim(0.0,100.0)
-ax1.set_xlim(1,10)
+ax1.set_xlim(1,12)
 ax1.set_xlabel("Gram Iterations")
 ax1.tick_params(axis='y', labelcolor="blue")
 ax1.set_ylabel("Robustness Percentage")
