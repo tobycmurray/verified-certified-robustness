@@ -44,7 +44,7 @@ def fmt_symbolic(num):
 def fmt_array(array):
     return np.array2string(array, separator=",", formatter={'float_kind': fmt_symbolic})
 
-WEIGHTS=[[0.00001],[1.0, -1.0]]
+WEIGHTS=[[0.9],[1.0, -1.0]]
 
 # lipschitz constants of each layer -- the value for the second layer is the margin Lipschitz constants for the two logits
 LIPSCHITZ_CONSTANTS=[abs(WEIGHTS[0][0]),abs(WEIGHTS[1][0]-WEIGHTS[1][1])]
@@ -112,7 +112,7 @@ for i in range(len(initial_weights)):
 print("Training did not modify weights, as expected.")
 print("")
 
-save_dir="adversarial_gloro_normalization-results/"
+save_dir="adversarial_gloro_neginf_bug-results/"
 
 lipschitz_constants = g.lipschitz_constant()
 
@@ -127,10 +127,11 @@ print(sub_lipschitz)
 print("The safe value for the sub lipschitz constant is: ", LIPSCHITZ_CONSTANTS[0])
 
 if sub_lipschitz < LIPSCHITZ_CONSTANTS[0]:
-    print("Gloro computed unsafe Lipschitz bounds")
+    print("Gloro computed unsafe Lipschitz bounds but it shouldn't for this bug")
+    sys.exit(1)    
 else:
-    print("Gloro bounds might be safe.")
-    sys.exit(1)
+    assert sub_lipschitz == LIPSCHITZ_CONSTANTS[0]
+    print("Gloro bounds look safe.")
 
 print("")
 
@@ -159,7 +160,7 @@ for i in range(len(trained_weights)):
     model2.layers[i].set_weights([trained_weights[i]])
 
 ratio = sub_lipschitz / LIPSCHITZ_CONSTANTS[0]
-assert ratio < 1
+assert ratio == 1.0
 
 # make test inputs
 lst=[]
@@ -167,6 +168,10 @@ x=-epsilon*ratio
 while x <= 0.0:
     lst.append(x)
     x = x + 0.05
+
+lst_neg = [-x for x in lst[::-1]]
+
+lst=lst_neg+lst
 
 lst.append(0.0) # make sure 0 is in the list
 
@@ -181,7 +186,8 @@ inputs=test_inputs
 outputs=am
 
 print("Here are the non-robust input points: ", inputs[outputs == 2])
-print("Here are the outputs for input point 0.0: ", outputs[inputs == 0.0])
+print("Here are the argmax outputs for input point 0.0: ", outputs[inputs == 0.0])
+print("Here are the logits for input point 0.0: ", gloro_outputs[inputs == 0.0])
 
 import matplotlib.pyplot as plt
 
@@ -198,7 +204,7 @@ plt.axvline(-epsilon, color='black', linestyle='--')
 plt.xlabel('Input Value')
 plt.ylabel('Predicted Class')
 plt.legend()
-plt.savefig("normalisation-plot.pdf", format="pdf")
+plt.savefig("neginf_bug-plot.pdf", format="pdf")
 
 
 
@@ -214,7 +220,7 @@ am=np.argmax(orig_outputs,axis=1)
 outputs=am
 
 plt.figure(figsize=(8, 6))
-plt.scatter(inputs[outputs == 0], outputs[outputs == 0], color='red', label=f' - Class 0', s=59)
+plt.scatter(inputs[outputs == 0], outputs[outputs == 0], color='red', label=f'Input - Class 0', s=59)
 plt.scatter(inputs[outputs == 1], outputs[outputs == 1], color='blue', label=f'Input - Class 1', s=50)
 
 #decision_boundary = -0.999 # Replace with the actual threshold from your network, if available
@@ -224,10 +230,18 @@ plt.axvline(-epsilon, color='black', linestyle='--')
 plt.xlabel('Input Value')
 plt.ylabel('Predicted Class (clean)')
 plt.legend()
-plt.savefig("normalisation-plot-clean.pdf", format="pdf")
+plt.savefig("neginf_bug-plot-clean.pdf", format="pdf")
 
+
+
+print("")
+print("Running the gloro model on just input 0.0...")
+lst=[0.0]
+test_inputs=np.array(lst, dtype=np.float32)
+gloro_outputs = g.predict(test_inputs)
 # early exit for now
 sys.exit(0)
+
 outputs=orig_outputs
 print("Outputs for test inputs (to run the certifier on):")
 i = 0
@@ -238,3 +252,4 @@ while i<len(test_inputs):
     mprint(epsilon)
     mprint("\n")    
     i+=1
+    

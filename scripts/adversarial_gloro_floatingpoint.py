@@ -9,6 +9,19 @@ import os
 from gloro.models import GloroNet
 from gloro.training.metrics import rejection_rate
 
+def mprint(string):
+    print(string, end="")
+
+
+def printlist(floatlist):
+        count=0
+        n=len(floatlist)
+        for num in floatlist:
+            mprint(f"{num:.160f}")
+            count=count+1
+            if count<n:
+                mprint(",")
+
 # Define model
 model = keras.Sequential([
     Dense(2, input_shape=(1,), activation=None, use_bias=False)  # 2 neurons, no bias, no activation
@@ -110,19 +123,50 @@ model2 = keras.Sequential([
 ])
 model2.layers[0].set_weights([trained_weights])
 
-# Test with positive and negative input
-test_inputs = np.array([[0], [1.0], [-1.0], [0.2], [-0.2], [1.2], [-1.2], [100000000000000000000000000000000000]], dtype=np.float32)
+
+# make test inputs
+lst=[]
+x=epsilon*2
+while x >= 0.0:
+    lst.append(x)
+    x = x - 0.10
+
+
+lst_neg = [-x for x in lst[::-1]]
+
+lst=lst_neg+lst
+
+lst.append(0.0) # make sure 0 is in the list
+
+test_inputs=np.array(lst, dtype=np.float32)
 
 print("")
 print("Running the gloro model on the test inputs...")
 
 gloro_outputs = g.predict(test_inputs)
-print("Gloro outputs for test inputs:")
-i = 0
-while i<len(test_inputs):
-    print(f"Input:   {test_inputs[i]}")
-    print(f"Output:  {gloro_outputs[i]}")
-    i+=1
+am=np.argmax(gloro_outputs,axis=1)
+inputs=test_inputs
+outputs=am
+
+print("Here are the non-robust input points: ", inputs[outputs == 2])
+print("Here are the outputs for input point 0.0: ", outputs[inputs == 0.0])
+
+import matplotlib.pyplot as plt
+
+# Create a scatter plot: color-code the points by their predicted class
+plt.figure(figsize=(8, 6))
+plt.scatter(inputs[outputs == 0], outputs[outputs == 0], color='red', label=f'Robust Input (for eps={epsilon}) - Class 0', s=50)
+plt.scatter(inputs[outputs == 1], outputs[outputs == 1], color='blue', label=f'Robust Input (for eps={epsilon}) - Class 1', s=50)
+plt.scatter(inputs[outputs == 2], outputs[outputs == 2], color='black', label='Not Robust Input', s=50)
+
+# Label the axes and add a legend
+plt.xlabel('Input Value')
+plt.ylabel('Predicted Class')
+plt.legend()
+plt.savefig("floatingpoint-plot.pdf", format="pdf")
+
+
+
 
 print(f"The gloro model certified this percentage of the otuputs as robust at epsilon {epsilon}: {(1.0 - rejection_rate(gloro_outputs,gloro_outputs))*100}%")
 
@@ -131,11 +175,15 @@ print("Running the fresh model on the test inputs...")
 
 outputs = model2.predict(test_inputs)
 
+
 inputs_outputs = {}
 
 print("Outputs for test inputs (to run the certifier on):")
 i = 0
 while i<len(test_inputs):
-    print(f"Input:   {test_inputs[i]}")
-    print(f"Output:  {fmt_array(outputs[i])}")
+    test_output = outputs[i].tolist()
+    printlist(test_output)
+    mprint(" ")
+    mprint(epsilon)
+    mprint("\n")    
     i+=1
