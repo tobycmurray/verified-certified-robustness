@@ -25,8 +25,8 @@ def printlist(floatlist):
 
 # Define model
 model = keras.Sequential([
-    Dense(1, input_shape=(1,), activation=None, use_bias=False),  # 1 neuron, no bias, no activation    
-    Dense(2, activation=None, use_bias=False)  # 2 neurons, no bias, no activation
+    Dense(1, input_shape=(1,), activation=None, use_bias=True),  # 1 neuron, no bias, no activation    
+    Dense(2, activation=None, use_bias=True)  # 2 neurons, no bias, no activation
 ])
 
 tiny = np.finfo(np.float32).tiny
@@ -45,6 +45,8 @@ def fmt_array(array):
     return np.array2string(array, separator=",", formatter={'float_kind': fmt_symbolic})
 
 WEIGHTS=[[0.9],[1.0, -1.0]]
+# use some bias values to show that this exhibits itself for *any* output in which all logits are identical (not just the zero output)
+BIASES=[[0.0],[0.1, 0.1]]
 
 # lipschitz constants of each layer -- the value for the second layer is the margin Lipschitz constants for the two logits
 LIPSCHITZ_CONSTANTS=[abs(WEIGHTS[0][0]),abs(WEIGHTS[1][0]-WEIGHTS[1][1])]
@@ -53,6 +55,8 @@ LIPSCHITZ_CONSTANT=math.prod(LIPSCHITZ_CONSTANTS)
 NUM_LAYERS=len(WEIGHTS)
 
 initial_weights=[np.array([w], dtype=np.float32) for w in WEIGHTS]
+initial_biases = [np.array(b, dtype=np.float32) for b in BIASES]
+
 
 print("")
 print(f"The actual Lipschitz constant for this network is: {LIPSCHITZ_CONSTANT}")
@@ -63,7 +67,7 @@ print("")
 print("Initialising model with custom weights...")
 for i in range(len(initial_weights)):
     print(f"Layer {i}: {initial_weights[i]}")
-    model.layers[i].set_weights([initial_weights[i]])
+    model.layers[i].set_weights([initial_weights[i], initial_biases[i]])
 
 
 

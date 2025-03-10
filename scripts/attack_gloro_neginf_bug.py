@@ -1,3 +1,9 @@
+# This code shows how to attack the bug in the gloro certification routine https://github.com/klasleino/gloro/issues/9
+#
+# This bug shows itself by falsely always certifying any output in which all logits are identical
+# Therefore this attack code uses gradient descent to find an input that produces the zero output vector [0,0,0,...,0]
+# This works against any gloro trained model
+
 import doitlib
 import numpy as np
 import tensorflow as tf
