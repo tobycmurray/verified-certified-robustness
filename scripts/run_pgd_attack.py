@@ -20,6 +20,8 @@ from keras.models import Model
 from keras.preprocessing.image import ImageDataGenerator
 from keras.regularizers import l2
 
+from PIL import Image
+
 from art.attacks.evasion import ProjectedGradientDescent, AutoAttack, FastGradientMethod, MomentumIterativeMethod
 from art.estimators.classification import KerasClassifier
 from art.data_generators import KerasDataGenerator
@@ -48,7 +50,8 @@ input_size=int(sys.argv[6])
 
 json_results_file=None
 disagree_output_dir=None
-if len(sys.argv) == 9:
+gloro_results_file=None
+if len(sys.argv) == 10:
     json_results_file=sys.argv[7]
     gloro_results_file=sys.argv[8]
     disagree_output_dir=sys.argv[9]+"/"
@@ -81,7 +84,7 @@ labels_true = np.argmax(y_test, axis=1)
 # Build a Keras image augmentation object and wrap it in ART
 batch_size = 50
 
-classifier = KerasClassifier(model, clip_values=(0.0,1.0), use_logits=False)
+classifier = KerasClassifier(model, clip_values=(0.0,1.0), use_logits=True)
 model.summary()
 
 x_test_pred_vecs = classifier.predict(x_test)
@@ -160,8 +163,10 @@ if json_results_file is not None:
 robustness = [d for d in robustness_log if "certified" in d]
 gloro_robustness = [d for d in gloro_log if "certified" in d]
 
+print(f"We have {len(gloro_robustness)} gloro robustness results to compare against")
+
 assert len(robustness)==n or (robustness==[] and json_results_file is None)
-#assert len(gloro_robustness)==n or (gloro_robustness==[] and gloro_results_file is None)
+assert len(gloro_robustness)==n or (gloro_robustness==[] and gloro_results_file is None)
 
 disagree=0
 false_positive=0
@@ -218,54 +223,71 @@ while i<n:
                     if min_disagree_norm > l2_norm:
                         min_disagree_norm=l2_norm
                 # this is not a false positive
-                i_disagrees=True        
-            
-                if robustness!=[]:
-
-                    r = robustness[i]
-                    robust = r["certified"]
-
-                    r = gloro_robustness[i]
-                    gloro_said_robust = r["certified"]
-
-                    if gloro_said_robust:
-                        gloro_unsound=gloro_unsound+1
-                        x=x_test[i]
-                        x_adv=x_test_adv[ai][i]
-                        lab_y=x_test_pred[i]                
-                        y_adv=predict_adv[ai][i]
-                        lab_y_adv=np.argmax(y_adv, axis=0)
-                        if disagree_output_dir is not None:
-                            os.makedirs(disagree_output_dir, exist_ok=True)
-                        input_path = os.path.join(disagree_output_dir, f"input_{i}.npy")
-                        np.savetxt(disagree_output_dir+f"/gloro_unsound_{i}_x.csv", x, delimiter=',', fmt='%f')
-                        np.savetxt(disagree_output_dir+f"/gloro_unsound_{i}_x_adv.csv", x_adv, delimiter=',', fmt='%f')
-                        with open(disagree_output_dir+f"/gloro_unsound_{i}_summary.txt", "w") as f:
-                            f.write(f"L2 Norm    : {l2_norm}\n")
-                            f.write(f"Y label    : {lab_y}\n")                    
-                            f.write(f"Y PGD      : {y_adv}\n")
-                            f.write(f"Y PGD label: {lab_y_adv}\n")
-                        
-                    if robust:
-                        # found an attack when the certifier said the output was robust!
-                        unsound=unsound+1
-                        x=x_test[i]
-                        x_adv=x_test_adv[ai][i]
-                        lab_y=x_test_pred[i]                
-                        y_adv=predict_adv[ai][i]
-                        lab_y_adv=np.argmax(y_adv, axis=0)
-                        if disagree_output_dir is not None:
-                            os.makedirs(disagree_output_dir, exist_ok=True)
-                        input_path = os.path.join(disagree_output_dir, f"input_{i}.npy")
-                        np.savetxt(disagree_output_dir+f"/unsound_{i}_x.csv", x, delimiter=',', fmt='%f')
-                        np.savetxt(disagree_output_dir+f"/unsound_{i}_x_adv.csv", x_adv, delimiter=',', fmt='%f')
-                        with open(disagree_output_dir+f"/unsound_{i}_summary.txt", "w") as f:
-                            f.write(f"L2 Norm    : {l2_norm}\n")
-                            f.write(f"Y label    : {lab_y}\n")                    
-                            f.write(f"Y PGD      : {y_adv}\n")
-                            f.write(f"Y PGD label: {lab_y_adv}\n")
+                i_disagrees=True
+                # remember details of this true adversarial example
+                i_disagree_x=x_test[i]
+                i_disagree_x_adv=x_test_adv[ai][i]
+                i_disagree_lab_y=x_test_pred[i]                
+                i_disagree_y_adv=predict_adv[ai][i]
+                i_disagree_lab_y_adv=np.argmax(i_disagree_y_adv, axis=0)
+                i_disagree_l2_norm=l2_norm
+                
     if i_disagrees:
         disagree=disagree+1
+
+        # put htis here to only save one counter-example for each test point
+        if robustness!=[]:
+
+            r = robustness[i]
+            robust = r["certified"]
+
+            r = gloro_robustness[i]
+            gloro_said_robust = r["certified"]
+
+            if gloro_said_robust:
+                gloro_unsound=gloro_unsound+1
+                if disagree_output_dir is not None:
+                    os.makedirs(disagree_output_dir, exist_ok=True)
+                fixed_x = (i_disagree_x * 255).astype(np.uint8).squeeze()
+                image = Image.fromarray(fixed_x)    
+                image.save(os.path.join(disagree_output_dir, f"gloro_unsound_{i}.png"))
+                fixed_x = (i_disagree_x_adv * 255).astype(np.uint8).squeeze()
+                image = Image.fromarray(fixed_x)    
+                image.save(os.path.join(disagree_output_dir, f"gloro_unsound_{i}_adv.png"))
+                fixed_x = ((i_disagree_x_adv - i_disagree_x) * 255).astype(np.uint8).squeeze()
+                image = Image.fromarray(fixed_x)    
+                image.save(os.path.join(disagree_output_dir, f"gloro_unsound_{i}_perturbation.png"))
+                
+                #np.savetxt(disagree_output_dir+f"/gloro_unsound_{i}_x.csv", i_disagree_x, delimiter=',', fmt='%f')
+                #np.savetxt(disagree_output_dir+f"/gloro_unsound_{i}_x_adv.csv", i_disagree_x_adv, delimiter=',', fmt='%f')
+                with open(disagree_output_dir+f"/gloro_unsound_{i}_summary.txt", "w") as f:
+                    f.write(f"L2 Norm    : {i_disagree_l2_norm}\n")
+                    f.write(f"Y label    : {i_disagree_lab_y}\n")                    
+                    f.write(f"Y PGD      : {i_disagree_y_adv}\n")
+                    f.write(f"Y PGD label: {i_disagree_lab_y_adv}\n")
+                        
+            if robust:
+                # found an attack when the certifier said the output was robust!
+                unsound=unsound+1
+                if disagree_output_dir is not None:
+                    os.makedirs(disagree_output_dir, exist_ok=True)
+                fixed_x = (i_disagree_x * 255).astype(np.uint8).squeeze()
+                image = Image.fromarray(fixed_x)    
+                image.save(os.path.join(disagree_output_dir, f"gloro_unsound_{i}.png"))
+                fixed_x = (i_disagree_x_adv * 255).astype(np.uint8).squeeze()
+                image = Image.fromarray(fixed_x)    
+                image.save(os.path.join(disagree_output_dir, f"gloro_unsound_{i}_adv.png"))
+                fixed_x = ((i_disagree_x_adv - i_disagree_x) * 255).astype(np.uint8).squeeze()
+                image = Image.fromarray(fixed_x)    
+                image.save(os.path.join(disagree_output_dir, f"gloro_unsound_{i}_perturbation.png"))
+                #np.savetxt(disagree_output_dir+f"/unsound_{i}_x.csv", i_disagree_x, delimiter=',', fmt='%f')
+                #np.savetxt(disagree_output_dir+f"/unsound_{i}_x_adv.csv", i_disagree_x_adv, delimiter=',', fmt='%f')
+                with open(disagree_output_dir+f"/unsound_{i}_summary.txt", "w") as f:
+                    f.write(f"L2 Norm    : {i_disagree_l2_norm}\n")
+                    f.write(f"Y label    : {i_disagree_lab_y}\n")                    
+                    f.write(f"Y PGD      : {i_disagree_y_adv}\n")
+                    f.write(f"Y PGD label: {i_disagree_lab_y_adv}\n")
+        
     i=i+1
 
 agree=n-disagree
