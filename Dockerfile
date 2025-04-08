@@ -9,10 +9,11 @@ RUN apt-get update && \
         wget \
         unzip \
 	software-properties-common \
-        python3 \
+        python3-full \
         python3-pip \
         jq \
         moreutils \
+	git \
         tzdata && \
     rm -rf /var/lib/apt/lists/*
 
@@ -40,7 +41,23 @@ RUN wget https://github.com/Z3Prover/z3/releases/download/z3-4.13.4/z3-4.13.4-x6
 
 ENV PATH="/opt/z3-4.13.4-x64-glibc-2.35/bin:$PATH"
 
-RUN pip3 install --no-cache-dir tensorflow
-
 # Final working directory
 WORKDIR /workspace
+
+# install tensorflow
+RUN python3 -m venv cav2025-artifact && \
+    ./cav2025-artifact/bin/pip install tensorflow==2.13.0
+
+RUN ./cav2025-artifact/bin/pip install tensorflow_datasets matplotlib scikit-learn
+
+# install vulnerable gloro
+RUN git clone https://github.com/klasleino/gloro && \
+    cd gloro && \
+    git checkout a218dcdaaa41951411b0d520581e96e7401967d7 && \
+    ../cav2025-artifact/bin/python setup.py build && \
+    ../cav2025-artifact/bin/python setup.py install
+
+# copy over artifact files
+RUN mkdir robustness-verifier
+COPY . robustness-verifier
+COPY cav2025-models.zip .

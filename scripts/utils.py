@@ -173,14 +173,14 @@ def get_data(dataset, batch_size, augmentation=None):
 
 def get_optimizer(optimizer, lr):
     if optimizer == 'adam':
-        return Adam(lr=lr)
+        return Adam(learning_rate=lr)
 
     elif optimizer.startswith('sgd'):
         if optimizer.startswith('sgd.'):
-            return SGD(lr=lr, momentum=float(optimizer.split('sgd.')[1]))
+            return SGD(learning_rate=lr, momentum=float(optimizer.split('sgd.')[1]))
 
         else:
-            return SGD(lr=lr)
+            return SGD(learning_rate=lr)
 
     else:
         raise ValueError(f'unknown optimizer: {optimizer}')
