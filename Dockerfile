@@ -61,3 +61,4 @@ RUN git clone https://github.com/klasleino/gloro && \
 RUN mkdir robustness-verifier
 COPY . robustness-verifier
 COPY cav2025-models.zip .
+RUN unzip cav2025-models.zip
