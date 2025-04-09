@@ -11,7 +11,7 @@ Load and enter the Docker container:
 ```
 gunzip cav2025-artifact.tar.gz
 docker image load < cav2025-artifact.tar
-docker run -it -t cav2025-artifact bash
+docker run -it cav2025-artifact:latest bash
 
 ```
 
