@@ -153,6 +153,12 @@ The certifier's input format is explained later, below.
 The main results of the performance evaluation appear in Table 1 of the paper,
 where we apply our certifier to three ML models: MNIST, Fashion MNIST, and CIFAR-10.
 
+Naturally, depending on the performance of your machine, the time taken
+to reproduce these results could be longer than the times indicated below.
+This also means, of course, that the results you obtain in terms of
+certifier running time could be significantly different to those reported
+in our paper or below.
+
 Figure 8 (the performance plot) also graphically depicts performance results
 on the MNIST model. See below for steps to reproduce that (Claim 3).
 
@@ -257,7 +263,7 @@ Running the certifier. This may take a while...
 ...
 ```
 
-It should take approximately 20 minutes to complete, at least. The final output
+It should take approximately 20--40 minutes to complete, at least. The final output
 it produces contains various numbers that look something like the following:
 ```
 ...
@@ -328,9 +334,9 @@ The results in the second row of Table 1 (for Fashion MNIST) can be reproduced b
 
 ```
 
-As indicated in Table 1, it may take around 20 minutes for the script to complete. It produces output akin to that for MNIST, above.
+As indicated in Table 1, it may take around 20 minutes for the script to complete. On other machines, this is known to take as long as 50 minutes to complete. It produces output akin to that for MNIST, above.
 
-## CIFAR_10 (will take about 20--40 hours)
+## CIFAR-10 (will take about 20--40 hours)
 
 The results for CIFAR-10 (third row of Table 1) can be reproduced by running the script as follows:
 
