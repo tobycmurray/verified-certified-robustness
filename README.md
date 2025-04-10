@@ -3,7 +3,7 @@
 ## CAV 2025 Artifact
 
 The artifact is packaged as a Docker container, which is known to work
-on x86-64 hosts. (Unfortunately, virtualisation failures seem to pevent
+on x86-64 hosts. (Unfortunately, virtualisation failures seem to prevent
 the container working on ARM-based hosts like Apple M1 etc.)
 
 ### Artifact Resource Requirements
@@ -33,12 +33,10 @@ source cav2025-artifact/bin/activate
 
 The artifact has the following directory structure, and is located in the
 `/workspace` directory of the container's filesystem:
-```
 * `robustness-verifier/` - the verified robustness certifier
 * `cav2025-artifact/` - the artifact's Python virtual environment directory
 * `cav2025-models/` - the three models used in the paper's evaluation
 * `gloro/` - Leino et al.'s globally robust neural networks implementation
-```
 
 ## Claims / Results supported by this Artifact
 
@@ -126,7 +124,7 @@ To build the certifier binary, in the `robustness-verifier/` directory, run:
 dafny build --unicode-char:false --target:cs main.dfy IO/FileIO.cs
 ```
 
-This should prooduce the executable `main`, which is the main certifier binary.
+This should produce the executable `main`, which is the main certifier binary.
 
 If you run the certifier binary, it will produce basic usage information:
 ```
@@ -156,7 +154,7 @@ The main results of the performance evaluation appear in Table 1 of the paper,
 where we apply our certifier to three ML models: MNIST, Fashion MNIST, and CIFAR-10.
 
 Figure 8 (the performance plot) also graphically depicts performance results
-on the MNIST model.
+on the MNIST model. See below for steps to reproduce that (Claim 3).
 
 The `scripts/` subdirectory of `robustness-verifier/` contains scripts that can
 be used to reproduce the evaluation results.
@@ -189,11 +187,11 @@ and the number of gram iterations to run the certifier for, as shown in Table 1 
 each model.
 
 
-### MNIST (will take about 20 minutes)
+### MNIST (will take about 20--40 minutes)
 
 To reproduce the MNIST results, from the `robustness-verifier/scripts/` directory, run
 this command (making sure you have first done `source cav2025-artifact/bin/activate`
-to enter the Python virtual environment:
+to enter the Python virtual environment):
 
 ```
 ./doit_verified_robust_gloro.sh "../../cav2025-models/2025-01-25_09:27:46-mnist"/ mnist 0.45  "[128,128,128,128,128,128,128,128]" 0.3 ../main 11 500 32
@@ -314,14 +312,14 @@ and produced the Lipschitz bounds at `2025-04-09 08:27:10`, i.e. 15 minutes and 
 paper (17 minutes and 2 seconds).
 * "Verified Robustness" records the percentage of the test points that were certified robust. We see in the output above "Proportion robust: 0.9574" which corresponds exactly
 to the percentage reported in row 1 of Table 1 (95.74%). We also see that the gloro unverified certifier of Leino et al. certifies the proportion 0.9576000012457371, i.e.
-95.76%, i.e. 0.02 percentage points above the percentage certified by our verified certifier (as indicated by the "(-0.02)" in the "Verified Robustness" column of row 1 of
+95.76%, i.e. 0.02 percentage points above the percentage certified by our verified certifier, as indicated by the "(-0.02)" in the "Verified Robustness" column of row 1 of
 Table 1.
 * "VRA" records the percentage of the test points that were both classified accurately by the trained model and certified robust by our certifier. We see that the
 "Proportion robust and correct: 0.954" in the output above, i.e., a VRA of 95.40% as shown in this column. Similarly to the percentage certified robust, the gloro unverified
 certifier of Leino et al. produces a VRA of 0.9541000127792358, i.e 95.41%, which is 0.01 percentage points above our certifier, as indicated by the "(-0.01)" in this column
 of row 1 of Table 1.
 
-## Fashion MNIST (will take about 20--25 minutes)
+## Fashion MNIST (will take about 20--50 minutes)
 
 The results in the second row of Table 1 (for Fashion MNIST) can be reproduced by following the same procedure as for MNIST above. However, running the script as follows:
 
@@ -332,7 +330,7 @@ The results in the second row of Table 1 (for Fashion MNIST) can be reproduced b
 
 As indicated in Table 1, it may take around 20 minutes for the script to complete. It produces output akin to that for MNIST, above.
 
-## CIFAR_10 (will take about 20 hours)
+## CIFAR_10 (will take about 20--40 hours)
 
 The results for CIFAR-10 (third row of Table 1) can be reproduced by running the script as follows:
 
@@ -357,7 +355,7 @@ This is recorded in the result file in the artifact, at the time the
 model was trained:
 `cav2025-models/2025-01-25_09:27:46-mnist/model_weights_epsilon_0.45_[128,128,128,128,128,128,128,128]_500/gloro_model_results.json`.
 
-### Measured Robustness (this will take 30--40 minutes)
+### Measured Robustness (this will take 30--80 minutes)
 
 The "Measured Robustness" number was calculated by running adversarial
 attacks on this MNIST model, which are implemented by the
@@ -404,7 +402,7 @@ The relevant line here is: "Robustness on PGD adversarial samples: 97.46%", whic
 Note that since this value is obtained from an attack performed via SGD style optimisation, you may get a different
 value when you run this script but hopefully it will be close to the reported value.
 
-### Verified Robustness and Certifier Running Time (this will take up to an hour)
+### Verified Robustness and Certifier Running Time (this will take up to a few hours to complete in full)
 
 These numbers were obtained by repeatedly running the main evaluation script
 ```
@@ -442,6 +440,8 @@ Here we see the proportion certified robust is 95.74% (this is the "Verified Rob
 and the time taken to compute the Lipschitz bounds was 15 minutes 59 seconds (this is the
 "Certifier Running Time" in Figure 8).
 
+# Other Documentation
+
 ## Certifier Input Format
 
 The certifier takes arguments according to its usage information:
@@ -470,4 +470,66 @@ space, followed by a perturbation bound (epsilon) represented by a real.
 The size of the given output vector must be compatible with the given neural network.
 
 An example of stdin input is: `3.0,3.0,4.0 0.49`.
+
+
+## Training and Evaluating Your Own Model
+
+The main `doit_verified_robust_gloro.sh` script in the
+`robustness-verifier/scripts/` directory can also be used to train a
+globally robust model and then run our certifier over it to obtain
+results akin to those in Table 1 of our paper.
+
+The script supports training three kinds of models, namely the three kinds
+of models that appear in Table 1 (MNIST, Fashion MNIST, and CIFAR-10).
+
+The script provides very rudimentary usage information when run with no
+arguments:
+
+```
+Usage ./doit_verified_robust_gloro.sh "train_and_eval" dataset training_epsilon INTERNAL_LAYER_SIZES eval_epsilon robustness_certifier_binary GRAM_ITERATIONS epochs batch_size [model_input_size]
+Usage ./doit_verified_robust_gloro.sh basedir dataset training_epsilon INTERNAL_LAYER_SIZES eval_epsilon robustness_certifier_binary GRAM_ITERATIONS epochs batch_size [model_input_size]
+```
+
+This shows two ways of running the script. The second way, in which the first
+argument passed to the script
+is a directory, is used to evaluate an existing model (see e.g.
+Claim 2 above).
+
+The first way, in which the first argument passed to the script is the
+word `train_and_eval` causes the script to train a new globally robust
+model, using the `gloro` framework of Leino et al.
+
+Here, we document each of the parameters that appear in this usage:
+```
+./doit_verified_robust_gloro.sh "train_and_eval" dataset training_epsilon INTERNAL_LAYER_SIZES eval_epsilon robustness_certifier_binary GRAM_ITERATIONS epochs batch_size [model_input_size]
+```
+
+* `dataset` must be one of `mnist`, `fashion_mnist` and `cifar10`, and
+specifies what type of model to train.
+* `training_epsilon` is the perturbation bound used during globally robust
+training. In the table in the CAV 2025 paper in the appendix listing
+the training hyperparamters, this parameter is called `\epsilon_{train}`.
+* `INTERNAL_LAYER_SIZES` is a Python literal that evaluates to a list of positive numbers. The length of the list defines the number of internal layers in the neural network that will be trained, where entry `i` defines the number of
+neurons in internal layer `i` (indexed from 0). In particular, the script
+builds and trains a fully-connected, Dense neural network whose input and
+output size is defined by the `dataset` parameter. To train a model with no
+internal layers, use `[]` for this parameter.
+* `eval_epsilon` is the perturbation bound against which the trained model's
+robustness will be evaluated (over its test set). This is parameter `\epsilon`
+in Table 1 of the CAV 2025 paper.
+* `robustness_certifier_binary` is the path to the executable file produced
+by building our certifier (see Claim 1 above). Usually, this is `../main`
+when this script is run from the `scripts/` subdirectory of the
+`robustness-verifier/` directory.
+* `GRAM_ITERATIONS` specifies the number of gram iterations to use when our
+certifier is run, to compute safe Lipschitz bounds for the trained model.
+Increasing this number means our certifier takes longer to run but will
+produce less conservative robustness certifications.
+* `epochs` is the number of training epochs to run model training for. In
+the table in the Appendix of the CAV 2025 paper showing the model training
+hyperparameters, this is `# epochs`.
+* `batch_size` is the batch size to use during model training. 
+In
+the table in the Appendix of the CAV 2025 paper showing the model training
+hyperparameters, this is `batch size`.
 
