@@ -24,6 +24,8 @@ import random
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Flatten, Dense, Layer
 
+from rational_dense_net import *
+
 # artibtrary precision math
 from mpmath import mp, mpf, sqrt, nstr
 
@@ -142,9 +144,9 @@ def random_search(model, x0):
     y_try = model(x_try, training=False).numpy()[0]
 
     # condition: argmax is not 0
-    argmax=np.max(y_try)
+    argmax=np.argmax(y_try)
     if argmax == 0:
-        print(f"high {high} isn't high enough")
+        print(f"high {high} didn't produce a flip. Re-run and try again.")
         sys.exit(1)
 
     x0_mph = vector_to_mph(x0)
@@ -154,7 +156,8 @@ def random_search(model, x0):
     w={"x": x_try,
        "y": y_try,
        "norm": np.linalg.norm(x_try-x0),
-       "norm_mph": l2_mph,       
+       "norm_mph": l2_mph,
+       "argmax": argmax,
        "eps": eps,
        "flips": True}
     working.append(w)
@@ -169,7 +172,7 @@ def random_search(model, x0):
         x_try_mph = vector_to_mph(x_try)
         l2_mph = l2_norm_mph(x_try_mph, x0_mph)
         
-        argmax=np.max(y_try)
+        argmax=np.argmax(y_try)
         if argmax == 0:
             # not found yet -- search upper half
             low=np.nextafter(mid, np.float32(np.inf))
@@ -182,7 +185,8 @@ def random_search(model, x0):
         w={"x": x_try,
             "y": y_try,
             "norm": np.linalg.norm(x_try-x0),
-            "norm_mph": l2_mph,                   
+            "norm_mph": l2_mph,
+            "argmax": argmax,
             "eps": eps,               
             "flips": flips}
         working.append(w)
@@ -235,20 +239,93 @@ while count_zeros < 10:
         working=random_search(model, x0)
 
         best_pair, best_dist = closest_opposite_flips(working)
+
         print(f"best pair dist is: {best_dist}")
         a,b = best_pair
         print(f"item a:")
         print(f"      y: {a['y']}")
+        print(f" argmax: {a['argmax']}")
         print(f"  flips: {a['flips']}")
         print(f"item b:")
         print(f"      y: {b['y']}")
+        print(f" argmax: {b['argmax']}")        
         print(f"  flips: {b['flips']}")
 
         # print out whichever filps as the certifier input
         if a['flips']:
             to_print=a
+            is_zero=b
         else:
             to_print=b
+            is_zero=a
+
+        # check that this pair behaves how we would expect it to
+        rat_net = keras_to_rational_dense_net(model)
+        x_is_zero_frac = to_fraction_list(is_zero["x"].reshape(-1))
+        y_is_zero_frac = rat_net.forward(x_is_zero_frac)
+        argmax_y_is_zero_frac = max(range(len(y_is_zero_frac)), key=lambda i: y_is_zero_frac[i])
+
+        x_flips_frac = to_fraction_list(to_print["x"].reshape(-1))
+        y_flips_frac = rat_net.forward(x_flips_frac)
+        argmax_y_flips_frac = max(range(len(y_flips_frac)), key=lambda i: y_flips_frac[i])
+
+        if argmax_y_is_zero_frac != argmax_y_flips_frac or argmax_y_is_zero_frac == 0:
+            print("Interestingly, Real arithmetic argmaxes expected to be equal and non-zero,  but they are not:")
+            print(f"y_is_zero_frac: {y_is_zero_frac}")
+            print(f"argmax_y_is_zero: {argmax_y_is_zero_frac}")            
+            print(f"y_flips_frac: {y_flips_frac}")
+            print(f"argmax_y_filps: {argmax_y_flips_frac}")
+        else:
+            print("argmaxes of the two found inputs (computed with real arithmetic) are equal and non-zero, as expected")
+
+        # do a final test in float32 arithmetic
+        y_is_zero = model(is_zero["x"], training=False).numpy()[0]        
+        y_flips = model(to_print["x"], training=False).numpy()[0]
+        argmax_y_is_zero = np.argmax(y_is_zero)
+        argmax_y_flips = np.argmax(y_flips)
+        if argmax_y_is_zero != 0 or argmax_y_flips == 0:
+            print("float32 argmaxes do not compute as expected!")
+            print(f"y_is_zero: {y_is_zero}")
+            print(f"argmax_y_is_zero: {argmax_y_is_zero}")
+            print(f"y_flips: {y_flips}")
+            print(f"argmax_y_filps: {argmax_y_flips}")
+            sys.exit(1)
+        else:
+            x_is_zero_mph = vector_to_mph(is_zero["x"])
+            x_flips_mph = vector_to_mph(to_print["x"])
+            dist = l2_norm_mph(x_is_zero_mph, x_flips_mph)
+            if dist != best_dist:
+                print(f"couldn't confirm distance between found pair!")
+                print(f"best_dist: {best_dist}")
+                print(f"(recomputed) dist: {dist}")
+                sys.exit(1)
+        print("Manually confirmed that the following output has a flip (to argmax 0) at the first (smallest) shown radius below")
+
+        x_final=to_print["x"]
+        # Normalize x_final to be in the valid image range [0, 255]
+        x_final = (x_final - x_final.min()) / (x_final.max() - x_final.min())  # Normalize to [0,1]
+        x_final = (x_final * 255).astype(np.uint8)  # Scale to [0,255]
+
+        # Check the shape and adjust for grayscale images (MNIST)
+        if x_final.shape[0] == 1:  # Remove batch dimension if present
+            x_final = x_final[0]
+
+        if x_final.shape[-1] == 1:  # MNIST has an extra channel dimension (28,28,1)
+            x_final = x_final.squeeze(-1)  # Remove channel dimension to get (28,28)
+
+        # Convert to PIL image
+        image_mode = "L" if x_final.ndim == 2 else "RGB"  # 'L' for grayscale, 'RGB' for color
+        image = Image.fromarray(x_final, mode=image_mode)
+
+        import tempfile
+        
+        # Create a unique temporary file in the current directory
+        with tempfile.NamedTemporaryFile(suffix=".png", dir=".", delete=False) as f:
+            output_file = f.name
+
+        image.save(output_file)
+        print(f"Image that produces the flip saved to: {output_file}")
+        
         print("Give this to the certifier (output vector followed by radius): ")
         y=to_print['y']
         
@@ -256,7 +333,7 @@ while count_zeros < 10:
             print(string, end="")
 
         radius=best_dist
-        while radius < 0.3:
+        while radius < 1000000*best_dist:
             for i in range(len(y)):
                 s = "{:.150f}".format(y[i])
                 mprint(s)
