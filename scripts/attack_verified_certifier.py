@@ -2,14 +2,34 @@
 # the 0 output vector but xb is the closest float32 that does not map to the 0 output vector.
 #
 # The idea is that the certifier will certify xb ||xb-xa|| as robust, even though xa is a
-# (float32 arithmetic) couter-example, since argmax(M(xa)) != argmax(M(xb)) and this counter-example
-# arises because in real arithmetic we would have that argmax(M(xa)) == argmax(M(xb)) where M is
-# the model in question and "float32" vs "real" arithmetic refers to how M is implemented.
+# (float32 arithmetic) couter-example, since argmax(M(xa)) != argmax(M(xb))
 #
 # this works well for the 0 output vector since we can relatively easily find inputs that map to
 # the 0 output vector (by gradient descent) and because rounding to 0 is clearly hiding precision
 # due to floating point rounding. In that sense the 0 output vector is a good foothold to attack,
 # in a way that other artibrary outputs may not be.
+#
+# Something interesting to note is that xa and xb might not be guaranteed to be a counter-example.
+# There are lots of reasons for this. One curious one is that there exist models M and inputs x
+# such that M(x) can be 0 in real arithmetic (and even in float32 arithmetic) but non-zero when
+# computed by Keras/Tensorflow. In particular, we have found example inputs where, writing W
+# for the first layer weight matrix, ReLU(W.x) = 0 in real and float32 arithmetic (when implemented
+# manually) but when computed by Keras/Tensorflow, the output is non-zero (e.g. a single small
+# non-zero quantity in the output 3.166496753692627e-08).
+#
+# This happens because W.x is a vector of negative numbers (when computed using manual float32 or real
+# arithmetic), and so ReLU(R.x) is the zero vector. However, when computed by TensorFlow,
+# one of the entries in W.x ends up being very small and positive (eg. 3.166496753692627e-08), and so
+# ReLU(W.x) here is non-zero.
+#
+#Therefore, there are lots of cases:
+#
+# Expression  | Real arithmetic | Float32 arithmetic  | Keras/Tensorflow implementation
+# ReLU(M . x) | 0               | 0                   | non-zero (due to TF weirdness)
+# M . x       | 0               | 0                   | 0
+# M . x       | non-zero        | 0 (due to rounding) | 0 (due to rounding)
+# ReLU(M . x) | 0               | 0                   | 0
+# ReLU(M . x) | non-zero        | 0 (due to rounding) | 0 (due to rounding)
 
 import doitlib
 import numpy as np
@@ -52,14 +72,11 @@ csv_loc=sys.argv[3]+"/"
 input_size=int(sys.argv[4])
 
 
-print(f"Running with internal layer dimensions: {INTERNAL_LAYER_SIZES}")
-print(f"Running with input_size: {input_size}")
     
 inputs, outputs = doitlib.build_model(Input, Flatten, Dense, input_size=input_size, dataset=dataset, internal_layer_sizes=INTERNAL_LAYER_SIZES)
 model = Model(inputs, outputs)
 
 
-print("Building zero-bias gloro model from saved weights...")
 doitlib.load_and_set_weights(csv_loc, INTERNAL_LAYER_SIZES, model)
 
             
@@ -107,11 +124,11 @@ def find_input_for(model, target, min_distance_from=None):
     
 
         # Optional: Print loss for monitoring
-        if step % 100 == 0:
+        if step % 1000 == 0:
             print(f"Step {step}, Loss: {loss.numpy()}")
 
         if loss.numpy() == 0.0:
-            print(f"Converged at step {step}, Loss: {loss.numpy()}")
+            #print(f"Converged at step {step}, Loss: {loss.numpy()}")
             break
     return x
 
@@ -138,7 +155,7 @@ def random_search(model, x0):
     high=0.05
     eps=high
     x_try=x0
-    print("Is initial high high enough?")
+
     x_try = x0 + eps * noise
     # model output
     y_try = model(x_try, training=False).numpy()[0]
@@ -164,7 +181,6 @@ def random_search(model, x0):
     
     while high>=low:
         mid = (high+low)/2
-        print(f"low={low}, high={high}: trying mid={mid}...")
         eps=mid
         x_try = x0 + eps * noise
         # model output
@@ -178,7 +194,6 @@ def random_search(model, x0):
             low=np.nextafter(mid, np.float32(np.inf))
             flips=False
         else:
-            print(f"found filp at eps {eps}")
             # found here
             flips=True
             high=np.nextafter(mid, np.float32(-np.inf))
@@ -221,6 +236,7 @@ def closest_opposite_flips(items):
 while count_zeros < 10:
     # we are searching for inputs that map to the 0 vector output
     target = tf.constant([0.0] * 10, dtype=tf.float32)
+    print("Searching for an input that maps to the 0 output vector...")
     x = find_input_for(model, target)
     
     x_final = x.numpy()
@@ -235,9 +251,10 @@ while count_zeros < 10:
     if count_zeros==10:
         x0 = x_final
 
-        print("Looking for perturbation that mapes the float32 output non-zero somewhere...")
+        print("Looking for perturbation that produces non-zero argmax...")
         working=random_search(model, x0)
 
+        print("Finding closest pair that flips the argmax...")
         best_pair, best_dist = closest_opposite_flips(working)
 
         print(f"best pair dist is: {best_dist}")
@@ -259,24 +276,6 @@ while count_zeros < 10:
             to_print=b
             is_zero=a
 
-        # check that this pair behaves how we would expect it to
-        rat_net = keras_to_rational_dense_net(model)
-        x_is_zero_frac = to_fraction_list(is_zero["x"].reshape(-1))
-        y_is_zero_frac = rat_net.forward(x_is_zero_frac)
-        argmax_y_is_zero_frac = max(range(len(y_is_zero_frac)), key=lambda i: y_is_zero_frac[i])
-
-        x_flips_frac = to_fraction_list(to_print["x"].reshape(-1))
-        y_flips_frac = rat_net.forward(x_flips_frac)
-        argmax_y_flips_frac = max(range(len(y_flips_frac)), key=lambda i: y_flips_frac[i])
-
-        if argmax_y_is_zero_frac != argmax_y_flips_frac or argmax_y_is_zero_frac == 0:
-            print("Interestingly, Real arithmetic argmaxes expected to be equal and non-zero,  but they are not:")
-            print(f"y_is_zero_frac: {y_is_zero_frac}")
-            print(f"argmax_y_is_zero: {argmax_y_is_zero_frac}")            
-            print(f"y_flips_frac: {y_flips_frac}")
-            print(f"argmax_y_filps: {argmax_y_flips_frac}")
-        else:
-            print("argmaxes of the two found inputs (computed with real arithmetic) are equal and non-zero, as expected")
 
         # do a final test in float32 arithmetic
         y_is_zero = model(is_zero["x"], training=False).numpy()[0]        
@@ -286,9 +285,9 @@ while count_zeros < 10:
         if argmax_y_is_zero != 0 or argmax_y_flips == 0:
             print("float32 argmaxes do not compute as expected!")
             print(f"y_is_zero: {y_is_zero}")
-            print(f"argmax_y_is_zero: {argmax_y_is_zero}")
+            print(f"argmax_y_is_zero (expected 0): {argmax_y_is_zero}")
             print(f"y_flips: {y_flips}")
-            print(f"argmax_y_filps: {argmax_y_flips}")
+            print(f"argmax_y_filps (expected non-zero): {argmax_y_flips}")
             sys.exit(1)
         else:
             x_is_zero_mph = vector_to_mph(is_zero["x"])
@@ -299,9 +298,17 @@ while count_zeros < 10:
                 print(f"best_dist: {best_dist}")
                 print(f"(recomputed) dist: {dist}")
                 sys.exit(1)
-        print("Manually confirmed that the following output has a flip (to argmax 0) at the first (smallest) shown radius below")
+        print(f"Manually confirmed x0 and x1 such that ||x1-x0||=={dist}, F(x0)=={argmax_y_is_zero} but F(x1)=={argmax_y_flips}")
 
+        
         x_final=to_print["x"]
+
+        # trace the output
+        #rational_model = keras_to_rational_dense_net(model)
+        #x_final_frac = to_fraction_list(x_final.reshape(-1))
+        #y_frac, y_float, y_keras = rational_model.forward(x_final_frac, x_final.reshape(-1), x_final, model)
+        
+        
         # Normalize x_final to be in the valid image range [0, 255]
         x_final = (x_final - x_final.min()) / (x_final.max() - x_final.min())  # Normalize to [0,1]
         x_final = (x_final * 255).astype(np.uint8)  # Scale to [0,255]
@@ -343,7 +350,7 @@ while count_zeros < 10:
             s = str(radius)
             mprint(s)
             print("")
-            radius = radius*2
+            radius = radius*10.0
         
             
         sys.exit(1)
