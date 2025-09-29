@@ -36,7 +36,7 @@ for mat in weights:
         count=0
         n=len(row)
         for num in row:
-            mprint(f"{num:.5f}")
+            mprint(f"{num:.150f}")
             count=count+1
             if count<n:
                 mprint(",")

@@ -237,6 +237,8 @@ print("\n")
 
 
 print("Give this to the certifier (output vector followed by radius): ")
-print("%.150g,%.150g %.150g" % (y1b,y2b,(xb - xa)))
+for i in range(100):
+    print("%.150g,%.150g %.150g" % (y1b,y2b,(xb - xa)*(1+i/10)))
+    
 
 
