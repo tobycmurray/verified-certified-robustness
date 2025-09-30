@@ -97,7 +97,7 @@ def certifier_oracle_logits_mp(y_np, eps_val, i_star):
 # ----------------------------
 # Counter-example check  [PRESERVED, with minor variable fix]
 # ----------------------------
-def check_counter_example(x0, x1, model):
+def check_counter_example(x0, x1, model, verbose=False):
     """
     Returns (is_counterexample: bool, max_eps: mp.mpf or None)
     """
@@ -106,17 +106,20 @@ def check_counter_example(x0, x1, model):
     y0_label = int(np.argmax(y0))
     y1_label = int(np.argmax(y1))
     if y0_label == y1_label:
-        #print("x0 and x1 don't have different labels!")
-        #print(f"y0: {y0}")
-        #print(f"y1: {y1}")
-        #print(f"y0_label: {y0_label}")
-        #print(f"y1_label: {y1_label}")
+        if verbose:
+            print("x0 and x1 don't have different labels!")
+            print(f"y0: {y0}")
+            print(f"y1: {y1}")
+            print(f"y0_label: {y0_label}")
+            print(f"y1_label: {y1_label}")
         return False, None
     else:
         x0_mph = vector_to_mph(x0)
         x1_mph = vector_to_mph(x1)
         dist = l2_norm_mph(x0_mph, x1_mph)
         eps_val = dist
+        if verbose:
+            print(f"||x1-x0|| = {dist}")
         cert, slack = certifier_oracle_logits_mp(y1, eps_val, y1_label)
         if cert:
             # grow eps until certification fails
@@ -214,7 +217,7 @@ def optimize_to_competitor(model, x_nat, i_star,
     for t in range(steps):
         with tf.GradientTape() as tape:
             logits = model(x_var, training=False)
-            L = tie_loss(logits, i_star, margin=50.0, beta=1.0,
+            L = tie_loss(logits, i_star, margin=20.0, beta=1.0,
                          temperature=temperature, epsilon=epsilon)
             if lam_prox > 0:
                 L = L + lam_prox * tf.reduce_mean(tf.square(x_var - x_nat))
@@ -223,7 +226,14 @@ def optimize_to_competitor(model, x_nat, i_star,
         x_var.assign(tf.clip_by_value(x_var, clip_min, clip_max))
         if verbose and (t % 100 == 0):
             lv = float(L.numpy())
-            print(f"  [opt] step {t:04d} loss {lv:.6e}")
+            # compute the tie-gap for logging
+            a = logits[..., i_star]
+            C = tf.shape(logits)[-1]
+            mask_i = tf.one_hot(i_star, C, on_value=tf.constant(-1e9, logits.dtype),
+                                off_value=tf.constant(0., logits.dtype))
+            b = tf.reduce_max(logits + mask_i, axis=-1)
+            tie_gap = tf.square(a - b)
+            print(f"  [opt] step {t:04d} loss {lv:.6e}, tie_gap {float(tf.reduce_mean(tie_gap).numpy()):.9e}")
     logits_adv = model(x_var, training=False).numpy()[0]
     j_star = _choose_competitor_idx(logits_adv, i_star)
     return x_var.numpy(), logits_adv, j_star
@@ -300,7 +310,7 @@ def random_search(model, x0):
     low=0.0
     high=0.10
     eps=high
-    x_try=x0
+    x_try=np.clip(x0, 0.0, 1.0)
     y_try = model(x_try, training=False).numpy()[0]  
     argmax=np.argmax(y_try)
  
@@ -319,7 +329,7 @@ def random_search(model, x0):
     # generate noise once and then just scale it
     noise = np.random.randn(*x0.shape)
   
-    x_try = x0 + eps * noise
+    x_try = np.clip(x0 + eps * noise, 0.0, 1.0)
     # model output
     y_try = model(x_try, training=False).numpy()[0]
     # condition: argmax is not 0
@@ -334,7 +344,7 @@ def random_search(model, x0):
         # generate noise once and then just scale it
         noise = np.random.randn(*x0.shape)
   
-        x_try = x0 + eps * noise
+        x_try = np.clip(x0 + eps * noise, 0.0, 1.0)
         # model output
         y_try = model(x_try, training=False).numpy()[0]
         # condition: argmax is not 0
@@ -360,7 +370,7 @@ def random_search(model, x0):
       
         mid = (high+low)/2
         eps=mid
-        x_try = x0 + eps * noise
+        x_try = np.clip(x0 + eps * noise, 0.0, 1.0)
         # model output
         y_try = model(x_try, training=False).numpy()[0]
         x_try_mph = vector_to_mph(x_try)
@@ -417,7 +427,6 @@ def best_counter_example_from_flips(items):
             else:
                 flips = b
                 other = a
-            # XXX
             is_cex, max_eps = check_counter_example(other["x"], flips["x"], model)
             if is_cex:
                 found_cex = True
@@ -472,7 +481,7 @@ def try_to_improve_cex_by_extension(x0, x1, model):
         max_noisy_search=5000
         while steps_to_find<max_noisy_search and not cex:              
             noise = np.random.normal(loc=0.0, scale=np.max(np.abs(a))*0.1, size=a.shape)
-            x1=x0+a+noise
+            x1=np.clip(x0+a+noise, 0.0, 1.0)
             cex, max_eps = check_counter_example(x0, x1, model)
             steps_to_find=steps_to_find+1
         return cex, max_eps, x1
@@ -559,13 +568,19 @@ def main():
         if i_star != y_true:
             continue  # only consider correctly classified points
         print(f"Running with index {idx}. Optimising to competitor...")
-      
+
+        # optimisation hyper-parameters
+        opt_steps=1500
+        opt_lr=5e-2
+        opt_lam_prox=1e2
+        opt_verbose=False
+        
         # Try to find a competitor by optimizing a tie objective
         x_adv, y_adv, j_star = optimize_to_competitor(
             model, x_nat, i_star,
-            steps=1500, lr=5e-2,
-            lam_prox=1e2, temperature=0.0, epsilon=0.0, #epsilon=1e-6,
-            clip_min=0.0, clip_max=1.0, verbose=True
+            steps=opt_steps, lr=opt_lr,
+            lam_prox=opt_lam_prox, epsilon=0.0,
+            verbose=opt_verbose
         )
         # If argmax hasn't changed, still try to refine; otherwise proceed
         argmax_adv = int(np.argmax(y_adv))
@@ -576,9 +591,9 @@ def main():
                 print(f"Optimising to competitor failed. Re-trying with larger eps {eps_try}...")
                 x_adv2, y_adv2, j2 = optimize_to_competitor(
                     model, x_nat, i_star,
-                    steps=1500, lr=5e-2,
-                    lam_prox=1e2, temperature=0.0, epsilon=eps_try,
-                    clip_min=0.0, clip_max=1.0, verbose=True
+                    steps=opt_steps, lr=opt_lr,
+                    lam_prox=opt_lam_prox, epsilon=eps_try,
+                    verbose=opt_verbose
                 )
                 if int(np.argmax(y_adv2)) != i_star:
                     x_adv, y_adv, j_star = x_adv2, y_adv2, j2
@@ -601,6 +616,7 @@ def main():
             print("nudging x_tie_eps ... ")
             x_tie_eps = x_tie_eps + 1e-6 * (x_adv - x_nat)
             y_tie_eps = model(x_tie_eps, training=False).numpy()[0]
+
         # Now check counter-example using preserved routine
         is_cex, max_eps = check_counter_example(x_nat, x_tie_eps, model)
         x_other=x_nat
