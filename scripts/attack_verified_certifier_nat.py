@@ -265,7 +265,7 @@ def save_x_to_file(x):
     np.save(output_file, x)
     return output_file
 
-def refine_tie_bisection(model, x_nat, x_adv, verbose=False):
+def search_cex(model, x_nat, x_adv, verbose=False):
     x_nat = _ensure_batched(x_nat, model.input_shape)
     x_adv = _ensure_batched(x_adv, model.input_shape)
     y_nat = model(x_nat, training=False).numpy()[0]
@@ -280,11 +280,12 @@ def refine_tie_bisection(model, x_nat, x_adv, verbose=False):
     x_low=x_nat
     x_high=x_adv
 
+    cex, max_eps = check_counter_example(x_low, x_high, model)
     steps=0
     # invariant argmax(y_low) == i_star and argmax(y_high) == j_star
-    while high>=low:
+    while high>=low and not cex:
         if verbose and steps%10==0:
-            print(f"[refine tie bisection] steps {steps}, remaining search width {high-low}")
+            print(f"[search cex] steps {steps}, remaining search width {high-low}")
         mid = 0.5 * (low + high)
         x_mid = x_nat + mid * vec
         y_mid = model(x_mid, training=False).numpy()[0]
@@ -296,18 +297,26 @@ def refine_tie_bisection(model, x_nat, x_adv, verbose=False):
         elif argmax == j_star:
             x_high=x_mid
             high=np.nextafter(mid, np.float32(-np.inf))
+        else:
+            # found something unexpected here: search towards x_adv
+            low=np.nextafter(mid, np.float32(np.inf))
+            
         steps += 1
+        cex, max_eps = check_counter_example(x_low, x_high, model)        
         
     y_low = model(x_low, training=False).numpy()[0]
     y_high = model(x_high, training=False).numpy()[0]
     assert i_star == np.argmax(y_low)
     assert j_star == np.argmax(y_high)
 
+    # probably unnecssary to do this again
+    cex, max_eps = check_counter_example(x_low, x_high, model)
+    
     if verbose:
-        print("refine_tie_bisection returning: ")
+        print("search_cex returning: ")
         print(f"  y_low  (argmax {i_star}: {y_low}")
         print(f"  y_high (argmax {j_star}: {y_high}")
-    return x_low, x_high
+    return x_low, x_high, cex, max_eps
 
 def try_to_improve_cex_by_extension(x0, x1, model):
     cex, max_eps = check_counter_example(x0, x1, model)
@@ -337,7 +346,7 @@ def try_to_improve_cex_by_extension(x0, x1, model):
     best_step = 0
     steps = 1
     while cex:
-        print(f"[cex search] steps {steps}, max_max_eps: {max_max_eps}")
+        print(f"[cex extend] steps {steps}, max_max_eps: {max_max_eps}")
         steps *= 2
  
         cex, max_eps, x1 = check_for_steps(steps)
@@ -351,7 +360,7 @@ def try_to_improve_cex_by_extension(x0, x1, model):
     high=steps-1
     while high >= low:
         mid = int(low + (high - low)/2)
-        print(f"[cex search] mid {mid}, low {low}, high {high}, max_max_eps: {max_max_eps}")       
+        print(f"[cex extend] mid {mid}, low {low}, high {high}, max_max_eps: {max_max_eps}")       
         cex, max_eps, x1 = check_for_steps(mid)
         if cex:
             if max_eps > max_max_eps:
@@ -447,16 +456,14 @@ def main():
                 print(f"Failed to optimise to competitor for index {idx}. Skipping")
                 continue
             
-        print("Refining optimisation by bisection...")
+        print("Searching for counter-example...")
         
         # Refine to an (almost) exact tie along the segment
-        x0, x1 = refine_tie_bisection(model, x_nat, x_adv, verbose=False)
-        print("Did bisection give a counter-example? ...")
-        cex, max_eps = check_counter_example(x0, x1, model)
+        x0, x1, cex, max_eps = search_cex(model, x_nat, x_adv, verbose=False)
         if not cex:
-            print("Bisection did not return a counter-example. Skipping...")
+            print("Search did not return a counter-example. Skipping...")
             continue
-          
+        
  
         print(f"Got counter-example with max_eps {max_eps}!")
         # mutation doesn't seem to help improve counter-examples
