@@ -419,7 +419,7 @@ def main():
         i_star = int(np.argmax(y_nat))
         if i_star != y_true:
             continue  # only consider correctly classified points
-        print(f"Running with index {idx}. Optimising to competitor...")
+        print(f"\nRunning with index {idx}. Optimising to competitor...")
 
         # optimisation hyper-parameters
         opt_steps=1500
@@ -461,8 +461,16 @@ def main():
         # Refine to an (almost) exact tie along the segment
         x0, x1, cex, max_eps = search_cex(model, x_nat, x_adv, verbose=False)
         if not cex:
-            print("Search did not return a counter-example. Skipping...")
-            continue
+            print("Search did not return a counter-example. Checking the other way around...")
+            cex, max_eps = check_counter_example(x1, x0, model)
+            if not cex:
+                print("Other way around also wasn't a counter-example. Skipping...")
+                continue
+            print("Other way around is a counter-example. Swapping x0 and x1.")
+            # swap x0 and x1
+            temp=x1
+            x1=x0
+            x0=temp
         
  
         print(f"Got counter-example with max_eps {max_eps}!")
