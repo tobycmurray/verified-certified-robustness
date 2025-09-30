@@ -214,7 +214,7 @@ def optimize_to_competitor(model, x_nat, i_star,
     for t in range(steps):
         with tf.GradientTape() as tape:
             logits = model(x_var, training=False)
-            L = tie_loss(logits, i_star, margin=100.0, beta=5.0,
+            L = tie_loss(logits, i_star, margin=50.0, beta=1.0,
                          temperature=temperature, epsilon=epsilon)
             if lam_prox > 0:
                 L = L + lam_prox * tf.reduce_mean(tf.square(x_var - x_nat))
@@ -550,7 +550,7 @@ def main():
         x_nat = _ensure_batched(x_nat0, model.input_shape)
 
         # crank up amplitude
-        #x_nat *= 20.0;
+        #x_nat *= 2.0;
         #x_nat = np.clip(x_nat, 0.0, 1.0)
 
         # Model logits & correctness check
@@ -563,8 +563,8 @@ def main():
         # Try to find a competitor by optimizing a tie objective
         x_adv, y_adv, j_star = optimize_to_competitor(
             model, x_nat, i_star,
-            steps=1000, lr=5e-2,
-            lam_prox=5e-3, temperature=0.0, epsilon=0.0, #epsilon=1e-6,
+            steps=1500, lr=5e-2,
+            lam_prox=1e2, temperature=0.0, epsilon=0.0, #epsilon=1e-6,
             clip_min=0.0, clip_max=1.0, verbose=True
         )
         # If argmax hasn't changed, still try to refine; otherwise proceed
@@ -576,8 +576,8 @@ def main():
                 print(f"Optimising to competitor failed. Re-trying with larger eps {eps_try}...")
                 x_adv2, y_adv2, j2 = optimize_to_competitor(
                     model, x_nat, i_star,
-                    steps=1000, lr=5e-2,
-                    lam_prox=5e-3, temperature=0.0, epsilon=eps_try,
+                    steps=1500, lr=5e-2,
+                    lam_prox=1e2, temperature=0.0, epsilon=eps_try,
                     clip_min=0.0, clip_max=1.0, verbose=True
                 )
                 if int(np.argmax(y_adv2)) != i_star:
