@@ -18,8 +18,17 @@ from tensorflow.keras.layers import Input, Flatten, Dense, Layer
 from rational_dense_net import *
 
 # arbitrary precision math
-from mpmath import mp, mpf, sqrt, nstr
+from mpmath import mp, mpf, sqrt, nstr, floor
+
 mp.dps = 60  # massive precision
+
+def round_down(x, decimals=0):
+    """
+    Round down (toward -∞) an mpf to a fixed number of decimal places.
+    """
+    factor = mp.mpf(10) ** decimals
+    return floor(x * factor) / factor
+
 
 class NumpyEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -59,10 +68,10 @@ x_test, y_test = doitlib.load_test_data(input_size=input_size, dataset=dataset)
 # ----------------------------
 def load_lipschitz_matrix(path):
     with open(path, 'r') as f:
-        data = json.load(f)
+        data = json.load(f, parse_float=mp.mpf)
     for obj in data:
         if isinstance(obj, dict) and 'lipschitz_bounds' in obj:
-            L = np.array(obj['lipschitz_bounds'], dtype=float)
+            L = np.array(obj['lipschitz_bounds'])
             if L.shape != (num_classes, num_classes):
                 print("Warning: L shape mismatch", L.shape)
             return L
@@ -79,14 +88,15 @@ def certifier_oracle_logits_mp(y_np, eps_val, i_star):
     n = y.shape[0]
     if not (0 <= i_star < n):
         raise ValueError("i_star out of range")
-    mp_eps = mp.mpf(str(eps_val))
-    y_i_mp = mp.mpf(str(float(y[i_star])))
+    mp_eps = eps_val
+    y_mp = vector_to_mph(y)
+    y_i_mp = y_mp[i_star]
     min_slack = mp.mpf('inf')
     for j in range(n):
         if j == i_star:
             continue
-        Lij = mp.mpf(str(float(L_matrix[i_star, j])))
-        y_j_mp = mp.mpf(str(float(y[j])))
+        Lij = L_matrix[i_star, j]
+        y_j_mp = y_mp[j]
         slack = y_i_mp - y_j_mp - Lij * mp_eps
         if slack < min_slack:
             min_slack = slack
@@ -382,6 +392,9 @@ def try_to_improve_cex_by_extension(x0, x1, model):
 # =====================================================================================
 log_file="counter_examples.json"
 
+certifier_input="certifier_input.txt"
+
+
 def main():
     # assuming x_test in [0,1]; adjust if your preprocessing differs
     total = x_test.shape[0]
@@ -391,7 +404,15 @@ def main():
     # infer channel shape from model
     want_shape = model.input_shape[1:]
  
-   
+
+    if os.path.exists(certifier_input):
+        # ask user
+        answer = input(f"{certifier_input} already exists. Overwrite? [y/N]: ").strip().lower()
+        if answer != "y":
+            print("Aborting, not overwriting.")
+            exit(1)
+        os.remove(certifier_input)
+    
     if os.path.exists(log_file):
         # ask user
         answer = input(f"{log_file} already exists. Overwrite? [y/N]: ").strip().lower()
@@ -509,7 +530,21 @@ def main():
             "extension_best_step": int(best_step),
         }      
  
-               
+        with open(certifier_input, "a", buffering=1) as f:
+            dists = [max_eps, dist, (dist + max_eps)*mp.mpf("0.5")]
+            for r in dists:
+                radius = round_down(r, 20)
+                for i in range(len(y1)):
+                    s = "{:.150f}".format(y1[i])
+                    f.write(s)
+                    if i<len(y1)-1:
+                        f.write(",")
+                f.write(" ")
+                s = str(radius)
+                f.write(s)
+                f.write("\n")
+                f.flush()
+            
         # log to file
         with open(log_file, "a", buffering=1) as f:  # line-buffered mode
             if num_logs_written > 0:
