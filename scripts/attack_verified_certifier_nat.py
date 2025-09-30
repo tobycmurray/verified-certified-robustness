@@ -19,7 +19,7 @@ from rational_dense_net import *
 
 # arbitrary precision math
 from mpmath import mp, mpf, sqrt, nstr
-mp.dps = 150  # massive precision
+mp.dps = 60  # massive precision
 
 class NumpyEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -130,7 +130,7 @@ def check_counter_example(x0, x1, model, verbose=False):
             # bisection to refine boundary
             high = eps_val
             low = max_eps
-            while high > low + (mp.mpf('1e-80')):
+            while high > low + (mp.mpf('1e-20')):
                 mid = low + (high - low) / 2
                 cert, _ = certifier_oracle_logits_mp(y1, mid, y1_label)
                 if cert:
@@ -265,206 +265,49 @@ def save_x_to_file(x):
     np.save(output_file, x)
     return output_file
 
-def refine_tie_bisection(model, x_nat, x_adv, i_star, j_star,
-                         tie_tol=1e-12, max_iter=60):
-    """
-    On the segment x(t) = x_nat + t * (x_adv - x_nat), find t s.t.
-    z_i(x) - z_j(x) ~ 0 to within tie_tol.
-    Returns x_tie (close to exact tie) and also a slightly tilted x_tie_eps where j* wins.
-    """
+def refine_tie_bisection(model, x_nat, x_adv, verbose=False):
     x_nat = _ensure_batched(x_nat, model.input_shape)
     x_adv = _ensure_batched(x_adv, model.input_shape)
-    def diff(x):
-        z = model(x, training=False).numpy()[0]
-        return float(z[i_star] - z[j_star])
-    f0 = diff(x_nat)
-    f1 = diff(x_adv)
-    # ensure we are crossing: if not, just return x_adv as best effort
-    if not (f0 > 0 and f1 < 0):
-        return x_adv, x_adv  # best-effort fallback
-    lo, hi = 0.0, 1.0
-    for _ in range(max_iter):
-        mid = 0.5 * (lo + hi)
-        x_mid = x_nat + mid * (x_adv - x_nat)
-        fm = diff(x_mid)
-        if abs(fm) <= tie_tol:
-            x_tie = x_mid
-            break
-        if fm > 0:
-            lo = mid
-        else:
-            hi = mid
-    else:
-        x_tie = x_nat + 0.5 * (lo + hi) * (x_adv - x_nat)
-    # tiny tilt along +direction so j* wins but keep ultra-close to tie
-    # choose a step that’s many orders larger than float machine epsilon, but tiny in L2
-    delta = 1e-9
-    x_tie_eps = x_tie + delta * (x_adv - x_nat)
-    return x_tie, x_tie_eps
- 
-def random_search(model, x0):
-    x0 = np.asarray(x0, dtype=np.float32).reshape(1, 28, 28, 1)  # adjust shape
-    initial_x0 = x0.copy()
-    last_found=0
-    working=[]
+    y_nat = model(x_nat, training=False).numpy()[0]
+    y_adv = model(x_adv, training=False).numpy()[0]
+    i_star = np.argmax(y_nat)
+    j_star = np.argmax(y_adv)
+
     low=0.0
-    high=0.10
-    eps=high
-    x_try=np.clip(x0, 0.0, 1.0)
-    y_try = model(x_try, training=False).numpy()[0]  
-    argmax=np.argmax(y_try)
- 
-    x0_mph = vector_to_mph(x0)
-    x_try_mph = vector_to_mph(x_try)
-    l2_mph = l2_norm_mph(x_try_mph, x0_mph)
-    w={"x": x_try,
-       "y": y_try,
-       "norm": np.linalg.norm(x_try-x0),
-       "norm_mph": l2_mph,
-       "argmax": argmax,
-       "eps": eps,
-       "flips": False}
-    working.append(w)
-    orig_argmax=argmax
-    # generate noise once and then just scale it
-    noise = np.random.randn(*x0.shape)
-  
-    x_try = np.clip(x0 + eps * noise, 0.0, 1.0)
-    # model output
-    y_try = model(x_try, training=False).numpy()[0]
-    # condition: argmax is not 0
-    argmax=np.argmax(y_try)
-    y_try_mut=y_try.copy()
-    y_try_mut[argmax] = float("-inf")
-    second_argmax=np.argmax(y_try_mut)
-    assert second_argmax != argmax
-  
-    print("Trying to flip...")
-    while argmax != second_argmax:
-        # generate noise once and then just scale it
-        noise = np.random.randn(*x0.shape)
-  
-        x_try = np.clip(x0 + eps * noise, 0.0, 1.0)
-        # model output
-        y_try = model(x_try, training=False).numpy()[0]
-        # condition: argmax is not 0
-        argmax=np.argmax(y_try)
-    print("Found flip. Attempting to find boundary...")
-  
-    x0_mph = vector_to_mph(x0)
-    x_try_mph = vector_to_mph(x_try)
-    l2_mph = l2_norm_mph(x_try_mph, x0_mph)
-    w={"x": x_try,
-       "y": y_try,
-       "norm": np.linalg.norm(x_try-x0),
-       "norm_mph": l2_mph,
-       "argmax": argmax,
-       "eps": eps,
-       "flips": True}
-    working.append(w)
-    iter_count=0
+    high=1.0
+    vec=x_adv-x_nat
+
+    x_low=x_nat
+    x_high=x_adv
+
+    steps=0
+    # invariant argmax(y_low) == i_star and argmax(y_high) == j_star
     while high>=low:
-        if iter_count % 100 == 0:
-            print(f"Boundary search, space: {high-low}")
-        iter_count += 1
-      
-        mid = (high+low)/2
-        eps=mid
-        x_try = np.clip(x0 + eps * noise, 0.0, 1.0)
-        # model output
-        y_try = model(x_try, training=False).numpy()[0]
-        x_try_mph = vector_to_mph(x_try)
-        l2_mph = l2_norm_mph(x_try_mph, x0_mph)
-      
-        argmax=np.argmax(y_try)
-        if argmax != orig_argmax:
-            # search closer to the start
-            high=np.nextafter(mid, np.float32(-np.inf))          
-            flips=True
-        else:
-            # search away from the start
+        if verbose and steps%10==0:
+            print(f"[refine tie bisection] steps {steps}, remaining search width {high-low}")
+        mid = 0.5 * (low + high)
+        x_mid = x_nat + mid * vec
+        y_mid = model(x_mid, training=False).numpy()[0]
+        argmax = np.argmax(y_mid)
+
+        if argmax == i_star:
+            x_low=x_mid
             low=np.nextafter(mid, np.float32(np.inf))
-            flips=False
-        w={"x": x_try,
-            "y": y_try,
-            "norm": np.linalg.norm(x_try-x0),
-            "norm_mph": l2_mph,
-            "argmax": argmax,
-            "eps": eps,             
-            "flips": flips}
-        working.append(w)
-    return working
+        elif argmax == j_star:
+            x_high=x_mid
+            high=np.nextafter(mid, np.float32(-np.inf))
+        steps += 1
+        
+    y_low = model(x_low, training=False).numpy()[0]
+    y_high = model(x_high, training=False).numpy()[0]
+    assert i_star == np.argmax(y_low)
+    assert j_star == np.argmax(y_high)
 
-def closest_opposite_flips(items):
-    """
-    Finds the closest pair of dicts from `items` such that their 'flips' differ.
-    Closeness is defined as minimal L2 distance between their 'x' vectors, computed
-    with mpmath to ensure we don't lose precision due to floating point.
-    """
-    best_pair = None
-    best_dist = float("inf")
-    for a, b in combinations(items, 2):
-        if a["flips"] != b["flips"]:
-            a_mph = vector_to_mph(a["x"])
-            b_mph = vector_to_mph(b["x"])
-            dist = l2_norm_mph(a_mph, b_mph)
-            if dist < best_dist:
-                best_dist = dist
-                best_pair = (a, b)
-    return best_pair, best_dist
-
-def best_counter_example_from_flips(items):
-    print("Finding best counter-example (if any) from flips...")
-    cex_count = 0
-    best_pair = None
-    best_dist = float("0.0")
-    found_cex = False
-    for a, b in combinations(items, 2):
-        if a["flips"] != b["flips"]:
-            if a["flips"]:
-                flips = a
-                other = b
-            else:
-                flips = b
-                other = a
-            is_cex, max_eps = check_counter_example(other["x"], flips["x"], model)
-            if is_cex:
-                found_cex = True
-                cex_count += 1
-                if max_eps > best_dist:
-                    best_dist = max_eps
-                    best_pair = (flips, other)
-    if not found_cex:
-        print("No counter-example found, unexpectedly!")
-        return None
-    print(f"Best counter-example found. Found {cex_count} in total.")
-    return best_pair, best_dist
-
-# this never seems to work
-def try_to_improve_cex_by_mutation(x0, x1, model):
-    cex, max_eps = check_counter_example(x0, x1, model)
-    assert cex
-    print(f"Trying to improve counter-example by mutating x1...")
-    # OK now try to make it a bit bigger by mutation
-    NUM_MUTANTS=100000
-    scale=0.01
-    max_eps_before_mut=max_eps
-    cex_mut_count=0                  
-    for i in range(NUM_MUTANTS):
-        if i % (NUM_MUTANTS/100) == 0:
-            print(f"[mutating {i/NUM_MUTANTS*100}%] cex_mut_count {cex_mut_count}")
-        noise = np.random.randn(*x1.shape)
-        x1_mut = x1 + (noise * scale)
-        cex, max_eps_mut = check_counter_example(x0, x1_mut, model)
-        if cex:
-            cex_mut_count += 1
-            if max_eps_mut > max_eps:
-                max_eps = max_eps_mut
-                x1 = x1_mut
-    print(f"Mutation produced {cex_mut_count} ({cex_mut_count/NUM_MUTANTS*100}%) counter-examples")
-    print(f"After mutation: Got counter-example with max_eps {max_eps}!")                  
-    print(f"Mutation improved max_eps by: {max_eps - max_eps_before_mut}")
-    return x1
+    if verbose:
+        print("refine_tie_bisection returning: ")
+        print(f"  y_low  (argmax {i_star}: {y_low}")
+        print(f"  y_high (argmax {j_star}: {y_high}")
+    return x_low, x_high
 
 def try_to_improve_cex_by_extension(x0, x1, model):
     cex, max_eps = check_counter_example(x0, x1, model)
@@ -603,121 +446,64 @@ def main():
                 # give up on this point
                 print(f"Failed to optimise to competitor for index {idx}. Skipping")
                 continue
+            
         print("Refining optimisation by bisection...")
+        
         # Refine to an (almost) exact tie along the segment
-        x_tie, x_tie_eps = refine_tie_bisection(
-            model, x_nat, x_adv, i_star, j_star,
-            tie_tol=0, max_iter=800
-        )
-        # Sanity: make sure the "tilted" point differs in argmax from i*
-        y_tie_eps = model(x_tie_eps, training=False).numpy()[0]
-        while int(np.argmax(y_tie_eps)) == i_star:
-            # If still not flipped, nudge a bit more
-            print("nudging x_tie_eps ... ")
-            x_tie_eps = x_tie_eps + 1e-6 * (x_adv - x_nat)
-            y_tie_eps = model(x_tie_eps, training=False).numpy()[0]
-
-        # Now check counter-example using preserved routine
-        is_cex, max_eps = check_counter_example(x_nat, x_tie_eps, model)
-        x_other=x_nat
-        y_other=y_nat
-        if not is_cex:
-            print("Searching for counter-example after finidng tie...")
-            # go searching from x_other to find a point that gives a counter-example. Ideas:
-            # 1. Search along the line segment x_other <--> x_tie_eps
-            # 2. Optimixe x_other to x_other' that has minimal slack (perhaps along that line?)
-            # 3. Search outwards from x_tie_eps (how is that different from 1?)
-            # try to find the exact boundary from this point
-            working = random_search(model, x_tie_eps)
-            if working == []:
-                continue
-            res = best_counter_example_from_flips(working)
-            if res is None:
-                continue
-            best_pair, best_dist = res
-            print(f"best pair dist is: {best_dist}")
-            is_flip,is_not_flip = best_pair
-            print(f"item is_flip:")
-            print(f"      y: {is_flip['y']}")
-            print(f" argmax: {is_flip['argmax']}")
-            print(f"  flips: {is_flip['flips']}")
-            print(f"item is_not_flip:")
-            print(f"      y: {is_not_flip['y']}")
-            print(f" argmax: {is_not_flip['argmax']}")      
-            print(f"  flips: {is_not_flip['flips']}")
- 
-            # do a final test in float32 arithmetic
-            y_is_not_flip = model(is_not_flip["x"], training=False).numpy()[0]      
-            y_is_flip = model(is_flip["x"], training=False).numpy()[0]
-            argmax_y_is_not_flip = np.argmax(y_is_not_flip)
-            argmax_y_is_flip = np.argmax(y_is_flip)
-            if argmax_y_is_not_flip == argmax_y_is_flip:
-                print("float32 argmaxes do not compute as expected!")
-                print(f"y_is_not_flip: {y_is_not_flip}")
-                print(f"argmax_y_is_not_flip (expected 0): {argmax_y_is_not_flip}")
-                print(f"y_is_flip: {y_is_flip}")
-                print(f"argmax_y_filps (expected non-zero): {argmax_y_is_flip}")
-                sys.exit(1)
-            else:
-                x_is_not_flip_mph = vector_to_mph(is_not_flip["x"])
-                x_is_flip_mph = vector_to_mph(is_flip["x"])
-                dist = l2_norm_mph(x_is_not_flip_mph, x_is_flip_mph)          
-                print(f"Manually confirmed x0 and x1 such that ||x1-x0||=={dist}, F(x0)=={argmax_y_is_not_flip} but F(x1)=={argmax_y_is_flip}")
-              
-                x0 = is_not_flip["x"]
-                x1 = is_flip["x"]
-                cex, max_eps = check_counter_example(x0, x1, model)
-                if not cex:
-                    print("x0 and x1 do not constitute a counter-example, unexpectedly!")
-                    sys.exit(1)
+        x0, x1 = refine_tie_bisection(model, x_nat, x_adv, verbose=False)
+        print("Did bisection give a counter-example? ...")
+        cex, max_eps = check_counter_example(x0, x1, model)
+        if not cex:
+            print("Bisection did not return a counter-example. Skipping...")
+            continue
           
  
-                print(f"Got counter-example with max_eps {max_eps}!")
-                # mutation doesn't seem to help improve counter-examples
-                print(f"Trying to improve counter-example by extension...")
-                x1, best_step = try_to_improve_cex_by_extension(x0, x1, model)
-                cex, max_eps = check_counter_example(x0, x1, model)
-                assert cex
-                print(f"Got counter-example with max_eps {max_eps}!")
-                y0 = model(x0, training=False).numpy()[0]      
-                y1 = model(x1, training=False).numpy()[0]
-                argmax_y0 = np.argmax(y0)
-                argmax_y1 = np.argmax(y1)
-              
-                img_file = save_x_to_image(x1)
-                x1_file = save_x_to_file(x1)
-                x0_file = save_x_to_file(x0)
+        print(f"Got counter-example with max_eps {max_eps}!")
+        # mutation doesn't seem to help improve counter-examples
+        print(f"Trying to improve counter-example by extension...")
+        x1, best_step = try_to_improve_cex_by_extension(x0, x1, model)
+        cex, max_eps = check_counter_example(x0, x1, model)
+        assert cex
+        print(f"Got counter-example with max_eps {max_eps}!")
+        y0 = model(x0, training=False).numpy()[0]      
+        y1 = model(x1, training=False).numpy()[0]
+        argmax_y0 = np.argmax(y0)
+        argmax_y1 = np.argmax(y1)
+        
+        img_file = save_x_to_image(x1)
+        x1_file = save_x_to_file(x1)
+        x0_file = save_x_to_file(x0)
       
-                x0_mph = vector_to_mph(x0)
-                x1_mph = vector_to_mph(x1)
-                dist = l2_norm_mph(x0_mph, x1_mph)          
-                print(f"Manually confirmed x0 and x1 such that ||x1-x0||=={dist}, F(x0)=={argmax_y0} but F(x1)=={argmax_y1}")
-                summary = {
-                    "index": int(idx),
-                    "true_label": int(y_true),
-                    "argmax_y0": int(argmax_y0),
-                    "argmax_y1": int(argmax_y1),
-                    "is_counter_example": bool(cex),
-                    "max_eps": str(max_eps),
-                    "dist": str(dist),
-                    "img_file": str(img_file),
-                    "x0_file": str(x0_file),
-                    "x1_file": str(x1_file),
-                    "y0": y0,
-                    "y1": y1,
-                    "extension_best_step": int(best_step),
-                }      
+        x0_mph = vector_to_mph(x0)
+        x1_mph = vector_to_mph(x1)
+        dist = l2_norm_mph(x0_mph, x1_mph)          
+        print(f"Manually confirmed x0 and x1 such that ||x1-x0||=={dist}, F(x0)=={argmax_y0} but F(x1)=={argmax_y1}")
+        summary = {
+            "index": int(idx),
+            "true_label": int(y_true),
+            "argmax_y0": int(argmax_y0),
+            "argmax_y1": int(argmax_y1),
+            "is_counter_example": bool(cex),
+            "max_eps": str(max_eps),
+            "dist": str(dist),
+            "img_file": str(img_file),
+            "x0_file": str(x0_file),
+            "x1_file": str(x1_file),
+            "y0": y0,
+            "y1": y1,
+            "extension_best_step": int(best_step),
+        }      
  
                
-                # log to file
-                with open(log_file, "a", buffering=1) as f:  # line-buffered mode
-                    if num_logs_written > 0:
-                        f.write(",\n")
-                    f.write(json.dumps(summary, indent=2, cls=NumpyEncoder) + "\n")
-                    f.flush()
-                    num_logs_written += 1
+        # log to file
+        with open(log_file, "a", buffering=1) as f:  # line-buffered mode
+            if num_logs_written > 0:
+                f.write(",\n")
+            f.write(json.dumps(summary, indent=2, cls=NumpyEncoder) + "\n")
+            f.flush()
+            num_logs_written += 1
                               
-                continue  # for now run for a while so we can see what sorts max_epses we get
+        continue  # for now run for a while so we can see what sorts max_epses we get
               
  
 def handle_interrupt(sig, frame):
