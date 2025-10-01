@@ -214,6 +214,7 @@ def optimize_to_competitor(model, x_nat, i_star,
                            lam_prox=1e-2,
                            temperature=0.0,
                            epsilon=1e-6,
+                           margin=0.0, beta=0.0,
                            clip_min=0.0, clip_max=1.0,
                            verbose=False):
     """
@@ -227,7 +228,7 @@ def optimize_to_competitor(model, x_nat, i_star,
     for t in range(steps):
         with tf.GradientTape() as tape:
             logits = model(x_var, training=False)
-            L = tie_loss(logits, i_star, margin=20.0, beta=1.0,
+            L = tie_loss(logits, i_star, margin=margin, beta=beta,
                          temperature=temperature, epsilon=epsilon)
             if lam_prox > 0:
                 L = L + lam_prox * tf.reduce_mean(tf.square(x_var - x_nat))
@@ -443,16 +444,19 @@ def main():
         print(f"\nRunning with index {idx}. Optimising to competitor...")
 
         # optimisation hyper-parameters
-        opt_steps=1500
-        opt_lr=5e-2
-        opt_lam_prox=1e2
+        opt_steps=2000
+        opt_lr=8e-3
+        opt_lam_prox=5e1
         opt_verbose=False
+        opt_margin=20.0
+        opt_beta=1.0
         
         # Try to find a competitor by optimizing a tie objective
         x_adv, y_adv, j_star = optimize_to_competitor(
             model, x_nat, i_star,
             steps=opt_steps, lr=opt_lr,
             lam_prox=opt_lam_prox, epsilon=0.0,
+            margin=opt_margin, beta=opt_beta,
             verbose=opt_verbose
         )
         # If argmax hasn't changed, still try to refine; otherwise proceed
@@ -466,6 +470,7 @@ def main():
                     model, x_nat, i_star,
                     steps=opt_steps, lr=opt_lr,
                     lam_prox=opt_lam_prox, epsilon=eps_try,
+                    margin=opt_margin, beta=opt_beta,
                     verbose=opt_verbose
                 )
                 if int(np.argmax(y_adv2)) != i_star:
