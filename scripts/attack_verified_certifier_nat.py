@@ -36,18 +36,12 @@ class NumpyEncoder(json.JSONEncoder):
             return obj.tolist()
         return super().default(obj)
   
-# ----------------------------
-# Helpers for high-precision distances
-# ----------------------------
 def vector_to_mph(v):
     return list(map(mpf, np.asarray(v).flatten().tolist()))
 
 def l2_norm_mph(vector1, vector2):
     return sqrt(sum((x - y)**2 for x, y in zip(vector1, vector2)))
 
-# ----------------------------
-# CLI & model/dataset loading (kept the same)
-# ----------------------------
 if len(sys.argv) != 6:
     print(f"Usage: {sys.argv[0]} dataset INTERNAL_LAYER_SIZES model_weights_csv_dir input_size lipschitz_json\n")
     sys.exit(1)
@@ -63,9 +57,6 @@ doitlib.load_and_set_weights(csv_loc, INTERNAL_LAYER_SIZES, model)
 num_classes = int(model.output_shape[-1])
 x_test, y_test = doitlib.load_test_data(input_size=input_size, dataset=dataset)
 
-# ----------------------------
-# Load Lipschitz matrix (kept the same)
-# ----------------------------
 def load_lipschitz_matrix(path):
     with open(path, 'r') as f:
         data = json.load(f, parse_float=mp.mpf)
@@ -80,9 +71,6 @@ def load_lipschitz_matrix(path):
 L_matrix = load_lipschitz_matrix(lipschitz_json)
 print("Loaded L matrix shape:", L_matrix.shape)
 
-# ----------------------------
-# Exact certifier (mp)  [PRESERVED]
-# ----------------------------
 def certifier_oracle_logits_mp(y_np, eps_val, i_star):
     y = np.asarray(y_np).ravel()
     n = y.shape[0]
@@ -104,13 +92,7 @@ def certifier_oracle_logits_mp(y_np, eps_val, i_star):
             return False, min_slack
     return True, min_slack
 
-# ----------------------------
-# Counter-example check  [PRESERVED, with minor variable fix]
-# ----------------------------
 def check_counter_example(x0, x1, model, verbose=False):
-    """
-    Returns (is_counterexample: bool, max_eps: mp.mpf or None)
-    """
     y0 = model(x0, training=False).numpy()[0]
     y1 = model(x1, training=False).numpy()[0]
     y0_label = int(np.argmax(y0))
@@ -152,102 +134,64 @@ def check_counter_example(x0, x1, model, verbose=False):
         else:
             return False, None
         
-# =====================================================================================
-# New code: tie-search objective and pipeline
-# =====================================================================================
+
+
+# version-safe import
+try:
+    from art.estimators.classification import TensorFlowV2Classifier    
+    from art.attacks.evasion import DeepFool as _DeepFool
+except Exception as e:
+    raise ImportError("DeepFool not available in this ART version") from e
+
 def _ensure_batched(x, model_input_shape):
-    """Make x -> (1, ...)."""
     x = np.asarray(x)
     if x.ndim == len(model_input_shape) - 1:
         x = x[np.newaxis, ...]
     return x
 
-def _choose_competitor_idx(logits, i_star):
-    """argmax over j != i_star."""
-    logits = np.asarray(logits).ravel()
-    idxs = np.arange(logits.shape[0])
-    mask = idxs != i_star
-    j_star = int(np.argmax(logits[mask]))
-    # map back to original index
-    return int(idxs[mask][j_star])
+def optimize_to_competitor_deepfool_art(
+    art_classifier,
+    x_nat,
+    *,
+    steps=100,            # DeepFool iterations
+    overshoot=1e-3,       # ART's 'epsilon'
+    verbose=False,
+):
+    """
+    ART DeepFool wrapper which returns:
+      returns (x_adv, logits_adv, j_star)
 
-@tf.function(jit_compile=False)
-def _smooth_max_excl_i(logits, i_star, temperature=0.0):
-    """Return b = smooth/hard max over j != i_star."""
-    C = tf.shape(logits)[-1]
-    mask_i = tf.one_hot(i_star, C, on_value=tf.constant(-1e9, logits.dtype),
-                        off_value=tf.constant(0., logits.dtype))
-    z_wo_i = logits + mask_i
-    if temperature and temperature > 0:
-        return temperature * tf.reduce_logsumexp(z_wo_i / temperature, axis=-1)
-    else:
-        return tf.reduce_max(z_wo_i, axis=-1)
-    
-def tie_loss(logits, i_star, margin=0.0, beta=0.0, temperature=0.0, epsilon=0.0):
+    art_classifier: an ART classifier (e.g., TensorFlowV2Classifier)
+    x_nat:          np.ndarray (H,W,C) or (1,H,W,C), float32 in [0,1]
     """
-    Encourage a tie between logit[i_star] and the strongest competitor, optionally
-    keeping other classes below by 'margin'. A tiny 'epsilon' tilts in favor of the competitor.
-    """
-    C = tf.shape(logits)[-1]
-    a = logits[..., i_star]  # z[i*]
-    # b = max_{j != i*} z[j]
-    mask_i = tf.one_hot(i_star, C, on_value=tf.constant(-1e9, logits.dtype),
-                        off_value=tf.constant(0., logits.dtype))
-    z_wo_i = logits + mask_i
-    if temperature and temperature > 0:
-        b = temperature * tf.reduce_logsumexp(z_wo_i / temperature, axis=-1)
-    else:
-        b = tf.reduce_max(z_wo_i, axis=-1)
-    # margin against the rest (optional)
-    j_top = tf.argmax(z_wo_i, axis=-1)
-    mask_j = tf.one_hot(j_top, C, on_value=tf.constant(-1e9, logits.dtype),
-                        off_value=tf.constant(0., logits.dtype))
-    rest_max = tf.reduce_max(logits + mask_i + mask_j, axis=-1)
-    tie_term = tf.square(a - b)
-    sep_term = tf.nn.softplus(rest_max - tf.minimum(a, b) + margin)
-    tilt_term = -epsilon * (b - a)
-    return tie_term + beta * sep_term + tilt_term
+    # batch x
+    # We don't need the raw TF model here; ART handles predict() for us.
+    x_nat_b = _ensure_batched(x_nat, art_classifier.input_shape).astype(np.float32)
 
-def optimize_to_competitor(model, x_nat, i_star,
-                           steps=400,
-                           lr=5e-2,
-                           lam_prox=1e-2,
-                           temperature=0.0,
-                           epsilon=1e-6,
-                           margin=0.0, beta=0.0,
-                           clip_min=0.0, clip_max=1.0,
-                           verbose=False):
-    """
-    Optimize the input towards a near tie between i_star and its best competitor.
-    Returns (x_adv, logits_adv, j_star).
-    """
-    x_nat = _ensure_batched(x_nat, model.input_shape)
-    x_var = tf.Variable(tf.cast(x_nat, tf.float32))
-    #opt = tf.keras.optimizers.Adam(learning_rate=lr)
-    opt = tf.keras.optimizers.legacy.Adam(learning_rate=lr)
-    for t in range(steps):
-        with tf.GradientTape() as tape:
-            logits = model(x_var, training=False)
-            L = tie_loss(logits, i_star, margin=margin, beta=beta,
-                         temperature=temperature, epsilon=epsilon)
-            if lam_prox > 0:
-                L = L + lam_prox * tf.reduce_mean(tf.square(x_var - x_nat))
-        grads = tape.gradient(L, x_var)
-        opt.apply_gradients([(grads, x_var)])
-        x_var.assign(tf.clip_by_value(x_var, clip_min, clip_max))
-        if verbose and (t % 100 == 0):
-            lv = float(L.numpy())
-            # compute the tie-gap for logging
-            a = logits[..., i_star]
-            C = tf.shape(logits)[-1]
-            mask_i = tf.one_hot(i_star, C, on_value=tf.constant(-1e9, logits.dtype),
-                                off_value=tf.constant(0., logits.dtype))
-            b = tf.reduce_max(logits + mask_i, axis=-1)
-            tie_gap = tf.square(a - b)
-            print(f"  [opt] step {t:04d} loss {lv:.6e}, tie_gap {float(tf.reduce_mean(tie_gap).numpy()):.9e}")
-    logits_adv = model(x_var, training=False).numpy()[0]
-    j_star = _choose_competitor_idx(logits_adv, i_star)
-    return x_var.numpy(), logits_adv, j_star
+    # configure ART DeepFool
+    params = dict(
+        classifier=art_classifier,
+        max_iter=int(steps),
+        epsilon=float(overshoot),
+        verbose=bool(verbose),
+    )
+
+    attack = _DeepFool(**params)
+
+    # run DeepFool
+    x_adv_b = attack.generate(x=x_nat_b.copy())
+    x_adv = np.asarray(x_adv_b)[0]
+
+    # logits via ART (probabilities or logits; argmax works either way)
+    if hasattr(art_classifier, "predict_logits"):
+        logits_adv = art_classifier.predict_logits(x_adv[None, ...])[0]
+    else:
+        logits_adv = art_classifier.predict(x_adv[None, ...])[0]
+    j_star = int(np.argmax(logits_adv))
+
+    # match return types: x_adv batched, logits 1D
+    return x_adv[None, ...], np.asarray(logits_adv), j_star
+
 
 def save_x_to_image(x_final):
     # Normalize x_final to be in the valid image range [0, 255]
@@ -432,10 +376,6 @@ def main():
         # Ensure shape matches model input (e.g., add channel)
         x_nat = _ensure_batched(x_nat0, model.input_shape)
 
-        # crank up amplitude
-        #x_nat *= 2.0;
-        #x_nat = np.clip(x_nat, 0.0, 1.0)
-
         # Model logits & correctness check
         y_nat = model(x_nat, training=False).numpy()[0]
         i_star = int(np.argmax(y_nat))
@@ -443,45 +383,51 @@ def main():
             continue  # only consider correctly classified points
         print(f"\nRunning with index {idx}. Optimising to competitor...")
 
-        # optimisation hyper-parameters
-        opt_steps=2000
-        opt_lr=8e-3
-        opt_lam_prox=5e1
-        opt_verbose=False
-        opt_margin=20.0
-        opt_beta=1.0
-        
-        # Try to find a competitor by optimizing a tie objective
-        x_adv, y_adv, j_star = optimize_to_competitor(
-            model, x_nat, i_star,
-            steps=opt_steps, lr=opt_lr,
-            lam_prox=opt_lam_prox, epsilon=0.0,
-            margin=opt_margin, beta=opt_beta,
-            verbose=opt_verbose
+        # Build the ART TensorFlowV2Classifier exactly as you do now...
+        loss_obj = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
+        input_shape = tuple(model.input_shape[1:])  # or x_nat.shape
+        classifier = TensorFlowV2Classifier(
+            model=model,
+            loss_object=loss_obj,
+            nb_classes=int(num_classes),
+            input_shape=input_shape,
+            clip_values=(0.0, 1.0),
         )
+
+        # DeepFool step
+        x_adv, y_adv, j_star = optimize_to_competitor_deepfool_art(
+            classifier,
+            x_nat,
+            steps=100,          # try 50–150
+            overshoot=1e-3,     # 1e-3 to 5e-3 often works well
+            verbose=True,
+        )
+
         # If argmax hasn't changed, still try to refine; otherwise proceed
         argmax_adv = int(np.argmax(y_adv))
         if argmax_adv == i_star:
-            # try a few restarts with stronger tilt
+
+            # try a few restarts with more steps and increased threshold
             success = False
-            for eps_try in [1e-5, 3e-5, 1e-4, 3e-4, 5e-4, 1e-3, 3e-3, 5e-3]:
-                print(f"Optimising to competitor failed. Re-trying with larger eps {eps_try}...")
-                x_adv2, y_adv2, j2 = optimize_to_competitor(
-                    model, x_nat, i_star,
-                    steps=opt_steps, lr=opt_lr,
-                    lam_prox=opt_lam_prox, epsilon=eps_try,
-                    margin=opt_margin, beta=opt_beta,
-                    verbose=opt_verbose
+            for steps_try in [200, 500, 1000]:
+                print(f"Optimising to competitor failed. Re-trying with larger steps {seps_try}...")
+                x_adv, y_adv, j_star = optimize_to_competitor_deepfool_art(
+                    classifier,
+                    x_nat,
+                    steps=steps_try,
+                    overshoot=5e-3, 
+                    nb_candidate=10,
+                    verbose=True,
                 )
-                if int(np.argmax(y_adv2)) != i_star:
-                    x_adv, y_adv, j_star = x_adv2, y_adv2, j2
+
+                if int(np.argmax(y_adv)) != i_star:
                     success = True
                     break
             if not success:
                 # give up on this point
                 print(f"Failed to optimise to competitor for index {idx}. Skipping")
                 continue
-            
+
         print("Searching for counter-example...")
         
         # Refine to an (almost) exact tie along the segment
