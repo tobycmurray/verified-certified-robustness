@@ -17,6 +17,13 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Flatten, Dense, Layer
 from rational_dense_net import *
 
+from tensorflow.keras import mixed_precision
+
+# set precision here: FIXME make this a command line argument
+#mixed_precision.set_global_policy("bfloat16")
+
+print(f"Running models with precision: {mixed_precision.global_policy()}")
+
 # arbitrary precision math
 from mpmath import mp, mpf, sqrt, nstr, floor
 
@@ -166,7 +173,7 @@ def optimize_to_competitor_deepfool_art(
     """
     # batch x
     # We don't need the raw TF model here; ART handles predict() for us.
-    x_nat_b = _ensure_batched(x_nat, art_classifier.input_shape).astype(np.float32)
+    x_nat_b = _ensure_batched(x_nat, art_classifier.input_shape)
 
     # configure ART DeepFool
     params = dict(
@@ -191,7 +198,6 @@ def optimize_to_competitor_deepfool_art(
 
     # match return types: x_adv batched, logits 1D
     return x_adv[None, ...], np.asarray(logits_adv), j_star
-
 
 def save_x_to_image(x_final):
     # Normalize x_final to be in the valid image range [0, 255]
@@ -228,12 +234,21 @@ def search_cex(model, x_nat, x_adv, verbose=False):
     i_star = np.argmax(y_nat)
     j_star = np.argmax(y_adv)
 
-    low=0.0
-    high=1.0
-    vec=x_adv-x_nat
+    low  = np.float64(0.0)
+    high = np.float64(1.0)
+    x_nat64 = tf.cast(x_nat, tf.float64)
+    x_adv64 = tf.cast(x_adv, tf.float64)
+    vec64   = x_adv64 - x_nat64
 
-    x_low=x_nat
-    x_high=x_adv
+    x_low=x_nat64
+    x_high=x_adv64
+
+    def to_model_dtype(x64):
+        compute_dtype = getattr(getattr(model, "dtype_policy", None), "compute_dtype", None)
+        if compute_dtype is None:
+            return x64  # many models accept float64; otherwise Keras will auto-cast
+        return tf.cast(x64, compute_dtype)
+
 
     cex, max_eps = check_counter_example(x_low, x_high, model)
     steps=0
@@ -241,20 +256,23 @@ def search_cex(model, x_nat, x_adv, verbose=False):
     while high>=low and not cex:
         if verbose and steps%10==0:
             print(f"[search cex] steps {steps}, remaining search width {high-low}")
-        mid = 0.5 * (low + high)
-        x_mid = x_nat + mid * vec
+        mid = np.float64(0.5) * (low + high)
+        # multiply in float64: cast 'mid' to a tf.float64 scalar
+        mid_tf = tf.constant(mid, dtype=tf.float64)
+        x_mid64 = x_nat64 + mid_tf * vec64                     # all float64 math here
+        x_mid = to_model_dtype(x_mid64)        
         y_mid = model(x_mid, training=False).numpy()[0]
         argmax = np.argmax(y_mid)
 
         if argmax == i_star:
             x_low=x_mid
-            low=np.nextafter(mid, np.float32(np.inf))
+            low=np.nextafter(mid, np.float64(np.inf))
         elif argmax == j_star:
             x_high=x_mid
-            high=np.nextafter(mid, np.float32(-np.inf))
+            high=np.nextafter(mid, np.float64(-np.inf))
         else:
             # found something unexpected here: search towards x_adv
-            low=np.nextafter(mid, np.float32(np.inf))
+            low=np.nextafter(mid, np.float64(np.inf))
             
         steps += 1
         cex, max_eps = check_counter_example(x_low, x_high, model)        
@@ -271,7 +289,7 @@ def search_cex(model, x_nat, x_adv, verbose=False):
         print("search_cex returning: ")
         print(f"  y_low  (argmax {i_star}: {y_low}")
         print(f"  y_high (argmax {j_star}: {y_high}")
-    return x_low, x_high, cex, max_eps
+    return x_low.numpy(), x_high.numpy(), cex, max_eps
 
 def try_to_improve_cex_by_extension(x0, x1, model):
     cex, max_eps = check_counter_example(x0, x1, model)
@@ -410,13 +428,12 @@ def main():
             # try a few restarts with more steps and increased threshold
             success = False
             for steps_try in [200, 500, 1000]:
-                print(f"Optimising to competitor failed. Re-trying with larger steps {seps_try}...")
+                print(f"Optimising to competitor failed. Re-trying with larger steps {steps_try}...")
                 x_adv, y_adv, j_star = optimize_to_competitor_deepfool_art(
                     classifier,
                     x_nat,
                     steps=steps_try,
                     overshoot=5e-3, 
-                    nb_candidate=10,
                     verbose=True,
                 )
 
@@ -486,7 +503,10 @@ def main():
             for r in dists:
                 radius = round_down(r, 20)
                 for i in range(len(y1)):
-                    s = "{:.150f}".format(y1[i])
+                    try:
+                        s = "{:.150f}".format(y1[i])
+                    except Exception:
+                        s = str(y1[i])
                     f.write(s)
                     if i<len(y1)-1:
                         f.write(",")
