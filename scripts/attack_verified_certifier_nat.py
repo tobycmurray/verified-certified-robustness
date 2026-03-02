@@ -1,4 +1,4 @@
- 
+
 import doitlib
 import numpy as np
 import tensorflow as tf
@@ -10,8 +10,8 @@ import sys
 import signal
 import random
 import tempfile
-      
- 
+
+
 from itertools import combinations
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Flatten, Dense, Layer
@@ -19,10 +19,6 @@ from rational_dense_net import *
 
 from tensorflow.keras import mixed_precision
 
-# set precision here: FIXME make this a command line argument
-mixed_precision.set_global_policy("bfloat16")
-
-print(f"Running models with precision: {mixed_precision.global_policy()}")
 
 # arbitrary precision math
 from mpmath import mp, mpf, sqrt, nstr, floor
@@ -42,16 +38,30 @@ class NumpyEncoder(json.JSONEncoder):
         if isinstance(obj, np.ndarray):
             return obj.tolist()
         return super().default(obj)
-  
+
 def vector_to_mph(v):
     return list(map(mpf, np.asarray(v).flatten().tolist()))
 
 def l2_norm_mph(vector1, vector2):
     return sqrt(sum((x - y)**2 for x, y in zip(vector1, vector2)))
 
-if len(sys.argv) != 6:
-    print(f"Usage: {sys.argv[0]} dataset INTERNAL_LAYER_SIZES model_weights_csv_dir input_size lipschitz_json\n")
+if len(sys.argv) != 7:
+    print(f"Usage: {sys.argv[0]} float_format dataset INTERNAL_LAYER_SIZES model_weights_csv_dir input_size lipschitz_json\n")
     sys.exit(1)
+
+fmt = sys.argv[1]
+
+try:
+    mixed_precision.set_global_policy(fmt)
+except Exception as e:
+    print("Failed to set precision", str(e))
+    sys.exit(1)
+
+print(f"Running models with precision: {mixed_precision.global_policy()}")
+
+
+sys.argv = sys.argv[1:]
+
 dataset = sys.argv[1]
 INTERNAL_LAYER_SIZES = eval(sys.argv[2])
 csv_loc = sys.argv[3] + "/"
@@ -140,12 +150,12 @@ def check_counter_example(x0, x1, model, verbose=False):
             return True, max_eps
         else:
             return False, None
-        
+
 
 
 # version-safe import
 try:
-    from art.estimators.classification import TensorFlowV2Classifier    
+    from art.estimators.classification import TensorFlowV2Classifier
     from art.attacks.evasion import DeepFool as _DeepFool
 except Exception as e:
     raise ImportError("DeepFool not available in this ART version") from e
@@ -206,7 +216,7 @@ def save_x_to_image(x_final):
     # Check the shape and adjust for grayscale images (MNIST)
     if x_final.shape[0] == 1:  # Remove batch dimension if present
         x_final = x_final[0]
-      
+
     if x_final.shape[-1] == 1:  # MNIST has an extra channel dimension (28,28,1)
         x_final = x_final.squeeze(-1)  # Remove channel dimension to get (28,28)
     # Convert to PIL image
@@ -218,7 +228,7 @@ def save_x_to_image(x_final):
     image.save(output_file)
     print(f"Image saved {output_file}")
     return output_file
- 
+
 def save_x_to_file(x):
     # Create a unique temporary file in the current directory
     with tempfile.NamedTemporaryFile(prefix="x_", suffix=".npy", dir=".", delete=False) as f:
@@ -260,7 +270,7 @@ def search_cex(model, x_nat, x_adv, verbose=False):
         # multiply in float64: cast 'mid' to a tf.float64 scalar
         mid_tf = tf.constant(mid, dtype=tf.float64)
         x_mid64 = x_nat64 + mid_tf * vec64                     # all float64 math here
-        x_mid = to_model_dtype(x_mid64)        
+        x_mid = to_model_dtype(x_mid64)
         y_mid = model(x_mid, training=False).numpy()[0]
         argmax = np.argmax(y_mid)
 
@@ -273,10 +283,10 @@ def search_cex(model, x_nat, x_adv, verbose=False):
         else:
             # found something unexpected here: search towards x_adv
             low=np.nextafter(mid, np.float64(np.inf))
-            
+
         steps += 1
-        cex, max_eps = check_counter_example(x_low, x_high, model)        
-        
+        cex, max_eps = check_counter_example(x_low, x_high, model)
+
     y_low = model(x_low, training=False).numpy()[0]
     y_high = model(x_high, training=False).numpy()[0]
     assert i_star == np.argmax(y_low)
@@ -284,7 +294,7 @@ def search_cex(model, x_nat, x_adv, verbose=False):
 
     # probably unnecssary to do this again
     cex, max_eps = check_counter_example(x_low, x_high, model)
-    
+
     if verbose:
         print("search_cex returning: ")
         print(f"  y_low  (argmax {i_star}: {y_low}")
@@ -294,23 +304,23 @@ def search_cex(model, x_nat, x_adv, verbose=False):
 def try_to_improve_cex_by_extension(x0, x1, model):
     cex, max_eps = check_counter_example(x0, x1, model)
     assert cex
- 
-       
+
+
     # we extend the line from x0 to x1 looking for the largest counter-example we can
     follow = (x1-x0)
- 
+
     def check_for_steps(steps):
-        a = follow * steps       
+        a = follow * steps
         steps_to_find=0
         cex=False
         max_noisy_search=2000
-        while steps_to_find<max_noisy_search and not cex:              
+        while steps_to_find<max_noisy_search and not cex:
             noise = np.random.normal(loc=0.0, scale=np.max(np.abs(a))*0.1, size=a.shape)
             x1=np.clip(x0+a+noise, 0.0, 1.0)
             cex, max_eps = check_counter_example(x0, x1, model)
             steps_to_find=steps_to_find+1
         return cex, max_eps, x1
-   
+
     max_max_eps = 0
     steps=0
     last_cex_found=-1
@@ -321,19 +331,19 @@ def try_to_improve_cex_by_extension(x0, x1, model):
     while cex:
         print(f"[cex extend] steps {steps}, max_max_eps: {max_max_eps}")
         steps *= 2
- 
+
         cex, max_eps, x1 = check_for_steps(steps)
         if cex:
             if max_eps > max_max_eps:
                 max_max_eps = max_eps
                 best_x1 = x1
                 best_step = steps
- 
+
     low=steps/2+1
     high=steps-1
     while high >= low:
         mid = int(low + (high - low)/2)
-        print(f"[cex extend] mid {mid}, low {low}, high {high}, max_max_eps: {max_max_eps}")       
+        print(f"[cex extend] mid {mid}, low {low}, high {high}, max_max_eps: {max_max_eps}")
         cex, max_eps, x1 = check_for_steps(mid)
         if cex:
             if max_eps > max_max_eps:
@@ -343,7 +353,7 @@ def try_to_improve_cex_by_extension(x0, x1, model):
             low=mid+1
         else:
             high=mid-1
-   
+
     x_final=best_x1
     y_final=model(x_final, training=False).numpy()[0]
     eps_final=max_max_eps
@@ -862,7 +872,7 @@ def main():
     results = []  # collect summaries
     # infer channel shape from model
     want_shape = model.input_shape[1:]
- 
+
 
     if os.path.exists(certifier_input):
         # ask user
@@ -871,7 +881,7 @@ def main():
             print("Aborting, not overwriting.")
             exit(1)
         os.remove(certifier_input)
-    
+
     if os.path.exists(log_file):
         # ask user
         answer = input(f"{log_file} already exists. Overwrite? [y/N]: ").strip().lower()
@@ -886,7 +896,7 @@ def main():
     for idx in range(total):
         x_nat0 = x_test[idx]
         y_true = int(np.argmax(y_test[idx]))
- 
+
         # Ensure shape matches model input (e.g., add channel)
         x_nat = _ensure_batched(x_nat0, model.input_shape)
 
@@ -929,7 +939,7 @@ def main():
                     classifier,
                     x_nat,
                     steps=steps_try,
-                    overshoot=5e-3, 
+                    overshoot=5e-3,
                     verbose=True,
                 )
 
@@ -942,7 +952,7 @@ def main():
                 continue
 
         print("Searching for counter-example...")
-        
+
         # Refine to an (almost) exact tie along the segment
         x0, x1, cex, max_eps = search_cex(model, x_nat, x_adv, verbose=False)
         if not cex:
@@ -956,8 +966,8 @@ def main():
             temp=x1
             x1=x0
             x0=temp
-        
- 
+
+
         print(f"Got counter-example with max_eps {max_eps}!")
 
         # use vibe-coded whitebox search method to try to extend counter-example
@@ -973,7 +983,7 @@ def main():
             clip_min=0.0, clip_max=1.0,
             verbose=True,
         )
-        
+
         # --- (1) set seeds for repeatability ---
         np.random.seed(0)
         tf.random.set_seed(0)
@@ -995,25 +1005,25 @@ def main():
             print("Whitebox didn't give a counter-example! Moving on...")
             continue
         x1 = x_b_prime
-        
+
         # mutation doesn't seem to help improve counter-examples
         print(f"Trying to improve counter-example by extension...")
         x1, best_step = try_to_improve_cex_by_extension(x0, x1, model)
         cex, max_eps = check_counter_example(x0, x1, model)
         assert cex
         print(f"Got counter-example with max_eps {max_eps}!")
-        y0 = model(x0, training=False).numpy()[0]      
+        y0 = model(x0, training=False).numpy()[0]
         y1 = model(x1, training=False).numpy()[0]
         argmax_y0 = np.argmax(y0)
         argmax_y1 = np.argmax(y1)
-        
+
         img_file = save_x_to_image(x1)
         x1_file = save_x_to_file(x1)
         x0_file = save_x_to_file(x0)
-      
+
         x0_mph = vector_to_mph(x0)
         x1_mph = vector_to_mph(x1)
-        dist = l2_norm_mph(x0_mph, x1_mph)          
+        dist = l2_norm_mph(x0_mph, x1_mph)
         print(f"Manually confirmed x0 and x1 such that ||x1-x0||=={dist}, F(x0)=={argmax_y0} but F(x1)=={argmax_y1}")
         summary = {
             "index": int(idx),
@@ -1029,8 +1039,8 @@ def main():
             "y0": y0,
             "y1": y1,
             "extension_best_step": int(best_step),
-        }      
- 
+        }
+
         with open(certifier_input, "a", buffering=1) as f:
             dists = [max_eps, dist, (dist + max_eps)*mp.mpf("0.5")]
             for r in dists:
@@ -1048,7 +1058,7 @@ def main():
                 f.write(s)
                 f.write("\n")
                 f.flush()
-            
+
         # log to file
         with open(log_file, "a", buffering=1) as f:  # line-buffered mode
             if num_logs_written > 0:
@@ -1056,10 +1066,10 @@ def main():
             f.write(json.dumps(summary, indent=2, cls=NumpyEncoder) + "\n")
             f.flush()
             num_logs_written += 1
-                              
+
         continue  # for now run for a while so we can see what sorts max_epses we get
-              
- 
+
+
 def handle_interrupt(sig, frame):
     print("Caught CTRL-C.")
     # close out the log
@@ -1067,8 +1077,7 @@ def handle_interrupt(sig, frame):
         f.write("\n]\n")
         f.flush()  # force flush, though buffering=1 already flushes on newline
     sys.exit(1)
-  
+
 if __name__ == "__main__":
-    signal.signal(signal.SIGINT, handle_interrupt)  
+    signal.signal(signal.SIGINT, handle_interrupt)
     main()
- 
