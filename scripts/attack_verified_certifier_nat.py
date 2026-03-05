@@ -45,9 +45,11 @@ def vector_to_mph(v):
 def l2_norm_mph(vector1, vector2):
     return sqrt(sum((x - y)**2 for x, y in zip(vector1, vector2)))
 
-if len(sys.argv) != 7:
-    print(f"Usage: {sys.argv[0]} float_format dataset INTERNAL_LAYER_SIZES model_weights_csv_dir input_size lipschitz_json\n")
+if len(sys.argv) < 7 or len(sys.argv) > 8:
+    print(f"Usage: {sys.argv[0]} float_format dataset INTERNAL_LAYER_SIZES model_weights_csv_dir input_size lipschitz_json [max_cex]\n")
     sys.exit(1)
+
+max_cex = int(sys.argv[7]) if len(sys.argv) == 8 else None
 
 fmt = sys.argv[1]
 
@@ -1067,7 +1069,9 @@ def main():
             f.flush()
             num_logs_written += 1
 
-        continue  # for now run for a while so we can see what sorts max_epses we get
+        if max_cex is not None and num_logs_written >= max_cex:
+            print(f"\nReached max_cex={max_cex} counter-examples. Stopping.")
+            break
 
 
 def handle_interrupt(sig, frame):
@@ -1081,3 +1085,7 @@ def handle_interrupt(sig, frame):
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, handle_interrupt)
     main()
+    # close out the JSON array on normal exit
+    with open(log_file, "a", buffering=1) as f:
+        f.write("\n]\n")
+        f.flush()
