@@ -84,14 +84,13 @@ def build_biased_model(original_model, B=1000.0):
     """
     Build a new model with compensating biases that amplify FP errors.
 
-    Layer 0 gets a large bias b0 (ensuring all pre-activations > 0).
+    Layer 0 gets a flat bias b0 = B on every neuron.
     Layer 1 gets bias b1 = -(b0 @ W1) to cancel the bias contribution.
     Remaining layers get zero bias.
 
-    In exact arithmetic, the output differs from the original only because
-    the large bias prevents relu clipping at layer 0. In float32, the
-    cancellation at layer 1 (subtracting two large nearly-equal values)
-    introduces significant rounding errors.
+    In float32, the cancellation at layer 1 (subtracting two large
+    nearly-equal values) introduces significant rounding errors via
+    catastrophic cancellation.
 
     The Lipschitz bound (product of spectral norms of weight matrices)
     is unchanged because biases don't affect the gradient.
@@ -112,10 +111,9 @@ def build_biased_model(original_model, B=1000.0):
     new_dense = [l for l in new_model.layers
                  if isinstance(l, tf.keras.layers.Dense)]
 
-    # Layer 0: bias ensures all pre-activations positive
+    # Layer 0: flat bias to create large intermediates for FP cancellation
     W0 = dense_layers[0].get_weights()[0]
-    min_preact = np.sum(np.minimum(0, W0), axis=0).astype(np.float64)
-    b0 = (-min_preact + B).astype(np.float32)
+    b0 = np.full(W0.shape[1], B, dtype=np.float32)
     new_dense[0].set_weights([W0, b0])
 
     # Layer 1: compensating bias b1 = -(b0 @ W1)
@@ -1065,43 +1063,16 @@ def main():
 
         print(f"Got counter-example with max_eps {max_eps}!")
 
-        # use vibe-coded whitebox search method to try to extend counter-example
-        fast_dev = dict(
-            outer_rounds=100,
-            phaseA_steps=500, phaseA_lr=2e-4,
-            phaseA_mode="hybrid", soft_tau=0.08, hybrid_switch=3.0,
-            kappa=1e-8, gamma_keep=1e-3, m_keep=0.0,
-            alpha_headroom=0.3, radial_bisect_iters=80, eps_accept=1e-13,
-            adapt_label=False,
-            jitter_frac=0.35, stagnation_patience=5, max_reseeds=30,
-            rays_stage1=50, pre_steps=20, pre_lr=6e-4,
-            clip_min=0.0, clip_max=1.0,
-            verbose=True,
-        )
+        # record stage 1 (DeepFool + bisection) result
+        stage1_max_eps = str(max_eps)
 
-        # --- (1) set seeds for repeatability ---
-        np.random.seed(0)
-        tf.random.set_seed(0)
+        # Whitebox extension (extend_cex_multi_ray) skipped — diagnostics showed
+        # it contributes ~1.00x on average vs the blackbox extension doing all
+        # the heavy lifting (up to 30x).  Kept for reference but bypassed.
+        stage2_max_eps = stage1_max_eps
+        stage2_info = {"eps": 0.0, "slack": 0.0, "class": -1, "skipped": True}
 
-        params = dict(**fast_dev)
-
-        # --- (2) run the extension ---
-        x_b_prime, info = extend_cex_multi_ray(
-            model,
-            x0, x1,
-            L_matrix,
-            **params
-        )
-
-        # check we got a counter-example
-        cex, max_eps = check_counter_example(x0, x_b_prime, model, verbose=True)
-        print("certified?", cex, "eps*", max_eps)
-        if not cex:
-            print("Whitebox didn't give a counter-example! Moving on...")
-            continue
-        x1 = x_b_prime
-
-        # mutation doesn't seem to help improve counter-examples
+        # blackbox noisy line-search extension
         print(f"Trying to improve counter-example by extension...")
         x1, best_step = try_to_improve_cex_by_extension(x0, x1, model)
         cex, max_eps = check_counter_example(x0, x1, model)
@@ -1134,6 +1105,21 @@ def main():
             "y0": y0,
             "y1": y1,
             "extension_best_step": int(best_step),
+            "stages": {
+                "deepfool_bisect": {
+                    "max_eps": stage1_max_eps,
+                },
+                "whitebox_extend": {
+                    "max_eps": stage2_max_eps,
+                    "multi_ray_eps": stage2_info["eps"],
+                    "multi_ray_slack": stage2_info["slack"],
+                    "multi_ray_class": stage2_info["class"],
+                },
+                "blackbox_extend": {
+                    "max_eps": str(max_eps),
+                    "best_step": int(best_step),
+                },
+            },
         }
 
         with open(certifier_input, "a", buffering=1) as f:
