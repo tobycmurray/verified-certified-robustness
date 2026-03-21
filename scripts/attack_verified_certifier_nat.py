@@ -76,6 +76,97 @@ doitlib.load_and_set_weights(csv_loc, INTERNAL_LAYER_SIZES, model)
 num_classes = int(model.output_shape[-1])
 x_test, y_test = doitlib.load_test_data(input_size=input_size, dataset=dataset)
 
+
+# =====================================================================
+# Optional: bias amplification of FP errors (set FP_BIAS=1e6)
+# =====================================================================
+def build_biased_model(original_model, B=1000.0):
+    """
+    Build a new model with compensating biases that amplify FP errors.
+
+    Layer 0 gets a large bias b0 (ensuring all pre-activations > 0).
+    Layer 1 gets bias b1 = -(b0 @ W1) to cancel the bias contribution.
+    Remaining layers get zero bias.
+
+    In exact arithmetic, the output differs from the original only because
+    the large bias prevents relu clipping at layer 0. In float32, the
+    cancellation at layer 1 (subtracting two large nearly-equal values)
+    introduces significant rounding errors.
+
+    The Lipschitz bound (product of spectral norms of weight matrices)
+    is unchanged because biases don't affect the gradient.
+    """
+    dense_layers = [l for l in original_model.layers
+                    if isinstance(l, tf.keras.layers.Dense)]
+    n_dense = len(dense_layers)
+
+    want_shape = tuple(original_model.input_shape[1:])
+    inp = Input(want_shape)
+    z = Flatten()(inp)
+    for i, dl in enumerate(dense_layers):
+        is_last = (i == n_dense - 1)
+        activation = None if is_last else 'relu'
+        z = Dense(dl.units, use_bias=True, activation=activation)(z)
+    new_model = Model(inp, z)
+
+    new_dense = [l for l in new_model.layers
+                 if isinstance(l, tf.keras.layers.Dense)]
+
+    # Layer 0: bias ensures all pre-activations positive
+    W0 = dense_layers[0].get_weights()[0]
+    min_preact = np.sum(np.minimum(0, W0), axis=0).astype(np.float64)
+    b0 = (-min_preact + B).astype(np.float32)
+    new_dense[0].set_weights([W0, b0])
+
+    # Layer 1: compensating bias b1 = -(b0 @ W1)
+    W1 = dense_layers[1].get_weights()[0]
+    b0_64 = b0.astype(np.float64)
+    b1 = -(b0_64 @ W1.astype(np.float64)).astype(np.float32)
+    new_dense[1].set_weights([W1, b1])
+
+    # Remaining layers: original weights, zero bias
+    for i in range(2, n_dense):
+        Wi = dense_layers[i].get_weights()[0]
+        bi = np.zeros(Wi.shape[1], dtype=np.float32)
+        new_dense[i].set_weights([Wi, bi])
+
+    new_model.compile(optimizer='adam',
+                      loss=tf.keras.losses.CategoricalCrossentropy(
+                          from_logits=True),
+                      metrics=['accuracy'])
+
+    return new_model, n_dense
+
+
+fp_bias = float(os.environ.get("FP_BIAS", "0"))
+bias_metadata = None
+if fp_bias > 0:
+    print(f"\n--- Accuracy BEFORE bias (original model) ---")
+    loss_before, acc_before = model.evaluate(x_test, y_test, verbose=0)
+    print(f"  Test Accuracy: {acc_before:.4f}, Loss: {loss_before:.4f}")
+
+    model, n_dense = build_biased_model(model, B=fp_bias)
+    print(f"\nBuilt biased model with B={fp_bias:.0e} "
+          f"({n_dense} Dense layers, bias on layers 0-1)")
+
+    print(f"\n--- Accuracy AFTER bias (biased model) ---")
+    loss_after, acc_after = model.evaluate(x_test, y_test, verbose=0)
+    print(f"  Test Accuracy: {acc_after:.4f}, Loss: {loss_after:.4f}")
+    print(f"  Accuracy delta: {acc_after - acc_before:+.4f}")
+
+    bias_metadata = {
+        "fp_bias": fp_bias,
+        "n_dense_layers": n_dense,
+        "acc_before_bias": float(acc_before),
+        "loss_before_bias": float(loss_before),
+        "acc_after_bias": float(acc_after),
+        "loss_after_bias": float(loss_after),
+        "acc_delta": float(acc_after - acc_before),
+    }
+else:
+    print("No bias amplification (set FP_BIAS=1e6 to amplify FP errors)")
+
+
 def load_lipschitz_matrix(path):
     with open(path, 'r') as f:
         data = json.load(f, parse_float=mp.mpf)
@@ -893,8 +984,10 @@ def main():
         os.remove(log_file)
     with open(log_file, "w", buffering=1) as f:  # line-buffered mode
         f.write("[\n")
-        f.flush()  # force flush, though buffering=1 already flushes on newline
-    num_logs_written=0
+        if bias_metadata is not None:
+            f.write(json.dumps({"_metadata": bias_metadata}, indent=2) + "\n")
+        f.flush()
+    num_logs_written = 1 if bias_metadata is not None else 0
     for idx in range(total):
         x_nat0 = x_test[idx]
         y_true = int(np.argmax(y_test[idx]))
