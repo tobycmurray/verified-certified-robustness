@@ -161,6 +161,29 @@ if fp_bias > 0:
         "loss_after_bias": float(loss_after),
         "acc_delta": float(acc_after - acc_before),
     }
+
+    # Export bias vectors for the Python certifier.
+    # Extract the actual float32 biases from the model so the certifier
+    # gets exactly the same values used during inference.
+    bias_output = os.environ.get("BIAS_OUTPUT", "")
+    if bias_output:
+        dense_layers_new = [l for l in model.layers
+                            if isinstance(l, tf.keras.layers.Dense)]
+        bias_vecs = []
+        for dl in dense_layers_new:
+            w = dl.get_weights()
+            b = w[1].astype(np.float64)  # upcast for exact decimal repr
+            bias_vecs.append(b)
+        def _fmt(x):
+            return f"{x:.150f}"
+        def _vec_bracket(v):
+            return "[" + ",".join(_fmt(x) for x in v) + "]"
+        bias_text = ",".join(_vec_bracket(v) for v in bias_vecs)
+        os.makedirs(os.path.dirname(bias_output) or ".", exist_ok=True)
+        with open(bias_output, "w") as bf:
+            bf.write(bias_text)
+        print(f"\nExported bias vectors to {bias_output} "
+              f"({os.path.getsize(bias_output)} bytes)")
 else:
     print("No bias amplification (set FP_BIAS=1e6 to amplify FP errors)")
 
