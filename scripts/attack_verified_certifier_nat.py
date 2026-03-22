@@ -80,17 +80,19 @@ x_test, y_test = doitlib.load_test_data(input_size=input_size, dataset=dataset)
 # =====================================================================
 # Optional: bias amplification of FP errors (set FP_BIAS=1e6)
 # =====================================================================
-def build_biased_model(original_model, B=1000.0):
+def build_biased_model(original_model, B=1000.0, position="begin"):
     """
     Build a new model with compensating biases that amplify FP errors.
 
-    Layer 0 gets a flat bias b0 = B on every neuron.
-    Layer 1 gets bias b1 = -(b0 @ W1) to cancel the bias contribution.
-    Remaining layers get zero bias.
+    position="begin" (default):
+      Layer 0 gets a flat bias b = B on every neuron.
+      Layer 1 gets bias = -(b @ W1) to cancel the bias contribution.
+      Remaining layers get zero bias.
 
-    In float32, the cancellation at layer 1 (subtracting two large
-    nearly-equal values) introduces significant rounding errors via
-    catastrophic cancellation.
+    position="end":
+      Second-to-last layer gets a flat bias b = B on every neuron.
+      Last layer gets bias = -(b @ W_last) to cancel the bias contribution.
+      All other layers get zero bias.
 
     The Lipschitz bound (product of spectral norms of weight matrices)
     is unchanged because biases don't affect the gradient.
@@ -111,19 +113,33 @@ def build_biased_model(original_model, B=1000.0):
     new_dense = [l for l in new_model.layers
                  if isinstance(l, tf.keras.layers.Dense)]
 
-    # Layer 0: flat bias to create large intermediates for FP cancellation
-    W0 = dense_layers[0].get_weights()[0]
-    b0 = np.full(W0.shape[1], B, dtype=np.float32)
-    new_dense[0].set_weights([W0, b0])
+    if position == "begin":
+        bias_layer = 0
+        correction_layer = 1
+    elif position == "end":
+        bias_layer = n_dense - 2
+        correction_layer = n_dense - 1
+    else:
+        raise ValueError(f"Unknown bias position '{position}', expected 'begin' or 'end'")
 
-    # Layer 1: compensating bias b1 = -(b0 @ W1)
-    W1 = dense_layers[1].get_weights()[0]
-    b0_64 = b0.astype(np.float64)
-    b1 = -(b0_64 @ W1.astype(np.float64)).astype(np.float32)
-    new_dense[1].set_weights([W1, b1])
+    print(f"  Bias position: {position} "
+          f"(bias on layer {bias_layer}, correction on layer {correction_layer})")
 
-    # Remaining layers: original weights, zero bias
-    for i in range(2, n_dense):
+    # Bias layer: flat bias to create large intermediates
+    W_bias = dense_layers[bias_layer].get_weights()[0]
+    b_bias = np.full(W_bias.shape[1], B, dtype=np.float32)
+    new_dense[bias_layer].set_weights([W_bias, b_bias])
+
+    # Correction layer: compensating bias = -(b @ W_correction)
+    W_corr = dense_layers[correction_layer].get_weights()[0]
+    b_bias_64 = b_bias.astype(np.float64)
+    b_corr = -(b_bias_64 @ W_corr.astype(np.float64)).astype(np.float32)
+    new_dense[correction_layer].set_weights([W_corr, b_corr])
+
+    # All other layers: original weights, zero bias
+    for i in range(n_dense):
+        if i in (bias_layer, correction_layer):
+            continue
         Wi = dense_layers[i].get_weights()[0]
         bi = np.zeros(Wi.shape[1], dtype=np.float32)
         new_dense[i].set_weights([Wi, bi])
@@ -137,15 +153,16 @@ def build_biased_model(original_model, B=1000.0):
 
 
 fp_bias = float(os.environ.get("FP_BIAS", "0"))
+fp_bias_pos = os.environ.get("FP_BIAS_POS", "begin")  # "begin" or "end"
 bias_metadata = None
 if fp_bias > 0:
     print(f"\n--- Accuracy BEFORE bias (original model) ---")
     loss_before, acc_before = model.evaluate(x_test, y_test, verbose=0)
     print(f"  Test Accuracy: {acc_before:.4f}, Loss: {loss_before:.4f}")
 
-    model, n_dense = build_biased_model(model, B=fp_bias)
+    model, n_dense = build_biased_model(model, B=fp_bias, position=fp_bias_pos)
     print(f"\nBuilt biased model with B={fp_bias:.0e} "
-          f"({n_dense} Dense layers, bias on layers 0-1)")
+          f"({n_dense} Dense layers, position={fp_bias_pos})")
 
     print(f"\n--- Accuracy AFTER bias (biased model) ---")
     loss_after, acc_after = model.evaluate(x_test, y_test, verbose=0)
@@ -154,6 +171,7 @@ if fp_bias > 0:
 
     bias_metadata = {
         "fp_bias": fp_bias,
+        "fp_bias_pos": fp_bias_pos,
         "n_dense_layers": n_dense,
         "acc_before_bias": float(acc_before),
         "loss_before_bias": float(loss_before),
