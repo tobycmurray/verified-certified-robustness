@@ -33,6 +33,8 @@ x_test, y_test = doitlib.load_test_data(input_size=input_size, dataset=dataset)
 with open(cex_json, 'r') as f:
     data = json.load(f)
 for cex in data:
+    if "index" not in cex:
+        continue
     idx = cex["index"]
     x = x_test[idx]
     save_x_to_image(x,f"orig_{dataset}_{idx}.png")
