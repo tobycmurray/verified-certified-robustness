@@ -156,6 +156,14 @@ fp_bias = float(os.environ.get("FP_BIAS", "0"))
 fp_bias_pos = os.environ.get("FP_BIAS_POS", "begin")  # "begin" or "end"
 bias_metadata = None
 if fp_bias > 0:
+    # The Python certifier needs the biased model's bias vectors to certify it.
+    # Refuse to generate biased counter-examples unless we're told where to write
+    # them -- silently dropping them produces cexs that cannot be certified.
+    bias_output = os.environ.get("BIAS_OUTPUT", "")
+    if not bias_output:
+        sys.exit("ERROR: FP_BIAS is set but BIAS_OUTPUT is not. Refusing to generate "
+                 "biased counter-examples without exporting the bias vectors the "
+                 "certifier requires. Set BIAS_OUTPUT=<path/to/biases.txt>.")
     print(f"\n--- Accuracy BEFORE bias (original model) ---")
     loss_before, acc_before = model.evaluate(x_test, y_test, verbose=0)
     print(f"  Test Accuracy: {acc_before:.4f}, Loss: {loss_before:.4f}")
@@ -180,28 +188,26 @@ if fp_bias > 0:
         "acc_delta": float(acc_after - acc_before),
     }
 
-    # Export bias vectors for the Python certifier.
+    # Export bias vectors for the Python certifier (BIAS_OUTPUT validated above).
     # Extract the actual float32 biases from the model so the certifier
     # gets exactly the same values used during inference.
-    bias_output = os.environ.get("BIAS_OUTPUT", "")
-    if bias_output:
-        dense_layers_new = [l for l in model.layers
-                            if isinstance(l, tf.keras.layers.Dense)]
-        bias_vecs = []
-        for dl in dense_layers_new:
-            w = dl.get_weights()
-            b = w[1].astype(np.float64)  # upcast for exact decimal repr
-            bias_vecs.append(b)
-        def _fmt(x):
-            return f"{x:.150f}"
-        def _vec_bracket(v):
-            return "[" + ",".join(_fmt(x) for x in v) + "]"
-        bias_text = ",".join(_vec_bracket(v) for v in bias_vecs)
-        os.makedirs(os.path.dirname(bias_output) or ".", exist_ok=True)
-        with open(bias_output, "w") as bf:
-            bf.write(bias_text)
-        print(f"\nExported bias vectors to {bias_output} "
-              f"({os.path.getsize(bias_output)} bytes)")
+    dense_layers_new = [l for l in model.layers
+                        if isinstance(l, tf.keras.layers.Dense)]
+    bias_vecs = []
+    for dl in dense_layers_new:
+        w = dl.get_weights()
+        b = w[1].astype(np.float64)  # upcast for exact decimal repr
+        bias_vecs.append(b)
+    def _fmt(x):
+        return f"{x:.150f}"
+    def _vec_bracket(v):
+        return "[" + ",".join(_fmt(x) for x in v) + "]"
+    bias_text = ",".join(_vec_bracket(v) for v in bias_vecs)
+    os.makedirs(os.path.dirname(bias_output) or ".", exist_ok=True)
+    with open(bias_output, "w") as bf:
+        bf.write(bias_text)
+    print(f"\nExported bias vectors to {bias_output} "
+          f"({os.path.getsize(bias_output)} bytes)")
 else:
     print("No bias amplification (set FP_BIAS=1e6 to amplify FP errors)")
 
@@ -1026,7 +1032,10 @@ def main():
         if bias_metadata is not None:
             f.write(json.dumps({"_metadata": bias_metadata}, indent=2) + "\n")
         f.flush()
-    num_logs_written = 1 if bias_metadata is not None else 0
+    # num_cexs_written counts only actual cexs and drives the max_cex stop, so the
+    # _metadata record never eats a cex slot. A separating comma is written before
+    # any element that something already precedes (the metadata record or a prior cex).
+    num_cexs_written = 0
     for idx in range(total):
         x_nat0 = x_test[idx]
         y_true = int(np.argmax(y_test[idx]))
@@ -1183,13 +1192,13 @@ def main():
 
         # log to file
         with open(log_file, "a", buffering=1) as f:  # line-buffered mode
-            if num_logs_written > 0:
+            if bias_metadata is not None or num_cexs_written > 0:
                 f.write(",\n")
             f.write(json.dumps(summary, indent=2, cls=NumpyEncoder) + "\n")
             f.flush()
-            num_logs_written += 1
+            num_cexs_written += 1
 
-        if max_cex is not None and num_logs_written >= max_cex:
+        if max_cex is not None and num_cexs_written >= max_cex:
             print(f"\nReached max_cex={max_cex} counter-examples. Stopping.")
             break
 
