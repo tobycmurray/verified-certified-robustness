@@ -77,13 +77,11 @@ def load_higgs_data():
     """Load a deterministic, disjoint subset of HIGGS as standardized float32 feature
     vectors. Returns (x_train, y_train, x_test, y_test) with integer labels in {0,1}.
 
-    The test set is a FIXED held-out block: the first HIGGS_N_TEST rows of the
-    (deterministic, unshuffled) stream. Train is the next HIGGS_N_TRAIN rows. Because
-    the test block sits at a fixed offset, it is byte-identical across every run
-    regardless of n_train -- so models of different sizes in a sweep are scored on
-    exactly the same held-out data. HIGGS events are i.i.d. simulations, so a fixed
-    front block is statistically equivalent to the canonical last-500k split.
-    Defaults: HIGGS_N_TEST=500,000 (the canonical test size), HIGGS_N_TRAIN=1,000,000.
+    Uses the CANONICAL HIGGS split (Baldi et al. 2014 / UCI / tfds): train = the
+    FIRST n_train rows, test = the LAST n_test rows of the full 11M stream. The
+    defaults give the standard split exactly (train = first 10.5M, test = last
+    500k). The full stream is read so the test block is always the canonical tail
+    (and identical across runs regardless of n_train).
 
     Per-feature mean/std are computed from the TRAIN block only (no test leakage), so
     L2 perturbations are measured in standardized-sigma units; the stats are saved to
@@ -93,18 +91,17 @@ def load_higgs_data():
 
     HIGGS_TOTAL = 11_000_000
     n_test = int(os.environ.get("HIGGS_N_TEST", "500000"))
-    n_train = int(os.environ.get("HIGGS_N_TRAIN", "1000000"))
+    n_train = int(os.environ.get("HIGGS_N_TRAIN", str(HIGGS_TOTAL - 500000)))
     if n_test + n_train > HIGGS_TOTAL:
         raise ValueError(
             f"HIGGS_N_TEST + HIGGS_N_TRAIN ({n_test}+{n_train}) exceeds "
             f"the {HIGGS_TOTAL} available rows")
-    n_total = n_test + n_train
     tfds_dir = os.environ.get("TFDS_DIR", None)
 
-    print(f"Loading HIGGS via tfds (fixed test=first {n_test}, "
-          f"train=next {n_train}); first run downloads/prepares ~2.6GB...")
+    print(f"Loading HIGGS via tfds (canonical split: train=first {n_train}, "
+          f"test=last {n_test} of {HIGGS_TOTAL}); reading full stream "
+          f"(first run downloads/prepares ~2.6GB)...")
     ds = tfds.load("higgs", split="train", data_dir=tfds_dir, shuffle_files=False)
-    ds = ds.take(n_total)
 
     def to_xy(ex):
         label = tf.cast(ex["class_label"], tf.int32)
@@ -120,12 +117,15 @@ def load_higgs_data():
     X = np.concatenate(xs, axis=0)
     Y = np.concatenate(ys, axis=0)
 
-    # Fixed held-out test block first, then the train block (disjoint).
-    x_test, y_test = X[:n_test], Y[:n_test]
-    x_train, y_train = X[n_test:n_test + n_train], Y[n_test:n_test + n_train]
+    # Canonical Baldi split: train = first n_train rows, test = last n_test rows.
+    x_train, y_train = X[:n_train], Y[:n_train]
+    x_test, y_test = X[HIGGS_TOTAL - n_test:], Y[HIGGS_TOTAL - n_test:]
 
-    mean = x_train.mean(axis=0)
-    std = x_train.std(axis=0)
+    # Accumulate the standardization moments in float64: at 10.5M rows a float32
+    # accumulator loses enough precision that the standardized data is not actually
+    # unit-variance.
+    mean = x_train.mean(axis=0, dtype=np.float64)
+    std = x_train.std(axis=0, dtype=np.float64)
     std[std == 0] = 1.0
     x_train = ((x_train - mean) / std).astype(np.float32)
     x_test = ((x_test - mean) / std).astype(np.float32)

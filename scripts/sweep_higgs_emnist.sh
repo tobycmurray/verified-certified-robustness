@@ -73,16 +73,39 @@ if [ "$MODE" = "now" ]; then
 fi
 
 if [ "$MODE" = "overnight" ]; then
-  # EMNIST balanced 1024-wide (>512 point, full epochs)
-  run_cfg emnistbal_w1024_d8 emnist/balanced 0.4 "[1024,1024,1024,1024,1024,1024,1024,1024]" 300 256 0.3 28
-  # EMNIST byclass headline (62 classes, CIFAR-style widths)
-  run_cfg emnistbyc_cifar   emnist/byclass  0.4 "[512,256,128,128,128,128,128,128]"        300 256 0.3 28
-  # HIGGS 1024-wide on the full 11M (10.5M train / 500k test)
+  # Claims-driven set (see analysis):
+  #   E1 = FP-cost-vs-WIDTH characterization at FULL data (the new contribution the
+  #        fast norms enable: matched data/epochs, vary width only).
+  #   E2 = paper-grade BREADTH at full data (HIGGS true scale; EMNIST 47- and 62-cls).
+  # All float32. The precision axis (float64 << float32 << float16-vacuous) is a
+  # certification-time sweep on these same models -- no separate training. float16 is
+  # confirmed vacuous even for narrow/shallow nets (the over-approximation floor).
+  # Ordered cheap->expensive (an early stop only costs the last item). NEW tags.
+  # NOTE: each HIGGS run reads the full 11M (canonical split) -> ~2min load + ~1.2GB.
+
+  # E1: HIGGS width sweep at FULL data (low fixed input-dim isolates the width effect).
   export HIGGS_N_TRAIN=10500000 HIGGS_N_TEST=500000
-  run_cfg higgs_w1024_d5_full higgs 0.1 "[1024,1024,1024,1024,1024]" 30 1024 0.1 1
+  run_cfg higgs_w128_d5_full higgs 0.1 "[128,128,128,128,128]" 15 512 0.1 1
+  run_cfg higgs_w256_d5_full higgs 0.1 "[256,256,256,256,256]" 15 512 0.1 1
   unset HIGGS_N_TRAIN HIGGS_N_TEST
-  # Optional flagship (very slow on CPU; uncomment to include):
-  # run_cfg emnistbyc_w2048 emnist/byclass 0.4 "[2048,1024,1024,512,512,256,256,128]" 300 256 0.3 28
+
+  # E2: paper-grade EMNIST balanced (47-cls), full data, Tobler-length training.
+  run_cfg emnistbal_w512_d8_ep500 emnist/balanced 0.4 "[512,512,512,512,512,512,512,512]" 500 256 0.3 28
+
+  # E1 mid-point + E2 headline: HIGGS 512 at FULL data.
+  export HIGGS_N_TRAIN=10500000 HIGGS_N_TEST=500000
+  run_cfg higgs_w512_d5_full higgs 0.1 "[512,512,512,512,512]" 15 512 0.1 1
+  unset HIGGS_N_TRAIN HIGGS_N_TEST
+
+  # E1 high-width point (~5.5h, the long pole): completes the FP-cost-vs-width curve
+  # at full data. Drop if the night is short; the daytime 500k 512-vs-1024 pair
+  # already shows the trend.
+  export HIGGS_N_TRAIN=10500000 HIGGS_N_TEST=500000
+  run_cfg higgs_w1024_d5_full higgs 0.1 "[1024,1024,1024,1024,1024]" 15 512 0.1 1
+  unset HIGGS_N_TRAIN HIGGS_N_TEST
+
+  # E2: EMNIST byclass (62-cls) class-scaling breadth.
+  run_cfg emnistbyc_cifar emnist/byclass 0.4 "[512,256,128,128,128,128,128,128]" 300 256 0.3 28
 fi
 
 echo "ALL DONE ($MODE). Summary:"; column -t -s $'\t' "$SUMMARY"
