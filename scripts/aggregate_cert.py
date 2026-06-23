@@ -27,9 +27,12 @@ def model_metrics(d):
         cert = np.array([bool(x["certified"]) for x in r])
         certr = np.array([bool(x["certified_real"]) for x in r])
         correct = pred == lab
-        bacc = np.mean([correct[lab == c].mean() for c in np.unique(lab) if (lab == c).any()])
+        cls = [c for c in np.unique(lab) if (lab == c).any()]
+        bacc = np.mean([correct[lab == c].mean() for c in cls])
+        mvra_fp = np.mean([(cert & correct)[lab == c].mean() for c in cls])   # macro VRA (FP)
+        mvra_re = np.mean([(certr & correct)[lab == c].mean() for c in cls])  # macro VRA (real)
         out[mode] = dict(
-            n=n, acc=correct.mean(), bacc=bacc,
+            n=n, acc=correct.mean(), bacc=bacc, mvra_fp=mvra_fp, mvra_re=mvra_re,
             rob_fp=cert.mean(), rob_re=certr.mean(),
             vra_fp=(cert & correct).mean(), vra_re=(certr & correct).mean(),
         )
@@ -67,4 +70,13 @@ for t, name in e2:
     print(f"{name:>24} | {s['n']:>7} | {s['acc']*100:5.1f}% {s['bacc']*100:5.1f}% | "
           f"{vra[0]:6.2f}/{vra[1]:5.2f}/{vra[2]:5.2f} | {s['vra_re']*100:7.2f}% | "
           f"{rob[0]:6.2f}/{rob[1]:5.2f}/{rob[2]:5.2f} | {s['rob_re']*100:7.2f}%")
+
+print("\n  macro (per-class-averaged) VRA — the honest metric for imbalanced byclass:")
+for t, name in e2:
+    if t not in data or "standard" not in data[t]:
+        continue
+    m = data[t]
+    best = "hybrid-meas" if "hybrid-meas" in m else "hybrid-only"
+    print(f"    {name:>24}: top-1 VRA({best})={m[best]['vra_fp']*100:5.1f}%  "
+          f"macro VRA({best})={m[best]['mvra_fp']*100:5.1f}%  macro real={m[best]['mvra_re']*100:5.1f}%")
 print()
