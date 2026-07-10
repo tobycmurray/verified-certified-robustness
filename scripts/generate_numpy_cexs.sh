@@ -31,6 +31,12 @@ CAV="$VCRS_ROOT/cav2025-models"
 PY="${PY:-$SCRIPTS/cav2025-artifact-venv/bin/python}"
 ATTACK="$SCRIPTS/attack_verified_certifier_nat_numpy.py"
 N="${N:-30}"
+# Output root for the cex_*_numpy dirs (default: python-certifier/tests, where
+# run_tests.sh consumes them). Override with CEX_OUT_DIR for a regeneration run
+# that must not collide with committed suites (e.g. the artifact container,
+# whose baked tests/ already holds them and would trigger skip-if-exists).
+OUT="${CEX_OUT_DIR:-$TESTS}"
+mkdir -p "$OUT"
 
 MNIST_CSV="$CAV/2025-01-25_09:27:46-mnist/model_weights_epsilon_0.45_[128,128,128,128,128,128,128,128]_500"
 FASHION_CSV="$CAV/2025-01-30_10:58:01-fashion_mnist/model_weights_epsilon_0.26_[256,128,128,128,128,128,128,128,128,128,128,128]_500"
@@ -53,22 +59,22 @@ run_cex () {  # fmt dataset layers csv isize lipref outdir [fp_bias]
 }
 
 # ---- MNIST natural (gram-20 ref) ----
-run_cex float32 mnist "$MNIST_L" "$MNIST_CSV" 28 "$REFS/dafny_mnist_gram20.json" "$TESTS/cex_mnist_float32_numpy"
-run_cex float16 mnist "$MNIST_L" "$MNIST_CSV" 28 "$REFS/dafny_mnist_gram20.json" "$TESTS/cex_mnist_float16_numpy"
-run_cex float64 mnist "$MNIST_L" "$MNIST_CSV" 28 "$REFS/dafny_mnist_gram20.json" "$TESTS/cex_mnist_float64_numpy"
+run_cex float32 mnist "$MNIST_L" "$MNIST_CSV" 28 "$REFS/dafny_mnist_gram20.json" "$OUT/cex_mnist_float32_numpy"
+run_cex float16 mnist "$MNIST_L" "$MNIST_CSV" 28 "$REFS/dafny_mnist_gram20.json" "$OUT/cex_mnist_float16_numpy"
+run_cex float64 mnist "$MNIST_L" "$MNIST_CSV" 28 "$REFS/dafny_mnist_gram20.json" "$OUT/cex_mnist_float64_numpy"
 
 # ---- Fashion-MNIST natural (gram-13 ref) ----
-run_cex float32 fashion_mnist "$FASHION_L" "$FASHION_CSV" 28 "$REFS/dafny_fashion_gram13.json" "$TESTS/cex_fashion_mnist_float32_numpy"
-run_cex float16 fashion_mnist "$FASHION_L" "$FASHION_CSV" 28 "$REFS/dafny_fashion_gram13.json" "$TESTS/cex_fashion_mnist_float16_numpy"
-run_cex float64 fashion_mnist "$FASHION_L" "$FASHION_CSV" 28 "$REFS/dafny_fashion_gram13.json" "$TESTS/cex_fashion_mnist_float64_numpy"
+run_cex float32 fashion_mnist "$FASHION_L" "$FASHION_CSV" 28 "$REFS/dafny_fashion_gram13.json" "$OUT/cex_fashion_mnist_float32_numpy"
+run_cex float16 fashion_mnist "$FASHION_L" "$FASHION_CSV" 28 "$REFS/dafny_fashion_gram13.json" "$OUT/cex_fashion_mnist_float16_numpy"
+run_cex float64 fashion_mnist "$FASHION_L" "$FASHION_CSV" 28 "$REFS/dafny_fashion_gram13.json" "$OUT/cex_fashion_mnist_float64_numpy"
 
 # ---- CIFAR-10 natural (gram-12 ref; no float16) ----
-run_cex float32 cifar10 "$CIFAR_L" "$CIFAR_CSV" 32 "$REFS/dafny_cifar10_gram12.json" "$TESTS/cex_cifar10_float32_numpy"
-run_cex float64 cifar10 "$CIFAR_L" "$CIFAR_CSV" 32 "$REFS/dafny_cifar10_gram12.json" "$TESTS/cex_cifar10_float64_numpy"
+run_cex float32 cifar10 "$CIFAR_L" "$CIFAR_CSV" 32 "$REFS/dafny_cifar10_gram12.json" "$OUT/cex_cifar10_float32_numpy"
+run_cex float64 cifar10 "$CIFAR_L" "$CIFAR_CSV" 32 "$REFS/dafny_cifar10_gram12.json" "$OUT/cex_cifar10_float64_numpy"
 
 # ---- Adversarially-biased models (float32; FP_BIAS per adversarial-bias-values) ----
-run_cex float32 mnist         "$MNIST_L"   "$MNIST_CSV"   28 "$REFS/dafny_mnist_gram20.json"   "$TESTS/cex_mnist_float32_biased_1e6_end_numpy"         1e6
-run_cex float32 fashion_mnist "$FASHION_L" "$FASHION_CSV" 28 "$REFS/dafny_fashion_gram13.json" "$TESTS/cex_fashion_mnist_float32_biased_3e6_end_numpy" 3e6
-run_cex float32 cifar10       "$CIFAR_L"   "$CIFAR_CSV"   32 "$REFS/dafny_cifar10_gram12.json" "$TESTS/cex_cifar10_float32_biased_4e6_end_numpy"       4e6
+run_cex float32 mnist         "$MNIST_L"   "$MNIST_CSV"   28 "$REFS/dafny_mnist_gram20.json"   "$OUT/cex_mnist_float32_biased_1e6_end_numpy"         1e6
+run_cex float32 fashion_mnist "$FASHION_L" "$FASHION_CSV" 28 "$REFS/dafny_fashion_gram13.json" "$OUT/cex_fashion_mnist_float32_biased_3e6_end_numpy" 3e6
+run_cex float32 cifar10       "$CIFAR_L"   "$CIFAR_CSV"   32 "$REFS/dafny_cifar10_gram12.json" "$OUT/cex_cifar10_float32_biased_4e6_end_numpy"       4e6
 
 echo "All numpy cex suites generated."
