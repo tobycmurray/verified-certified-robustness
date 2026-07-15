@@ -11,10 +11,19 @@
 # model_weights_csv, so the FP-sound certifier can be run per seed as a separate
 # downstream step (same layering as sweep_higgs_emnist.sh).
 #
-# Usage:
-#   ./seed_variance_sweep.sh higgs    # 10 seeds x HIGGS [512]x5      (~12 min each, ~2h)
-#   ./seed_variance_sweep.sh emnist   # 10 seeds x EMNIST-bal [512]x8 (~19 min each, ~3h)
+# Modes, in suggested priority order (times are rough CPU estimates for 10 seeds):
+#   ./seed_variance_sweep.sh mnist    # Tobler MNIST config    [128]x8, eps .45/.3   (~2-5h)
+#                                     #   <- Le & Cao's own headline dataset: the direct rebuttal
+#   ./seed_variance_sweep.sh higgs    # RQ4 HIGGS-512          [512]x5, eps .1/.1    (~2h)
+#   ./seed_variance_sweep.sh cifar    # Tobler CIFAR-10 config [512,256,128x6], eps .1551/.141 (~10-20h)
+#                                     #   <- the hard/saturated task: where variance is most plausible
+#   ./seed_variance_sweep.sh fashion  # Tobler Fashion config  [256,128x11], eps .26/.25 (~3-7h)
+#   ./seed_variance_sweep.sh emnist   # RQ4 EMNIST-bal         [512]x8, eps .4/.3    (~3h)
 #   ./seed_variance_sweep.sh stats    # per-config n/mean/stddev/min/max from summary.tsv
+#
+# Image-model configs replicate Tobler et al.'s published training settings (README.md
+# doit_verified_robust_gloro.sh invocations), so the published models' numbers should
+# fall within the resulting seed distributions (a free consistency check).
 #
 # Do NOT run concurrently with sweep_higgs_emnist.sh (both use scripts/ as scratch
 # for model_weights_csv etc.). Completed (tag,seed) runs are skipped, so the script
@@ -61,6 +70,23 @@ run_cfg () {
 MODE="${1:-}"
 
 case "$MODE" in
+  mnist)
+    for s in $SEEDS; do
+      run_cfg mnist_tobler "$s" mnist 0.45 "[128,128,128,128,128,128,128,128]" 500 32 0.3 28
+    done
+    ;;
+  fashion)
+    for s in $SEEDS; do
+      run_cfg fashion_tobler "$s" fashion_mnist 0.26 "[256,128,128,128,128,128,128,128,128,128,128,128]" 500 64 0.25 28
+    done
+    ;;
+  cifar)
+    # train_gloro.py auto-enables augmentation="all" for cifar10; its tf.random ops
+    # draw from the global RNG, so GLORO_SEED covers them too.
+    for s in $SEEDS; do
+      run_cfg cifar_tobler "$s" cifar10 0.1551 "[512,256,128,128,128,128,128,128]" 800 256 0.141 32
+    done
+    ;;
   higgs)
     # Same config as sweep_higgs_emnist.sh higgs_w512_d5 (the RQ4 HIGGS-512 point).
     export HIGGS_N_TRAIN=500000 HIGGS_N_TEST=500000
@@ -94,6 +120,6 @@ for tag, rs in by_tag.items():
 EOF
     ;;
   *)
-    echo "Usage: $0 {higgs|emnist|stats}"; exit 1
+    echo "Usage: $0 {mnist|higgs|cifar|fashion|emnist|stats}"; exit 1
     ;;
 esac
