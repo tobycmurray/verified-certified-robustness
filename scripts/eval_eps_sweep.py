@@ -60,7 +60,7 @@ for run_dir in run_dirs:
     g.freeze_lc(max_tries=max_tries)
     for eps in eps_list:
         g.epsilon = eps
-        y_pred = g.predict(x_test, verbose=0)
+        y_pred = g.predict(x_test, batch_size=4096, verbose=0)
         acc = float(clean_acc(y_test, y_pred).numpy())
         rej = float(rejection_rate(y_test, y_pred).numpy())
         the_vra = float(vra(y_test, y_pred).numpy())
