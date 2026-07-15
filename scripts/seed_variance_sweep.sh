@@ -5,14 +5,14 @@
 # measure it on STANDARD-trained models at knife-edge epsilons chosen to span the
 # certified/uncertified transition. This sweep measures the same quantity in the
 # regime their survey targets: certified (gloro) training, evaluated at the
-# trained-for epsilon, on this paper's RQ4 configs, with 10 seeds (10..100 step 10,
+# trained-for epsilon, on this paper's model configs, with 10 seeds (10..100 step 10,
 # mirroring their design). Records per-seed clean accuracy, gloro VRA and
 # robustness on the FULL test set (not 100 inputs). Each run also saves
 # model_weights_csv, so the FP-sound certifier can be run per seed as a separate
 # downstream step (same layering as sweep_higgs_emnist.sh).
 #
 # Modes, in suggested priority order (times are rough CPU estimates for 10 seeds):
-#   ./seed_variance_sweep.sh mnist    # Tobler MNIST config    [128]x8, eps .45/.3   (~2-5h)
+#   ./seed_variance_sweep.sh mnist    # Tobler MNIST config    [128]x8, eps .45/.3   (~15h: ~90min/seed)
 #                                     #   <- Le & Cao's own headline dataset: the direct rebuttal
 #   ./seed_variance_sweep.sh higgs    # RQ4 HIGGS-512          [512]x5, eps .1/.1    (~2h)
 #   ./seed_variance_sweep.sh cifar    # Tobler CIFAR-10 config [512,256,128x6], eps .1551/.141 (~10-20h)
@@ -25,14 +25,16 @@
 # doit_verified_robust_gloro.sh invocations), so the published models' numbers should
 # fall within the resulting seed distributions (a free consistency check).
 #
-# Do NOT run concurrently with sweep_higgs_emnist.sh (both use scripts/ as scratch
-# for model_weights_csv etc.). Completed (tag,seed) runs are skipped, so the script
-# is safe to kill and re-run.
+# Each training run gets a private scratch directory under seed_variance_results/, so
+# different modes CAN run concurrently (but not two instances of the same mode, and
+# not concurrently with sweep_higgs_emnist.sh's use of scripts/ as scratch).
+# Completed (tag,seed) runs are skipped, so the script is safe to kill and re-run.
 
 set -u
 cd "$(dirname "$0")"
-PY="./cav2025-artifact-venv/bin/python3"
-RESULTS="seed_variance_results"
+SCRIPTS_DIR="$(pwd)"
+PY="$SCRIPTS_DIR/cav2025-artifact-venv/bin/python3"
+RESULTS="$SCRIPTS_DIR/seed_variance_results"
 mkdir -p "$RESULTS"
 SUMMARY="$RESULTS/summary.tsv"
 if [ ! -f "$SUMMARY" ]; then
@@ -49,15 +51,18 @@ run_cfg () {
     echo ">>> SKIP ${tag}_s${seed} (already done)"; return
   fi
   echo ">>> $(date '+%H:%M:%S') RUN ${tag}_s${seed} : $dataset $layers eps=$train_eps/$eval_eps ep=$epochs bs=$batch ntrain=${HIGGS_N_TRAIN:-NA}"
-  rm -rf model_weights_csv model.keras gloro.summary layer_*_weights.npz 2>/dev/null
-  mkdir -p "$outdir"
+  local scratch="$RESULTS/.scratch_${tag}_s${seed}"
+  rm -rf "$scratch"; mkdir -p "$scratch" "$outdir"
   local t0; t0=$(date +%s)
-  GLORO_SEED="$seed" PYTHONPATH=. "$PY" train_gloro.py "$dataset" "$train_eps" "$layers" "$epochs" "$batch" "$eval_eps" "$input_size" > "$outdir/train.log" 2>&1
+  (cd "$scratch" && GLORO_SEED="$seed" PYTHONPATH="$SCRIPTS_DIR" "$PY" "$SCRIPTS_DIR/train_gloro.py" \
+     "$dataset" "$train_eps" "$layers" "$epochs" "$batch" "$eval_eps" "$input_size") > "$outdir/train.log" 2>&1
   local ec=$?
   local t1; t1=$(date +%s); local secs=$((t1 - t0))
-  [ -d model_weights_csv ] && mv model_weights_csv "$outdir/"
+  [ -d "$scratch/model_weights_csv" ] && mv "$scratch/model_weights_csv" "$outdir/"
   [ -f "$outdir/model_weights_csv/gloro_model_results.json" ] && cp "$outdir/model_weights_csv/gloro_model_results.json" "$outdir/"
-  [ -f higgs_standardization.npz ] && cp higgs_standardization.npz "$outdir/" 2>/dev/null
+  # doitlib writes higgs_standardization.npz next to itself (scripts/), not into scratch
+  [ -f "$SCRIPTS_DIR/higgs_standardization.npz" ] && cp "$SCRIPTS_DIR/higgs_standardization.npz" "$outdir/" 2>/dev/null
+  rm -rf "$scratch"
   local acc vra rob
   acc=$(grep -a '"accuracy"' "$outdir/gloro_model_results.json" 2>/dev/null | head -1 | grep -oE '[0-9.]+' | head -1)
   vra=$(grep -a '"vra"' "$outdir/gloro_model_results.json" 2>/dev/null | head -1 | grep -oE '[0-9.]+' | head -1)
