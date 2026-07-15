@@ -30,6 +30,13 @@ from gloro.training.metrics import rejection_rate, vra, clean_acc
 
 from sklearn.metrics import confusion_matrix
 
+# Opt-in seeding for seed-variance experiments (seed_variance_sweep.sh): covers
+# Python/NumPy/TF global RNGs, i.e. weight init and dataset shuffling. Unset = the
+# original unseeded behaviour.
+GLORO_SEED = os.environ.get('GLORO_SEED')
+if GLORO_SEED is not None:
+    tf.keras.utils.set_random_seed(int(GLORO_SEED))
+
 
 def train_gloro(
         dataset,
@@ -221,6 +228,7 @@ def script(
     # save the statistics calculated by gloro
     data = {
         "comment": "these statistics are unverified and calculated by the gloro implementation",
+        "seed": GLORO_SEED,
         "eval_epsilon": eval_epsilon,
         "accuracy": accuracy,
         "rejection_rate": reject_rate,
