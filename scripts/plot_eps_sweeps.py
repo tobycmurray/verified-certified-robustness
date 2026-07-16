@@ -32,7 +32,9 @@ def load(path):
     ns = sorted({len(by_eps[e]) for e in eps})
     return eps, mean, lo, hi, ns
 
-def draw(fname, title, eps, mean, lo, hi, ns, marks, zoom=False):
+def draw(fname, title, eps, mean, lo, hi, ns, marks, zoom=False, sub=None,
+         color=None, marker=None, xlabel="evaluation ε (L2)"):
+    color = color or BLUE
     fig, ax = plt.subplots(figsize=(7, 4.4), dpi=200)
     ax.set_axisbelow(True)
     ax.grid(axis="y", color=GRID, linewidth=0.8)
@@ -41,8 +43,9 @@ def draw(fname, title, eps, mean, lo, hi, ns, marks, zoom=False):
     for s in ("left", "bottom"):
         ax.spines[s].set_color(GRID)
 
-    ax.fill_between(eps, lo, hi, color=BLUE, alpha=0.3, linewidth=0)
-    ax.plot(eps, mean, color=BLUE, linewidth=1.2, solid_capstyle="round")
+    ax.fill_between(eps, lo, hi, color=color, alpha=0.3, linewidth=0)
+    ax.plot(eps, mean, color=color, linewidth=1.2, solid_capstyle="round",
+            marker=marker, markersize=5)
 
     if zoom:
         pad = 0.02 * (max(hi) - min(lo))
@@ -58,12 +61,13 @@ def draw(fname, title, eps, mean, lo, hi, ns, marks, zoom=False):
     band = max(h - l for h, l in zip(hi, lo))
     n = ns[-1] if len(ns) == 1 else f"{ns[0]}-{ns[-1]}"
     ax.set_title(title, color=INK, fontsize=12, loc="left", pad=14)
-    sub = f"mean over {n} seeds; band = min-max per ε (widest: {band:.2f}pp)"
-    if zoom:
-        sub += " — y-axis zoomed to data range"
+    if sub is None:
+        sub = f"mean over {n} seeds; band = min-max per ε (widest: {band:.2f}pp)"
+        if zoom:
+            sub += " — y-axis zoomed to data range"
     ax.text(0, 1.015, sub, transform=ax.transAxes, color=MUTED, fontsize=9, va="bottom")
 
-    ax.set_xlabel("evaluation ε (L2)", color=INK, fontsize=10)
+    ax.set_xlabel(xlabel, color=INK, fontsize=10)
     ax.set_ylabel("certified robust (% of test set)", color=INK, fontsize=10)
     ax.set_ylim(y0, y1)
     ax.set_xlim(min(eps), max(eps))
@@ -90,3 +94,20 @@ draw(f"{R}/eps_sweep_higgs",
 draw(f"{R}/eps_sweep_higgs_zoom",
      "HIGGS gloro [512]×5: certified robustness vs evaluation ε (zoom)",
      eps, mean, lo, hi, ns, higgs_marks, zoom=True)
+
+# Le & Cao's own reported numbers (arXiv:2601.13303 Table III, MNIST): standard-trained
+# ResNet-4, alpha-beta-CROWN, first 100 test inputs, L-inf. They report mean and stddev
+# (not min-max), so this band is +/-1 stddev -- which if anything UNDERSTATES their
+# spread relative to the min-max bands above.
+LC_ORANGE = "#B4531F"
+lc_eps = [0.006, 0.007, 0.008]
+lc_mean = [81.6, 54.3, 22.3]
+lc_std = [22.3, 28.9, 20.5]
+draw(f"{R}/lecao_mnist",
+     "Le & Cao's standard-trained MNIST models: certified robustness vs ε",
+     lc_eps, lc_mean,
+     [m - s for m, s in zip(lc_mean, lc_std)],
+     [m + s for m, s in zip(lc_mean, lc_std)],
+     [10], [],
+     sub="mean over 10 seeds; band = ±1 standard deviation (data: their Table III)",
+     color=LC_ORANGE, marker="o", xlabel="evaluation ε (L∞)")
