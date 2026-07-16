@@ -1,0 +1,31 @@
+>>> 14:38:05 RUN higgs_w512_d5_s10 : higgs [512,512,512,512,512] eps=0.1/0.1 ep=40 bs=512 ntrain=500000
+>>> 14:56:46 DONE higgs_w512_d5_s10 ec=0 1121s acc=0.7063120007514954 vra=0.6208720207214355
+>>> 14:56:46 RUN higgs_w512_d5_s20 : higgs [512,512,512,512,512] eps=0.1/0.1 ep=40 bs=512 ntrain=500000
+>>> 15:15:48 DONE higgs_w512_d5_s20 ec=0 1141s acc=0.7067080140113831 vra=0.6208840012550354
+>>> 15:15:48 RUN higgs_w512_d5_s30 : higgs [512,512,512,512,512] eps=0.1/0.1 ep=40 bs=512 ntrain=500000
+>>> 15:34:29 DONE higgs_w512_d5_s30 ec=0 1120s acc=0.706275999546051 vra=0.6203340291976929
+>>> 15:34:29 RUN higgs_w512_d5_s40 : higgs [512,512,512,512,512] eps=0.1/0.1 ep=40 bs=512 ntrain=500000
+>>> SKIP higgs_w512_d5_s10 (already done)
+>>> SKIP higgs_w512_d5_s20 (already done)
+>>> SKIP higgs_w512_d5_s30 (already done)
+>>> 16:21:03 RUN higgs_w512_d5_s40 : higgs [512,512,512,512,512] eps=0.1/0.1 ep=40 bs=512 ntrain=500000
+>>> 17:37:24 DONE higgs_w512_d5_s40 ec=0 4581s acc=0.7066140174865723 vra=0.6206899881362915
+>>> 17:37:24 RUN higgs_w512_d5_s50 : higgs [512,512,512,512,512] eps=0.1/0.1 ep=40 bs=512 ntrain=500000
+>>> 17:55:34 DONE higgs_w512_d5_s50 ec=0 1089s acc=0.7059419751167297 vra=0.620826005935669
+>>> 17:55:34 RUN higgs_w512_d5_s60 : higgs [512,512,512,512,512] eps=0.1/0.1 ep=40 bs=512 ntrain=500000
+>>> 18:12:57 DONE higgs_w512_d5_s60 ec=0 1042s acc=0.7065160274505615 vra=0.6208620071411133
+>>> 18:12:57 RUN higgs_w512_d5_s70 : higgs [512,512,512,512,512] eps=0.1/0.1 ep=40 bs=512 ntrain=500000
+>>> SKIP higgs_w512_d5_s10 (already done)
+>>> SKIP higgs_w512_d5_s20 (already done)
+>>> SKIP higgs_w512_d5_s30 (already done)
+>>> SKIP higgs_w512_d5_s40 (already done)
+>>> SKIP higgs_w512_d5_s50 (already done)
+>>> SKIP higgs_w512_d5_s60 (already done)
+>>> 18:16:30 RUN higgs_w512_d5_s70 : higgs [512,512,512,512,512] eps=0.1/0.1 ep=40 bs=512 ntrain=500000
+>>> 18:33:53 DONE higgs_w512_d5_s70 ec=0 1042s acc=0.7070860266685486 vra=0.6200940012931824
+>>> 18:33:53 RUN higgs_w512_d5_s80 : higgs [512,512,512,512,512] eps=0.1/0.1 ep=40 bs=512 ntrain=500000
+>>> 18:50:47 DONE higgs_w512_d5_s80 ec=0 1013s acc=0.7059460282325745 vra=0.6209499835968018
+>>> 18:50:47 RUN higgs_w512_d5_s90 : higgs [512,512,512,512,512] eps=0.1/0.1 ep=40 bs=512 ntrain=500000
+>>> 19:51:52 DONE higgs_w512_d5_s90 ec=0 3664s acc=0.7062820196151733 vra=0.6204779744148254
+>>> 19:51:52 RUN higgs_w512_d5_s100 : higgs [512,512,512,512,512] eps=0.1/0.1 ep=40 bs=512 ntrain=500000
+>>> 20:09:34 DONE higgs_w512_d5_s100 ec=0 1062s acc=0.706496000289917 vra=0.620826005935669

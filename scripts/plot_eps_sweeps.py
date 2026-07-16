@@ -33,7 +33,7 @@ def load(path):
     return eps, mean, lo, hi, ns
 
 def draw(fname, title, eps, mean, lo, hi, ns, marks, zoom=False, sub=None,
-         color=None, marker=None, xlabel="evaluation ε (L2)"):
+         color=None, marker=None, xlabel="evaluation ε ($\\ell_2$)"):
     color = color or BLUE
     fig, ax = plt.subplots(figsize=(7, 4.4), dpi=200)
     ax.set_axisbelow(True)
@@ -110,4 +110,4 @@ draw(f"{R}/lecao_mnist",
      [m + s for m, s in zip(lc_mean, lc_std)],
      [10], [],
      sub="mean over 10 seeds; band = ±1 standard deviation (data: their Table III)",
-     color=LC_ORANGE, marker="o", xlabel="evaluation ε (L∞)")
+     color=LC_ORANGE, marker="o", xlabel="evaluation ε ($\\ell_\\infty$)")

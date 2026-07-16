@@ -1,0 +1,24 @@
+>>> 14:04:04 RUN mnist_tobler_s10 : mnist [128,128,128,128,128,128,128,128] eps=0.45/0.3 ep=500 bs=32 ntrain=NA
+>>> 15:08:45 DONE mnist_tobler_s10 ec=0 3881s acc=0.984000027179718 vra=0.9526000022888184
+>>> 15:08:45 RUN mnist_tobler_s20 : mnist [128,128,128,128,128,128,128,128] eps=0.45/0.3 ep=500 bs=32 ntrain=NA
+>>> SKIP mnist_tobler_s10 (already done)
+>>> 16:21:06 RUN mnist_tobler_s20 : mnist [128,128,128,128,128,128,128,128] eps=0.45/0.3 ep=500 bs=32 ntrain=NA
+>>> SKIP mnist_tobler_s10 (already done)
+>>> 18:16:30 RUN mnist_tobler_s20 : mnist [128,128,128,128,128,128,128,128] eps=0.45/0.3 ep=500 bs=32 ntrain=NA
+>>> 20:17:42 DONE mnist_tobler_s20 ec=0 7272s acc=0.9846000075340271 vra=0.9521999955177307
+>>> 20:17:42 RUN mnist_tobler_s30 : mnist [128,128,128,128,128,128,128,128] eps=0.45/0.3 ep=500 bs=32 ntrain=NA
+>>> 21:13:50 DONE mnist_tobler_s30 ec=0 3368s acc=0.9843000173568726 vra=0.9509999752044678
+>>> 21:13:50 RUN mnist_tobler_s40 : mnist [128,128,128,128,128,128,128,128] eps=0.45/0.3 ep=500 bs=32 ntrain=NA
+>>> 22:01:18 DONE mnist_tobler_s40 ec=0 2848s acc=0.9840999841690063 vra=0.9520000219345093
+>>> 22:01:18 RUN mnist_tobler_s50 : mnist [128,128,128,128,128,128,128,128] eps=0.45/0.3 ep=500 bs=32 ntrain=NA
+>>> 22:48:58 DONE mnist_tobler_s50 ec=0 2860s acc=0.984499990940094 vra=0.9532999992370605
+>>> 22:48:58 RUN mnist_tobler_s60 : mnist [128,128,128,128,128,128,128,128] eps=0.45/0.3 ep=500 bs=32 ntrain=NA
+>>> 23:37:32 DONE mnist_tobler_s60 ec=0 2914s acc=0.9843000173568726 vra=0.953000009059906
+>>> 23:37:32 RUN mnist_tobler_s70 : mnist [128,128,128,128,128,128,128,128] eps=0.45/0.3 ep=500 bs=32 ntrain=NA
+>>> 00:24:55 DONE mnist_tobler_s70 ec=0 2843s acc=0.9843000173568726 vra=0.9535999894142151
+>>> 00:24:55 RUN mnist_tobler_s80 : mnist [128,128,128,128,128,128,128,128] eps=0.45/0.3 ep=500 bs=32 ntrain=NA
+>>> 01:12:26 DONE mnist_tobler_s80 ec=0 2851s acc=0.9836999773979187 vra=0.9519000053405762
+>>> 01:12:26 RUN mnist_tobler_s90 : mnist [128,128,128,128,128,128,128,128] eps=0.45/0.3 ep=500 bs=32 ntrain=NA
+>>> 01:59:51 DONE mnist_tobler_s90 ec=0 2845s acc=0.983299970626831 vra=0.9520000219345093
+>>> 01:59:51 RUN mnist_tobler_s100 : mnist [128,128,128,128,128,128,128,128] eps=0.45/0.3 ep=500 bs=32 ntrain=NA
+>>> 02:47:22 DONE mnist_tobler_s100 ec=0 2851s acc=0.9842000007629395 vra=0.9538999795913696
