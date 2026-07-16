@@ -33,7 +33,8 @@ def load(path):
     return eps, mean, lo, hi, ns
 
 def draw(fname, title, eps, mean, lo, hi, ns, marks, zoom=False, sub=None,
-         color=None, marker=None, xlabel="evaluation ε ($\\ell_2$)"):
+         color=None, marker=None, xlabel="evaluation ε ($\\ell_2$)",
+         ylabel="certified robust (% of test set)"):
     color = color or BLUE
     fig, ax = plt.subplots(figsize=(7, 4.4), dpi=200)
     ax.set_axisbelow(True)
@@ -68,7 +69,7 @@ def draw(fname, title, eps, mean, lo, hi, ns, marks, zoom=False, sub=None,
     ax.text(0, 1.015, sub, transform=ax.transAxes, color=MUTED, fontsize=9, va="bottom")
 
     ax.set_xlabel(xlabel, color=INK, fontsize=10)
-    ax.set_ylabel("certified robust (% of test set)", color=INK, fontsize=10)
+    ax.set_ylabel(ylabel, color=INK, fontsize=10)
     ax.set_ylim(y0, y1)
     ax.set_xlim(min(eps), max(eps))
     ax.tick_params(colors=MUTED, labelsize=9)
@@ -110,4 +111,5 @@ draw(f"{R}/lecao_mnist",
      [m + s for m, s in zip(lc_mean, lc_std)],
      [10], [],
      sub="mean over 10 seeds; band = ±1 standard deviation (data: their Table III)",
-     color=LC_ORANGE, marker="o", xlabel="evaluation ε ($\\ell_\\infty$)")
+     color=LC_ORANGE, marker="o", xlabel="evaluation ε ($\\ell_\\infty$)",
+     ylabel="certified robust (% of first 100 test inputs)")
