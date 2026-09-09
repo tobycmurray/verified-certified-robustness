@@ -39,7 +39,7 @@ PYTHON_CERTIFIER = os.path.expanduser(os.environ.get("PYTHON_CERTIFIER", "~/git/
 sys.path.insert(0, PYTHON_CERTIFIER)
 import compliant_forward  # noqa: E402
 
-from art.attacks.evasion import ProjectedGradientDescent  # noqa: E402
+from art.attacks.evasion import ProjectedGradientDescent, AutoProjectedGradientDescent  # noqa: E402
 from art.estimators.classification import TensorFlowV2Classifier  # noqa: E402
 
 if len(sys.argv) < 6:
@@ -62,7 +62,8 @@ steps = opt("--steps", 100, int)
 restarts = opt("--restarts", 5, int)
 batch = opt("--batch", 256, int)
 n_limit = opt("--n", None, int)
-out_path = opt("--out", f"results/pgd_l2_{dataset}_eps{eps}.json", str)
+attack_kind = opt("--attack", "pgd", str)  # pgd | apgd (APGD-CE then APGD-DLR on survivors, as in AutoAttack)
+out_path = opt("--out", f"results/{attack_kind}_l2_{dataset}_eps{eps}.json", str)
 
 inputs, outputs = doitlib.build_model(Input, Flatten, Dense, input_size=input_size,
                                       dataset=dataset, internal_layer_sizes=INTERNAL_LAYER_SIZES)
@@ -104,9 +105,30 @@ classifier = TensorFlowV2Classifier(
     input_shape=tuple(model.input_shape[1:]),
     clip_values=(0.0, 1.0),
 )
-attack = ProjectedGradientDescent(classifier, norm=2, eps=eps, eps_step=eps / 10.0,
-                                  max_iter=steps, num_random_init=restarts,
-                                  batch_size=batch, verbose=False)
+if attack_kind == "pgd":
+    attacks = [ProjectedGradientDescent(classifier, norm=2, eps=eps, eps_step=eps / 10.0,
+                                        max_iter=steps, num_random_init=restarts,
+                                        batch_size=batch, verbose=False)]
+else:  # the two gradient-based components of AutoAttack (Croce & Hein 2020), run in sequence
+    attacks = [AutoProjectedGradientDescent(classifier, norm=2, eps=eps, eps_step=2 * eps, max_iter=steps,
+                                            nb_random_init=restarts, batch_size=batch, loss_type=lt, verbose=False)
+               for lt in ("cross_entropy", "difference_logits_ratio")]
+
+
+def generate(x, y):
+    """Run the attack list in sequence, keeping each point's first successful (Keras-judged) adversarial."""
+    x_adv = x.copy()
+    todo = np.ones(len(x), dtype=bool)
+    for atk in attacks:
+        if not todo.any():
+            break
+        xa = atk.generate(x=x[todo], y=y[todo]).astype(np.float32)
+        pred = np.argmax(model.predict(xa, batch_size=1024, verbose=0), axis=1)
+        idx = np.where(todo)[0]
+        succ = pred != np.argmax(y[todo], axis=1)
+        x_adv[idx[succ]] = xa[succ]
+        todo[idx[succ]] = False
+    return x_adv
 
 records = []
 attacked_np = np.zeros(N, dtype=bool)
@@ -118,7 +140,7 @@ for start in range(0, N, batch):
     if len(sel) == 0:
         continue
     x = x_test[sel]
-    x_adv = attack.generate(x=x, y=y_test[sel]).astype(np.float32)
+    x_adv = generate(x, y_test[sel])
     for k, i in enumerate(sel):
         xi = x[k].astype(np.float64)
         xa = x_adv[k].astype(np.float64)
@@ -140,7 +162,7 @@ for start in range(0, N, batch):
           f"of {int(correct_np[:done].sum())} correct ({time.time() - t0:.0f}s)", flush=True)
 
 summary = {
-    "dataset": dataset, "eps": eps, "n": int(N), "pgd_steps": steps, "pgd_restarts": restarts,
+    "dataset": dataset, "eps": eps, "n": int(N), "attack": attack_kind, "pgd_steps": steps, "pgd_restarts": restarts,
     "clean_acc_numpy": float(correct_np.mean()),
     "clean_acc_keras": float((clean_keras == labels).mean()),
     "pgd_robust_acc_numpy": float((correct_np & ~attacked_np).mean()),
