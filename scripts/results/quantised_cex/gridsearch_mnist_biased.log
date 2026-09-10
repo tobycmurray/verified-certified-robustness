@@ -1,0 +1,94 @@
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/art/estimators/certification/__init__.py:30: UserWarning: PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality
+  warnings.warn("PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality")
+Running Keras (DeepFool only) with precision: <Policy "float32">
+Counter-example search runs against compliant numpy at: float32
+
+--- Accuracy BEFORE bias (original model) ---
+  Test Accuracy: 0.9840, Loss: 0.0501
+  Bias position: end (bias on layer 7, correction on layer 8)
+
+Built biased model with B=1e+06 (9 Dense layers, position=end)
+
+--- Accuracy AFTER bias (biased model) ---
+  Test Accuracy: 0.9823, Loss: 0.0578
+  Accuracy delta: -0.0017
+
+Exported bias vectors to /private/tmp/claude-502/-Users-tobiasm1-git-float-conservatism-paper/ddf998f9-1707-420c-b03a-1e27b49e17e8/scratchpad/biases_mnist_1e6.txt (159057 bytes)
+Built compliant numpy model: 9 layers, dtype float32, biases: yes
+Sanity (test point 0): ||keras - numpy||_2 = 2.000e+00, argmax keras=7 numpy=7
+Loaded L matrix shape: (10, 10)
+idx 0: stored eps=0.3475 | FOUND t=0.0 how=ray dist=0.3034 R=0.3475 max_eps=0.3475 labels 7->3 (0.0s)
+idx 7: stored eps=0.1256 | FOUND t=0.05 how=ray dist=0.008769 R=0.1256 max_eps=0.1256 labels 9->8 (0.6s)
+idx 8: stored eps=0.1113 | FOUND t=0.0 how=ray dist=0.06815 R=0.1113 max_eps=0.1113 labels 6->5 (0.0s)
+idx 11: stored eps=0.2227 | FOUND t=0.0 how=ray dist=0.1621 R=0.2227 max_eps=0.2227 labels 6->5 (0.0s)
+idx 12: stored eps=0.3713 | FOUND t=0.0 how=ray dist=0.3249 R=0.3713 max_eps=0.3713 labels 4->9 (0.0s)
+idx 20: stored eps=0.1175 | FOUND t=0.0 how=ray dist=0.05587 R=0.1175 max_eps=0.1175 labels 9->7 (0.0s)
+idx 21: stored eps=0.1113 | not found (0.0s) [t=0.0:label(qc_t) != label(c); t=0.02:label(qc_t) != label(c); t=0.05:label(qc_t) != label(c); t=0.1:label(qc_t) != label(c); t=0.2:label(qc_t) != label(c); t=0.3:label(qc_t) != label(c); t=0.5:label(qc_t) != label(c)]
+idx 22: stored eps=0.09933 | FOUND t=0.0 how=ray dist=0.06781 R=0.09933 max_eps=0.09933 labels 6->4 (0.0s)
+idx 23: stored eps=0.1113 | FOUND t=0.0 how=ray dist=0.02572 R=0.1113 max_eps=0.1113 labels 6->5 (0.0s)
+idx 24: stored eps=0.1238 | FOUND t=0.0 how=ray dist=0.0556 R=0.1238 max_eps=0.1238 labels 9->4 (0.0s)
+idx 32: stored eps=0.2293 | FOUND t=0.0 how=ray dist=0.09121 R=0.2293 max_eps=0.2293 labels 5->3 (0.0s)
+idx 34: stored eps=0.2657 | FOUND t=0.0 how=ray+repair dist=0.1328 R=0.1328 max_eps=0.1328 labels 7->2 (0.0s)
+idx 35: stored eps=0.1144 | not found (2.1s) [t=0.0:R=0.114 no flip nb:tried; t=0.02:R=0.114 no flip nb:tried; t=0.05:R=0.114 no flip nb:tried; t=0.1:R=0.114 no flip nb:tried; t=0.2:R=0.114 no flip nb:tried; t=0.3:R=0.114 no flip nb:tried; t=0.5:R=0.114 no flip nb:tried]
+idx 36: stored eps=0.2657 | FOUND t=0.0 how=ray dist=0.07091 R=0.2657 max_eps=0.2657 labels 7->2 (0.0s)
+idx 37: stored eps=0.1152 | FOUND t=0.0 how=ray dist=0.05007 R=0.1152 max_eps=0.1152 labels 8->1 (0.0s)
+idx 43: stored eps=0.3433 | FOUND t=0.0 how=ray dist=0.3249 R=0.3433 max_eps=0.3433 labels 2->1 (0.0s)
+idx 44: stored eps=0.1186 | FOUND t=0.0 how=ray dist=0.04278 R=0.1186 max_eps=0.1186 labels 3->2 (0.0s)
+idx 45: stored eps=0.113 | FOUND t=0.02 how=ray dist=0.02112 R=0.113 max_eps=0.113 labels 8->5 (0.0s)
+idx 47: stored eps=0.09953 | FOUND t=0.0 how=ray dist=0.04488 R=0.09953 max_eps=0.09953 labels 6->2 (0.0s)
+idx 49: stored eps=0.1238 | FOUND t=0.0 how=ray dist=0.006792 R=0.1238 max_eps=0.1238 labels 9->4 (0.0s)
+idx 50: stored eps=0.2381 | FOUND t=0.0 how=ray dist=0.2147 R=0.2381 max_eps=0.2381 labels 6->0 (0.0s)
+idx 52: stored eps=0.1948 | FOUND t=0.0 how=ray dist=0.106 R=0.1948 max_eps=0.1948 labels 0->5 (0.0s)
+idx 53: stored eps=0.113 | FOUND t=0.0 how=ray dist=0.04094 R=0.113 max_eps=0.113 labels 8->5 (0.0s)
+idx 54: stored eps=0.09953 | FOUND t=0.0 how=ray dist=0.04488 R=0.09953 max_eps=0.09953 labels 6->2 (0.0s)
+idx 55: stored eps=0.1172 | FOUND t=0.0 how=ray dist=0.05276 R=0.1172 max_eps=0.1172 labels 8->0 (0.0s)
+idx 56: stored eps=0.1848 | FOUND t=0.0 how=ray dist=0.0232 R=0.1848 max_eps=0.1848 labels 5->4 (0.0s)
+idx 59: stored eps=0.0965 | FOUND t=0.0 how=ray dist=0.03679 R=0.0965 max_eps=0.0965 labels 7->5 (0.0s)
+idx 60: stored eps=0.1158 | FOUND t=0.0 how=ray dist=0.02417 R=0.1158 max_eps=0.1158 labels 3->7 (0.0s)
+idx 62: stored eps=0.1106 | FOUND t=0.3 how=ray dist=0.03351 R=0.1106 max_eps=0.1106 labels 9->5 (0.0s)
+idx 66: stored eps=0.09953 | FOUND t=0.0 how=ray dist=0.06938 R=0.09953 max_eps=0.09953 labels 2->6 (0.0s)
+
+SUMMARY: {
+ "cex_dir": "/Users/tobiasm1/git/python-certifier/tests/cex_mnist_float32_biased_1e6_end_numpy",
+ "format": "float32",
+ "seed": 0,
+ "n": 30,
+ "found": 28,
+ "max_eps_max": 0.37128197763588355,
+ "max_eps_min": 0.09650186756539715,
+ "max_eps_median": 0.11804462146896075,
+ "found_gt_0.1": 23,
+ "found_by_how": {
+  "ray": 27,
+  "ray+repair": 1,
+  "neigh1": 0,
+  "neigh2": 0,
+  "neigh3": 0
+ },
+ "allow_label_change": false,
+ "found_with_label_change": 0,
+ "records_all_t_label_mismatch": 1,
+ "records_no_R_ge_1_over_255": 1,
+ "found_by_t": {
+  "0.0": 25,
+  "0.02": 1,
+  "0.05": 1,
+  "0.1": 0,
+  "0.2": 0,
+  "0.3": 1,
+  "0.5": 0
+ },
+ "records_with_label_mismatch_at_t0": 3,
+ "verify_failed": 0,
+ "total_secs": 3.1,
+ "naive_rounding": {
+  "path": "results/quantised_cex/quant_mnist_biased.json",
+  "quantised_cex": 14,
+  "quantised_max_eps_max": 0.37128197763588355,
+  "quantised_max_eps_min": 0.09650186756539715,
+  "quantised_cex_gt_0.1": 11
+ }
+}
+Wrote results/quantised_cex/gridsearch_mnist_biased.json (points in results/quantised_cex/gridsearch_mnist_biased_points)

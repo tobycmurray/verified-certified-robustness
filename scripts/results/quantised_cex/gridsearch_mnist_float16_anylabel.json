@@ -1,0 +1,2312 @@
+{
+ "summary": {
+  "cex_dir": "/Users/tobiasm1/git/python-certifier/tests/cex_mnist_float16_numpy",
+  "format": "float16",
+  "seed": 0,
+  "n": 30,
+  "found": 7,
+  "max_eps_max": 0.006423876067507213,
+  "max_eps_min": 0.005059681385305226,
+  "max_eps_median": 0.005552014892115771,
+  "found_gt_0.1": 0,
+  "found_by_how": {
+   "ray": 1,
+   "ray+repair": 0,
+   "neigh1": 5,
+   "neigh2": 1,
+   "neigh3": 0
+  },
+  "allow_label_change": true,
+  "found_with_label_change": 1,
+  "records_all_t_label_mismatch": 2,
+  "records_no_R_ge_1_over_255": 18,
+  "found_by_t": {
+   "0.0": 3,
+   "0.02": 1,
+   "0.05": 1,
+   "0.1": 0,
+   "0.2": 1,
+   "0.3": 0,
+   "0.5": 1
+  },
+  "records_with_label_mismatch_at_t0": 4,
+  "verify_failed": 0,
+  "total_secs": 88.2,
+  "naive_rounding": {
+   "path": "results/quantised_cex/quant_mnist_float16.json",
+   "quantised_cex": 0,
+   "quantised_max_eps_max": null,
+   "quantised_max_eps_min": null,
+   "quantised_cex_gt_0.1": 0
+  }
+ },
+ "records": [
+  {
+   "index": 0,
+   "stored_max_eps": 0.005430302586894211,
+   "stored_dist": 0.005424975467658239,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.0018101000025721545,
+     "dist_qc_a": 0.026489889802820504,
+     "s_max": 0.002715150003858232,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.02,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.0018101000025721545,
+     "dist_qc_a": 0.026489889802820504,
+     "s_max": 0.002715150003858232,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.05,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.0018101000025721545,
+     "dist_qc_a": 0.026489889802820504,
+     "s_max": 0.002715150003858232,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.1,
+     "label_c": 7,
+     "label_qc": 3,
+     "R": null,
+     "dist_qc_a": 0.026600204581469725,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.2,
+     "label_c": 7,
+     "label_qc": 3,
+     "R": null,
+     "dist_qc_a": 0.026672968564792444,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.3,
+     "label_c": 7,
+     "label_qc": 3,
+     "R": null,
+     "dist_qc_a": 0.026672968564792444,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.5,
+     "label_c": 7,
+     "label_qc": 3,
+     "R": 0.0018101007058647415,
+     "dist_qc_a": 0.027126125540167516,
+     "s_max": 0.002715151058797112,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    }
+   ],
+   "secs": 0.0
+  },
+  {
+   "index": 1,
+   "stored_max_eps": 0.007414005035040421,
+   "stored_dist": 0.006608224422613865,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 3,
+     "label_qc": 2,
+     "R": 0.0018535011421457583,
+     "dist_qc_a": 0.025589278111473854,
+     "s_max": 0.0027802517132186374,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.02,
+     "label_c": 3,
+     "label_qc": 2,
+     "R": 0.0018535011421457583,
+     "dist_qc_a": 0.025589278111473854,
+     "s_max": 0.0027802517132186374,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.05,
+     "label_c": 3,
+     "label_qc": 3,
+     "R": 0.0018535005711281095,
+     "dist_qc_a": 0.025758725669337925,
+     "s_max": 0.0027802508566921644,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.1,
+     "label_c": 3,
+     "label_qc": 2,
+     "R": null,
+     "dist_qc_a": 0.026333850155475062,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.2,
+     "label_c": 3,
+     "label_qc": 3,
+     "R": 0.003707000327119129,
+     "dist_qc_a": 0.026646751780698377,
+     "s_max": 0.005560500490678693,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.3,
+     "label_c": 3,
+     "label_qc": 3,
+     "R": 0.003707002282157399,
+     "dist_qc_a": 0.026688262720766534,
+     "s_max": 0.005560503423236099,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.5,
+     "label_c": 3,
+     "label_qc": 3,
+     "R": 0.0037070004545811043,
+     "dist_qc_a": 0.027183933635734764,
+     "s_max": 0.005560500681871657,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    }
+   ],
+   "secs": 0.0
+  },
+  {
+   "index": 2,
+   "stored_max_eps": 0.006257389070094043,
+   "stored_dist": 0.006119163186212036,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 2,
+     "label_qc": 2,
+     "R": 0.003575650318310407,
+     "dist_qc_a": 0.02420228520778131,
+     "s_max": 0.005363475477465611,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.02,
+     "label_c": 2,
+     "label_qc": 2,
+     "R": 0.003575650318310407,
+     "dist_qc_a": 0.02420228520778131,
+     "s_max": 0.005363475477465611,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.05,
+     "label_c": 2,
+     "label_qc": 2,
+     "R": 0.003575650318310407,
+     "dist_qc_a": 0.02420228520778131,
+     "s_max": 0.005363475477465611,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.1,
+     "label_c": 2,
+     "label_qc": 2,
+     "R": 0.003575650318310407,
+     "dist_qc_a": 0.02420228520778131,
+     "s_max": 0.005363475477465611,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.2,
+     "label_c": 2,
+     "label_qc": 2,
+     "R": 0.003575650039372151,
+     "dist_qc_a": 0.02438772072903803,
+     "s_max": 0.0053634750590582266,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.3,
+     "label_c": 2,
+     "label_qc": 2,
+     "R": 0.003575648955345374,
+     "dist_qc_a": 0.024446307396144104,
+     "s_max": 0.005363473433018061,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.5,
+     "label_c": 2,
+     "label_qc": 2,
+     "R": 0.005363472985933766,
+     "dist_qc_a": 0.024640590262224493,
+     "s_max": 0.00804520947890065,
+     "n_steps": 8,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    }
+   ],
+   "secs": 2.2
+  },
+  {
+   "index": 3,
+   "stored_max_eps": 0.006761253216801132,
+   "stored_dist": 0.004083009040568083,
+   "found": true,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.0016903127031911197,
+     "dist_qc_a": 0.023970616949369975,
+     "s_max": 0.00253546905478668,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.02,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.0016903127031911197,
+     "dist_qc_a": 0.023970616949369975,
+     "s_max": 0.00253546905478668,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.05,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.0016903127031911197,
+     "dist_qc_a": 0.023970616949369975,
+     "s_max": 0.00253546905478668,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.1,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.0016903127031911197,
+     "dist_qc_a": 0.023970616949369975,
+     "s_max": 0.00253546905478668,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.2,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.0016903122513512983,
+     "dist_qc_a": 0.02408424183513095,
+     "s_max": 0.0025354683770269473,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.3,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.0016903128522379523,
+     "dist_qc_a": 0.024325567108477622,
+     "s_max": 0.0025354692783569285,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.5,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.005070937340643114,
+     "dist_qc_a": 0.024421074847343457,
+     "s_max": 0.007606406010964671,
+     "n_steps": 7,
+     "first_flip": {
+      "s": 0.006862745098039216,
+      "dist": 0.00390625,
+      "label_qa": 0
+     }
+    }
+   ],
+   "verified": true,
+   "max_eps": 0.005070939912600849,
+   "dist": 0.00390625,
+   "t": 0.5,
+   "s": 0.006862745098039216,
+   "how": "ray",
+   "R": 0.005070937340643114,
+   "label_qc": 7,
+   "label_qa": 0,
+   "label_c": 7,
+   "repair_moves": 0,
+   "pixels_differ": 1,
+   "secs": 0.0
+  },
+  {
+   "index": 4,
+   "stored_max_eps": 0.009668801500934467,
+   "stored_dist": 0.008237496622771723,
+   "found": true,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 9,
+     "label_qc": 9,
+     "R": 0.003867518395985948,
+     "dist_qc_a": 0.025349921192122104,
+     "s_max": 0.005801277593978922,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.02,
+     "label_c": 9,
+     "label_qc": 9,
+     "R": 0.003867518395985948,
+     "dist_qc_a": 0.025349921192122104,
+     "s_max": 0.005801277593978922,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.05,
+     "label_c": 9,
+     "label_qc": 9,
+     "R": 0.0019337596523252999,
+     "dist_qc_a": 0.02538294612054587,
+     "s_max": 0.0029006394784879498,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.1,
+     "label_c": 9,
+     "label_qc": 9,
+     "R": 0.0019337596523252999,
+     "dist_qc_a": 0.02538294612054587,
+     "s_max": 0.0029006394784879498,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.2,
+     "label_c": 9,
+     "label_qc": 9,
+     "R": 0.0058012794464016105,
+     "dist_qc_a": 0.02554983629883076,
+     "s_max": 0.008701919169602416,
+     "n_steps": 8,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    }
+   ],
+   "verified": true,
+   "max_eps": 0.0058012809005606805,
+   "dist": 0.0039215087890625,
+   "t": 0.2,
+   "s": null,
+   "how": "neigh1",
+   "R": 0.0058012794464016105,
+   "label_qc": 9,
+   "label_qa": 4,
+   "label_c": 9,
+   "repair_moves": 0,
+   "pixels_differ": 1,
+   "secs": 0.4
+  },
+  {
+   "index": 5,
+   "stored_max_eps": 0.012491943815327602,
+   "stored_dist": 0.011917990583270647,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.004163978367595777,
+     "dist_qc_a": 0.02569326057388458,
+     "s_max": 0.006245967551393666,
+     "n_steps": 6,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    },
+    {
+     "t": 0.02,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.008327957402938183,
+     "dist_qc_a": 0.025717120895691694,
+     "s_max": 0.012491936104407275,
+     "n_steps": 12,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    },
+    {
+     "t": 0.05,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.006245969447696643,
+     "dist_qc_a": 0.025906475424240683,
+     "s_max": 0.009368954171544965,
+     "n_steps": 9,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    },
+    {
+     "t": 0.1,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.00832795833849654,
+     "dist_qc_a": 0.02643486379920592,
+     "s_max": 0.01249193750774481,
+     "n_steps": 12,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    },
+    {
+     "t": 0.2,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.00624596911796144,
+     "dist_qc_a": 0.02687666160749786,
+     "s_max": 0.00936895367694216,
+     "n_steps": 9,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    },
+    {
+     "t": 0.3,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.008327958086031869,
+     "dist_qc_a": 0.026903260966629282,
+     "s_max": 0.012491937129047804,
+     "n_steps": 12,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    },
+    {
+     "t": 0.5,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.010409947253683029,
+     "dist_qc_a": 0.028384361680538542,
+     "s_max": 0.015614920880524543,
+     "n_steps": 15,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    }
+   ],
+   "secs": 28.1
+  },
+  {
+   "index": 6,
+   "stored_max_eps": 0.0033137715319597077,
+   "stored_dist": 0.0031543693133643576,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 8,
+     "label_qc": 8,
+     "R": 0.0016568849483022102,
+     "dist_qc_a": 0.02490159959773495,
+     "s_max": 0.0024853274224533152,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.02,
+     "label_c": 8,
+     "label_qc": 8,
+     "R": 0.0016568849483022102,
+     "dist_qc_a": 0.02490159959773495,
+     "s_max": 0.0024853274224533152,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.05,
+     "label_c": 8,
+     "label_qc": 8,
+     "R": 0.0016568849483022102,
+     "dist_qc_a": 0.02490159959773495,
+     "s_max": 0.0024853274224533152,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.1,
+     "label_c": 8,
+     "label_qc": 8,
+     "R": 0.002485328169943809,
+     "dist_qc_a": 0.024918480026092905,
+     "s_max": 0.003727992254915714,
+     "n_steps": 3,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.2,
+     "label_c": 8,
+     "label_qc": 8,
+     "R": 0.0024853279518419367,
+     "dist_qc_a": 0.025004443229846556,
+     "s_max": 0.003727991927762905,
+     "n_steps": 3,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.3,
+     "label_c": 8,
+     "label_qc": 8,
+     "R": 0.0024853279518419367,
+     "dist_qc_a": 0.025004443229846556,
+     "s_max": 0.003727991927762905,
+     "n_steps": 3,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.5,
+     "label_c": 8,
+     "label_qc": 8,
+     "R": 0.0024853273247817838,
+     "dist_qc_a": 0.02508060761824251,
+     "s_max": 0.0037279909871726757,
+     "n_steps": 3,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    }
+   ],
+   "secs": 0.0
+  },
+  {
+   "index": 7,
+   "stored_max_eps": 0.0029426039200091967,
+   "stored_dist": 0.0029119315707295955,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 8,
+     "label_qc": 9,
+     "R": 0.0009808672700094287,
+     "dist_qc_a": 0.02572294094451981,
+     "s_max": 0.001471300905014143,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.02,
+     "label_c": 8,
+     "label_qc": 9,
+     "R": 0.0019617351995444903,
+     "dist_qc_a": 0.02573573202892941,
+     "s_max": 0.0029426027993167355,
+     "n_steps": 3,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.05,
+     "label_c": 8,
+     "label_qc": 9,
+     "R": 0.0019617351995444903,
+     "dist_qc_a": 0.02573573202892941,
+     "s_max": 0.0029426027993167355,
+     "n_steps": 3,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.1,
+     "label_c": 8,
+     "label_qc": 9,
+     "R": 0.001961735509512093,
+     "dist_qc_a": 0.025754253578414373,
+     "s_max": 0.0029426032642681397,
+     "n_steps": 3,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.2,
+     "label_c": 8,
+     "label_qc": 9,
+     "R": 0.0009808676788951509,
+     "dist_qc_a": 0.025791256774614184,
+     "s_max": 0.0014713015183427263,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.3,
+     "label_c": 8,
+     "label_qc": 9,
+     "R": 0.0019617349851926945,
+     "dist_qc_a": 0.0258140124054588,
+     "s_max": 0.0029426024777890417,
+     "n_steps": 3,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.5,
+     "label_c": 8,
+     "label_qc": 9,
+     "R": 0.001961735122837615,
+     "dist_qc_a": 0.025960852364211976,
+     "s_max": 0.0029426026842564227,
+     "n_steps": 3,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    }
+   ],
+   "secs": 0.0
+  },
+  {
+   "index": 8,
+   "stored_max_eps": 0.006957907681491435,
+   "stored_dist": 0.0067181123496124736,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.0026092147617897865,
+     "dist_qc_a": 0.02309002186480898,
+     "s_max": 0.00391382214268468,
+     "n_steps": 3,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.02,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.0026092147617897865,
+     "dist_qc_a": 0.02309002186480898,
+     "s_max": 0.00391382214268468,
+     "n_steps": 3,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.05,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.002609214222151517,
+     "dist_qc_a": 0.023418110486968347,
+     "s_max": 0.003913821333227275,
+     "n_steps": 3,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.1,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.004348690760474651,
+     "dist_qc_a": 0.02382186779217746,
+     "s_max": 0.006523036140711976,
+     "n_steps": 6,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    },
+    {
+     "t": 0.2,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.004348690760474651,
+     "dist_qc_a": 0.02382186779217746,
+     "s_max": 0.006523036140711976,
+     "n_steps": 6,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    },
+    {
+     "t": 0.3,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.0069579027445960985,
+     "dist_qc_a": 0.023941667256196245,
+     "s_max": 0.010436854116894148,
+     "n_steps": 10,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    },
+    {
+     "t": 0.5,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.005218430742406934,
+     "dist_qc_a": 0.024013598926597265,
+     "s_max": 0.007827646113610401,
+     "n_steps": 7,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    }
+   ],
+   "secs": 11.7
+  },
+  {
+   "index": 9,
+   "stored_max_eps": 0.009668801500934467,
+   "stored_dist": 0.008731316612354174,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 9,
+     "label_qc": 4,
+     "R": null,
+     "dist_qc_a": 0.0239065174196462,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.02,
+     "label_c": 9,
+     "label_qc": 4,
+     "R": null,
+     "dist_qc_a": 0.02406555566919445,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.05,
+     "label_c": 9,
+     "label_qc": 9,
+     "R": 0.0038675198390736064,
+     "dist_qc_a": 0.024151185384386646,
+     "s_max": 0.00580127975861041,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.1,
+     "label_c": 9,
+     "label_qc": 9,
+     "R": 0.0038675198390736064,
+     "dist_qc_a": 0.024151185384386646,
+     "s_max": 0.00580127975861041,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.2,
+     "label_c": 9,
+     "label_qc": 4,
+     "R": null,
+     "dist_qc_a": 0.02430988244442046,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.3,
+     "label_c": 9,
+     "label_qc": 4,
+     "R": null,
+     "dist_qc_a": 0.02441590528288751,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.5,
+     "label_c": 9,
+     "label_qc": 9,
+     "R": 0.001933760078759714,
+     "dist_qc_a": 0.024691768850232075,
+     "s_max": 0.0029006401181395714,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    }
+   ],
+   "secs": 0.1
+  },
+  {
+   "index": 10,
+   "stored_max_eps": 0.003484008358806947,
+   "stored_dist": 0.0034620523967188776,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 2,
+     "label_qc": 2,
+     "R": 0.0008710016256534699,
+     "dist_qc_a": 0.024162199664159247,
+     "s_max": 0.001306502438480205,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.02,
+     "label_c": 2,
+     "label_qc": 2,
+     "R": 0.0008710016256534699,
+     "dist_qc_a": 0.024162199664159247,
+     "s_max": 0.001306502438480205,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.05,
+     "label_c": 2,
+     "label_qc": 2,
+     "R": 0.0008710016256534699,
+     "dist_qc_a": 0.024162199664159247,
+     "s_max": 0.001306502438480205,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.1,
+     "label_c": 2,
+     "label_qc": 0,
+     "R": 0.001742003644104304,
+     "dist_qc_a": 0.024206562329719832,
+     "s_max": 0.002613005466156456,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.2,
+     "label_c": 2,
+     "label_qc": 2,
+     "R": 0.0017420032518784105,
+     "dist_qc_a": 0.024221331828780925,
+     "s_max": 0.002613004877817616,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.3,
+     "label_c": 2,
+     "label_qc": 0,
+     "R": 0.0017420029727396133,
+     "dist_qc_a": 0.024299950881134326,
+     "s_max": 0.00261300445910942,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.5,
+     "label_c": 2,
+     "label_qc": 2,
+     "R": 0.0008710015685407838,
+     "dist_qc_a": 0.024378316391645383,
+     "s_max": 0.0013065023528111759,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    }
+   ],
+   "secs": 0.0
+  },
+  {
+   "index": 11,
+   "stored_max_eps": 0.005218430761118576,
+   "stored_dist": 0.005109903033747837,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.0026092134374864455,
+     "dist_qc_a": 0.024270911983254255,
+     "s_max": 0.003913820156229668,
+     "n_steps": 3,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.02,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.0026092134374864455,
+     "dist_qc_a": 0.024270911983254255,
+     "s_max": 0.003913820156229668,
+     "n_steps": 3,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.05,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.0026092134374864455,
+     "dist_qc_a": 0.024270911983254255,
+     "s_max": 0.003913820156229668,
+     "n_steps": 3,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.1,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.0026092134374864455,
+     "dist_qc_a": 0.024270911983254255,
+     "s_max": 0.003913820156229668,
+     "n_steps": 3,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.2,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.0026092134374864455,
+     "dist_qc_a": 0.024270911983254255,
+     "s_max": 0.003913820156229668,
+     "n_steps": 3,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.3,
+     "label_c": 6,
+     "label_qc": 5,
+     "R": null,
+     "dist_qc_a": 0.024377615299678884,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.5,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.002609213542303381,
+     "dist_qc_a": 0.02445879735185841,
+     "s_max": 0.003913820313455071,
+     "n_steps": 3,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    }
+   ],
+   "secs": 0.0
+  },
+  {
+   "index": 12,
+   "stored_max_eps": 0.0058012809005606805,
+   "stored_dist": 0.004455891053932032,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 4,
+     "label_qc": 4,
+     "R": 0.0019337589733638525,
+     "dist_qc_a": 0.02289374612905534,
+     "s_max": 0.002900638460045779,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.02,
+     "label_c": 4,
+     "label_qc": 4,
+     "R": 0.0019337589733638525,
+     "dist_qc_a": 0.02289374612905534,
+     "s_max": 0.002900638460045779,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.05,
+     "label_c": 4,
+     "label_qc": 4,
+     "R": 0.0019337589733638525,
+     "dist_qc_a": 0.02289374612905534,
+     "s_max": 0.002900638460045779,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.1,
+     "label_c": 4,
+     "label_qc": 4,
+     "R": 0.0038675190450099565,
+     "dist_qc_a": 0.02289374612905534,
+     "s_max": 0.005801278567514934,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.2,
+     "label_c": 4,
+     "label_qc": 4,
+     "R": 0.0019337600890675633,
+     "dist_qc_a": 0.023070107141300613,
+     "s_max": 0.0029006401336013447,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.3,
+     "label_c": 4,
+     "label_qc": 4,
+     "R": 0.0038675191366031574,
+     "dist_qc_a": 0.023364902215576067,
+     "s_max": 0.005801278704904736,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.5,
+     "label_c": 4,
+     "label_qc": 4,
+     "R": null,
+     "dist_qc_a": 0.02340580253081897,
+     "skipped": "certifier certifies nothing at qc_t"
+    }
+   ],
+   "secs": 0.0
+  },
+  {
+   "index": 13,
+   "stored_max_eps": 0.005070939912600849,
+   "stored_dist": 0.004373997786432914,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.0016903130008866039,
+     "dist_qc_a": 0.02531252796323017,
+     "s_max": 0.002535469501329906,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.02,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.0016903130008866039,
+     "dist_qc_a": 0.02531252796323017,
+     "s_max": 0.002535469501329906,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.05,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.0016903130008866039,
+     "dist_qc_a": 0.02531252796323017,
+     "s_max": 0.002535469501329906,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.1,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.0008451566433896086,
+     "dist_qc_a": 0.025350175946571293,
+     "s_max": 0.001267734965084413,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.2,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.0008451565343246672,
+     "dist_qc_a": 0.025438832334590454,
+     "s_max": 0.0012677348014870009,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.3,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.002535469169782841,
+     "dist_qc_a": 0.02549500369673681,
+     "s_max": 0.0038032037546742612,
+     "n_steps": 3,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.5,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.002535469169782841,
+     "dist_qc_a": 0.02549500369673681,
+     "s_max": 0.0038032037546742612,
+     "n_steps": 3,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    }
+   ],
+   "secs": 0.0
+  },
+  {
+   "index": 14,
+   "stored_max_eps": 0.006746241847073635,
+   "stored_dist": 0.0055897926680086914,
+   "found": true,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 3,
+     "label_qc": 3,
+     "R": 0.0016865601209137186,
+     "dist_qc_a": 0.024371656463514246,
+     "s_max": 0.002529840181370578,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.02,
+     "label_c": 3,
+     "label_qc": 3,
+     "R": 0.005059680422266495,
+     "dist_qc_a": 0.02444841427728337,
+     "s_max": 0.007589520633399742,
+     "n_steps": 7,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    }
+   ],
+   "verified": true,
+   "max_eps": 0.005059681385305226,
+   "dist": 0.0039215087890625,
+   "t": 0.02,
+   "s": null,
+   "how": "neigh1",
+   "R": 0.005059680422266495,
+   "label_qc": 3,
+   "label_qa": 1,
+   "label_c": 3,
+   "repair_moves": 0,
+   "pixels_differ": 1,
+   "secs": 0.1
+  },
+  {
+   "index": 15,
+   "stored_max_eps": 0.005373659507942317,
+   "stored_dist": 0.004510550174566186,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 5,
+     "label_qc": 5,
+     "R": 0.0008956095986701359,
+     "dist_qc_a": 0.023201467989613377,
+     "s_max": 0.001343414398005204,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.02,
+     "label_c": 5,
+     "label_qc": 5,
+     "R": 0.0008956095986701359,
+     "dist_qc_a": 0.023201467989613377,
+     "s_max": 0.001343414398005204,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.05,
+     "label_c": 5,
+     "label_qc": 3,
+     "R": null,
+     "dist_qc_a": 0.02330215564131901,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.1,
+     "label_c": 5,
+     "label_qc": 3,
+     "R": 0.0008956096704776794,
+     "dist_qc_a": 0.02338386526641565,
+     "s_max": 0.001343414505716519,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.2,
+     "label_c": 5,
+     "label_qc": 3,
+     "R": null,
+     "dist_qc_a": 0.023399213758220783,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.3,
+     "label_c": 5,
+     "label_qc": 3,
+     "R": null,
+     "dist_qc_a": 0.023399213758220783,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.5,
+     "label_c": 5,
+     "label_qc": 3,
+     "R": null,
+     "dist_qc_a": 0.023464332842620523,
+     "skipped": "certifier certifies nothing at qc_t"
+    }
+   ],
+   "secs": 0.0
+  },
+  {
+   "index": 16,
+   "stored_max_eps": 0.007735041200747574,
+   "stored_dist": 0.007588105195725285,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 4,
+     "label_qc": 4,
+     "R": 0.00386751804801402,
+     "dist_qc_a": 0.023070159810014673,
+     "s_max": 0.00580127707202103,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.02,
+     "label_c": 4,
+     "label_qc": 4,
+     "R": 0.00386751804801402,
+     "dist_qc_a": 0.023070159810014673,
+     "s_max": 0.00580127707202103,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.05,
+     "label_c": 4,
+     "label_qc": 4,
+     "R": 0.0038675179546350776,
+     "dist_qc_a": 0.023275932136515583,
+     "s_max": 0.005801276931952617,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.1,
+     "label_c": 4,
+     "label_qc": 4,
+     "R": 0.003867520153669933,
+     "dist_qc_a": 0.023378139113404858,
+     "s_max": 0.005801280230504899,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.2,
+     "label_c": 4,
+     "label_qc": 4,
+     "R": 0.003867520017344913,
+     "dist_qc_a": 0.023783517288928028,
+     "s_max": 0.0058012800260173695,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.3,
+     "label_c": 4,
+     "label_qc": 4,
+     "R": 0.007735039645796723,
+     "dist_qc_a": 0.02425224420948796,
+     "s_max": 0.011602559468695085,
+     "n_steps": 11,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    },
+    {
+     "t": 0.5,
+     "label_c": 4,
+     "label_qc": 4,
+     "R": 0.0038675193670140847,
+     "dist_qc_a": 0.024678924839237743,
+     "s_max": 0.005801279050521127,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    }
+   ],
+   "secs": 5.0
+  },
+  {
+   "index": 17,
+   "stored_max_eps": 0.005430302586894211,
+   "stored_dist": 0.005214794544895655,
+   "found": true,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 3,
+     "label_qc": 7,
+     "R": 0.001810100486981817,
+     "dist_qc_a": 0.026093906096596845,
+     "s_max": 0.0027151507304727257,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.02,
+     "label_c": 3,
+     "label_qc": 7,
+     "R": 0.001810100486981817,
+     "dist_qc_a": 0.026093906096596845,
+     "s_max": 0.0027151507304727257,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.05,
+     "label_c": 3,
+     "label_qc": 7,
+     "R": 0.005430301882337488,
+     "dist_qc_a": 0.026139550898380593,
+     "s_max": 0.008145452823506233,
+     "n_steps": 8,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    }
+   ],
+   "verified": true,
+   "max_eps": 0.005430302586894211,
+   "dist": 0.0039215087890625,
+   "t": 0.05,
+   "s": null,
+   "how": "neigh1",
+   "R": 0.005430301882337488,
+   "label_qc": 7,
+   "label_qa": 3,
+   "label_c": 3,
+   "repair_moves": 0,
+   "pixels_differ": 1,
+   "secs": 0.1
+  },
+  {
+   "index": 18,
+   "stored_max_eps": 0.007402686522821029,
+   "stored_dist": 0.006108047890506928,
+   "found": true,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 8,
+     "label_qc": 8,
+     "R": 0.005552013443604095,
+     "dist_qc_a": 0.02351198294322677,
+     "s_max": 0.008328020165406142,
+     "n_steps": 8,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    }
+   ],
+   "verified": true,
+   "max_eps": 0.005552014892115771,
+   "dist": 0.0039215087890625,
+   "t": 0.0,
+   "s": null,
+   "how": "neigh1",
+   "R": 0.005552013443604095,
+   "label_qc": 8,
+   "label_qa": 3,
+   "label_c": 8,
+   "repair_moves": 0,
+   "pixels_differ": 1,
+   "secs": 0.0
+  },
+  {
+   "index": 19,
+   "stored_max_eps": 0.0048344007504672335,
+   "stored_dist": 0.004643045590156858,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 9,
+     "label_qc": 4,
+     "R": null,
+     "dist_qc_a": 0.02460279249272906,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.02,
+     "label_c": 9,
+     "label_qc": 4,
+     "R": null,
+     "dist_qc_a": 0.02460279249272906,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.05,
+     "label_c": 9,
+     "label_qc": 9,
+     "R": 0.0009668795498762805,
+     "dist_qc_a": 0.024665701692200157,
+     "s_max": 0.0014503193248144208,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.1,
+     "label_c": 9,
+     "label_qc": 9,
+     "R": 0.0019337589953886698,
+     "dist_qc_a": 0.024713984416917103,
+     "s_max": 0.0029006384930830046,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.2,
+     "label_c": 9,
+     "label_qc": 9,
+     "R": 0.0029006384409102776,
+     "dist_qc_a": 0.02479104118477573,
+     "s_max": 0.004350957661365416,
+     "n_steps": 4,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.3,
+     "label_c": 9,
+     "label_qc": 9,
+     "R": 0.0019337598385075093,
+     "dist_qc_a": 0.02485227474314557,
+     "s_max": 0.002900639757761264,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.5,
+     "label_c": 9,
+     "label_qc": 9,
+     "R": 0.0019337601352156998,
+     "dist_qc_a": 0.02520914583134757,
+     "s_max": 0.00290064020282355,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    }
+   ],
+   "secs": 0.0
+  },
+  {
+   "index": 20,
+   "stored_max_eps": 0.0055061794864347535,
+   "stored_dist": 0.0043487211737063495,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 7,
+     "label_qc": 9,
+     "R": 0.0018353928643241395,
+     "dist_qc_a": 0.02425992184660845,
+     "s_max": 0.002753089296486209,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.02,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.001835392761371408,
+     "dist_qc_a": 0.024266087352118493,
+     "s_max": 0.002753089142057112,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.05,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.001835392761371408,
+     "dist_qc_a": 0.024266087352118493,
+     "s_max": 0.002753089142057112,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.1,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": null,
+     "dist_qc_a": 0.024347182256659442,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.2,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.0018353922525510711,
+     "dist_qc_a": 0.024532533294481674,
+     "s_max": 0.0027530883788266067,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.3,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.003670785202300466,
+     "dist_qc_a": 0.024687539050624343,
+     "s_max": 0.005506177803450699,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.5,
+     "label_c": 7,
+     "label_qc": 7,
+     "R": 0.003670785055295801,
+     "dist_qc_a": 0.02486078406942011,
+     "s_max": 0.005506177582943701,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    }
+   ],
+   "secs": 0.0
+  },
+  {
+   "index": 21,
+   "stored_max_eps": 0.005218430761118576,
+   "stored_dist": 0.004546602309846001,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 5,
+     "label_qc": 5,
+     "R": null,
+     "dist_qc_a": 0.02324185723699712,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.02,
+     "label_c": 5,
+     "label_qc": 5,
+     "R": null,
+     "dist_qc_a": 0.02324185723699712,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.05,
+     "label_c": 5,
+     "label_qc": 5,
+     "R": null,
+     "dist_qc_a": 0.02324185723699712,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.1,
+     "label_c": 5,
+     "label_qc": 5,
+     "R": null,
+     "dist_qc_a": 0.023276587801077494,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.2,
+     "label_c": 5,
+     "label_qc": 5,
+     "R": null,
+     "dist_qc_a": 0.023276587801077494,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.3,
+     "label_c": 5,
+     "label_qc": 5,
+     "R": 0.0034789524026997863,
+     "dist_qc_a": 0.023380539660136663,
+     "s_max": 0.005218428604049679,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.5,
+     "label_c": 5,
+     "label_qc": 6,
+     "R": 0.0008697380633727009,
+     "dist_qc_a": 0.023467136082919202,
+     "s_max": 0.0013046070950590513,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    }
+   ],
+   "secs": 0.0
+  },
+  {
+   "index": 22,
+   "stored_max_eps": 0.003104198992500203,
+   "stored_dist": 0.0030670697809241565,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 4,
+     "label_qc": 6,
+     "R": 0.0007760494765445182,
+     "dist_qc_a": 0.02237928582099008,
+     "s_max": 0.0011640742148167772,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.02,
+     "label_c": 4,
+     "label_qc": 4,
+     "R": 0.0007760496134020219,
+     "dist_qc_a": 0.022434031522438145,
+     "s_max": 0.0011640744201030328,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.05,
+     "label_c": 4,
+     "label_qc": 4,
+     "R": 0.0007760496134020219,
+     "dist_qc_a": 0.022434031522438145,
+     "s_max": 0.0011640744201030328,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.1,
+     "label_c": 4,
+     "label_qc": 4,
+     "R": 0.0007760496134020219,
+     "dist_qc_a": 0.022434031522438145,
+     "s_max": 0.0011640744201030328,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.2,
+     "label_c": 4,
+     "label_qc": 4,
+     "R": 0.0007760496134020219,
+     "dist_qc_a": 0.022434031522438145,
+     "s_max": 0.0011640744201030328,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.3,
+     "label_c": 4,
+     "label_qc": 4,
+     "R": 0.0007760496134020219,
+     "dist_qc_a": 0.022434031522438145,
+     "s_max": 0.0011640744201030328,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.5,
+     "label_c": 4,
+     "label_qc": 4,
+     "R": 0.0023281479346721097,
+     "dist_qc_a": 0.02249770640085267,
+     "s_max": 0.0034922219020081646,
+     "n_steps": 3,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    }
+   ],
+   "secs": 0.0
+  },
+  {
+   "index": 23,
+   "stored_max_eps": 0.0017394769203728587,
+   "stored_dist": 0.0017389463549885146,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.0008697378315671231,
+     "dist_qc_a": 0.02439889962474291,
+     "s_max": 0.0013046067473506846,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.02,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.0008697378315671231,
+     "dist_qc_a": 0.02439889962474291,
+     "s_max": 0.0013046067473506846,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.05,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.0008697378315671231,
+     "dist_qc_a": 0.02439889962474291,
+     "s_max": 0.0013046067473506846,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.1,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.0008697378315671231,
+     "dist_qc_a": 0.02439889962474291,
+     "s_max": 0.0013046067473506846,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.2,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.0008697380228861156,
+     "dist_qc_a": 0.024437955142177756,
+     "s_max": 0.0013046070343291733,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.3,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.000869738139860034,
+     "dist_qc_a": 0.02445745951335703,
+     "s_max": 0.001304607209790051,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.5,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.000869738139860034,
+     "dist_qc_a": 0.02445745951335703,
+     "s_max": 0.001304607209790051,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    }
+   ],
+   "secs": 0.0
+  },
+  {
+   "index": 24,
+   "stored_max_eps": 0.007735041200747574,
+   "stored_dist": 0.007092733798350623,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 9,
+     "label_qc": 9,
+     "R": 0.0019337595281802987,
+     "dist_qc_a": 0.02334618027748983,
+     "s_max": 0.0029006392922704483,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.02,
+     "label_c": 9,
+     "label_qc": 9,
+     "R": 0.0019337595281802987,
+     "dist_qc_a": 0.02334618027748983,
+     "s_max": 0.0029006392922704483,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.05,
+     "label_c": 9,
+     "label_qc": 9,
+     "R": 0.0038675203658623293,
+     "dist_qc_a": 0.023412466232274113,
+     "s_max": 0.005801280548793494,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.1,
+     "label_c": 9,
+     "label_qc": 9,
+     "R": 0.003867519508736661,
+     "dist_qc_a": 0.023496824566245474,
+     "s_max": 0.005801279263104992,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.2,
+     "label_c": 9,
+     "label_qc": 9,
+     "R": 0.0019337600379890749,
+     "dist_qc_a": 0.023573635174637276,
+     "s_max": 0.002900640056983612,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.3,
+     "label_c": 9,
+     "label_qc": 9,
+     "R": 0.000966880015008903,
+     "dist_qc_a": 0.023716302597750222,
+     "s_max": 0.0014503200225133546,
+     "n_steps": 1,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.5,
+     "label_c": 9,
+     "label_qc": 9,
+     "R": 0.002900640053619877,
+     "dist_qc_a": 0.024497926337003713,
+     "s_max": 0.004350960080429816,
+     "n_steps": 4,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    }
+   ],
+   "secs": 0.0
+  },
+  {
+   "index": 25,
+   "stored_max_eps": 0.007440803307966839,
+   "stored_dist": 0.00702427758534614,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.00372039988958503,
+     "dist_qc_a": 0.026448227218451578,
+     "s_max": 0.005580599834377545,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.02,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.003720401033686951,
+     "dist_qc_a": 0.02646292897959881,
+     "s_max": 0.005580601550530427,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.05,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.003720401033686951,
+     "dist_qc_a": 0.02646292897959881,
+     "s_max": 0.005580601550530427,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.1,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.003720401033686951,
+     "dist_qc_a": 0.02646292897959881,
+     "s_max": 0.005580601550530427,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.2,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.0037204007300203658,
+     "dist_qc_a": 0.026528676709005425,
+     "s_max": 0.005580601095030549,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.3,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.0037204007300203658,
+     "dist_qc_a": 0.026528676709005425,
+     "s_max": 0.005580601095030549,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.5,
+     "label_c": 6,
+     "label_qc": 6,
+     "R": 0.0037203991950303535,
+     "dist_qc_a": 0.027025002324251046,
+     "s_max": 0.00558059879254553,
+     "n_steps": 5,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    }
+   ],
+   "secs": 0.0
+  },
+  {
+   "index": 26,
+   "stored_max_eps": 0.006423876067507213,
+   "stored_dist": 0.006270193929515809,
+   "found": true,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 9,
+     "label_qc": 9,
+     "R": 0.006423872269847338,
+     "dist_qc_a": 0.024779108961079998,
+     "s_max": 0.009635808404771008,
+     "n_steps": 9,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    }
+   ],
+   "verified": true,
+   "max_eps": 0.006423876067507213,
+   "dist": 0.005556650982999617,
+   "t": 0.0,
+   "s": null,
+   "how": "neigh2",
+   "R": 0.006423872269847338,
+   "label_qc": 9,
+   "label_qa": 7,
+   "label_c": 9,
+   "repair_moves": 0,
+   "pixels_differ": 2,
+   "secs": 2.2
+  },
+  {
+   "index": 27,
+   "stored_max_eps": 0.009668801500934467,
+   "stored_dist": 0.008397675673126263,
+   "found": true,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 9,
+     "label_qc": 9,
+     "R": 0.005801277969835979,
+     "dist_qc_a": 0.02638072333438275,
+     "s_max": 0.008701916954753969,
+     "n_steps": 8,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    }
+   ],
+   "verified": true,
+   "max_eps": 0.0058012809005606805,
+   "dist": 0.0039215087890625,
+   "t": 0.0,
+   "s": null,
+   "how": "neigh1",
+   "R": 0.005801277969835979,
+   "label_qc": 9,
+   "label_qa": 4,
+   "label_c": 9,
+   "repair_moves": 0,
+   "pixels_differ": 1,
+   "secs": 1.9
+  },
+  {
+   "index": 28,
+   "stored_max_eps": 0.012194029255824315,
+   "stored_dist": 0.010808794895978677,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 2,
+     "label_qc": 2,
+     "R": 0.006968015407142567,
+     "dist_qc_a": 0.027589852497381013,
+     "s_max": 0.01045202311071385,
+     "n_steps": 10,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    },
+    {
+     "t": 0.02,
+     "label_c": 2,
+     "label_qc": 2,
+     "R": 0.00871001756625275,
+     "dist_qc_a": 0.027615764923352215,
+     "s_max": 0.013065026349379125,
+     "n_steps": 13,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    },
+    {
+     "t": 0.05,
+     "label_c": 2,
+     "label_qc": 2,
+     "R": 0.00871001756625275,
+     "dist_qc_a": 0.027615764923352215,
+     "s_max": 0.013065026349379125,
+     "n_steps": 13,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    },
+    {
+     "t": 0.1,
+     "label_c": 2,
+     "label_qc": 2,
+     "R": 0.00871001719621825,
+     "dist_qc_a": 0.02775635149757792,
+     "s_max": 0.013065025794327376,
+     "n_steps": 13,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    },
+    {
+     "t": 0.2,
+     "label_c": 2,
+     "label_qc": 2,
+     "R": 0.008710017195428223,
+     "dist_qc_a": 0.02843874209138082,
+     "s_max": 0.013065025793142334,
+     "n_steps": 13,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    },
+    {
+     "t": 0.3,
+     "label_c": 2,
+     "label_qc": 2,
+     "R": 0.010452019593757167,
+     "dist_qc_a": 0.029042096003311077,
+     "s_max": 0.01567802939063575,
+     "n_steps": 15,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    },
+    {
+     "t": 0.5,
+     "label_c": 2,
+     "label_qc": 2,
+     "R": 0.01045202296211543,
+     "dist_qc_a": 0.030531673275658706,
+     "s_max": 0.015678034443173144,
+     "n_steps": 15,
+     "repair_sites": 0,
+     "neighbourhood": "tried"
+    }
+   ],
+   "secs": 35.8
+  },
+  {
+   "index": 29,
+   "stored_max_eps": 0.005059681385305226,
+   "stored_dist": 0.003927208585513745,
+   "found": false,
+   "per_t": [
+    {
+     "t": 0.0,
+     "label_c": 3,
+     "label_qc": 1,
+     "R": null,
+     "dist_qc_a": 0.02455773932340733,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.02,
+     "label_c": 3,
+     "label_qc": 1,
+     "R": null,
+     "dist_qc_a": 0.02455773932340733,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.05,
+     "label_c": 3,
+     "label_qc": 1,
+     "R": null,
+     "dist_qc_a": 0.02458635274595999,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.1,
+     "label_c": 3,
+     "label_qc": 1,
+     "R": null,
+     "dist_qc_a": 0.02458635274595999,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.2,
+     "label_c": 3,
+     "label_qc": 1,
+     "R": 0.0016865602046828086,
+     "dist_qc_a": 0.024607031077131147,
+     "s_max": 0.0025298403070242127,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    },
+    {
+     "t": 0.3,
+     "label_c": 3,
+     "label_qc": 1,
+     "R": null,
+     "dist_qc_a": 0.024838479627943676,
+     "skipped": "certifier certifies nothing at qc_t"
+    },
+    {
+     "t": 0.5,
+     "label_c": 3,
+     "label_qc": 3,
+     "R": 0.0016865595144036085,
+     "dist_qc_a": 0.024880602522194668,
+     "s_max": 0.0025298392716054125,
+     "n_steps": 2,
+     "repair_sites": 0,
+     "neighbourhood": "R < 1/255: no grid point within R"
+    }
+   ],
+   "secs": 0.0
+  }
+ ]
+}

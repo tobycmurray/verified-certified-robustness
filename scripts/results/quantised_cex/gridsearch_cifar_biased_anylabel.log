@@ -1,0 +1,94 @@
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/art/estimators/certification/__init__.py:30: UserWarning: PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality
+  warnings.warn("PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality")
+Running Keras (DeepFool only) with precision: <Policy "float32">
+Counter-example search runs against compliant numpy at: float32
+
+--- Accuracy BEFORE bias (original model) ---
+  Test Accuracy: 0.5774, Loss: 1.3169
+  Bias position: end (bias on layer 7, correction on layer 8)
+
+Built biased model with B=4e+06 (9 Dense layers, position=end)
+
+--- Accuracy AFTER bias (biased model) ---
+  Test Accuracy: 0.5434, Loss: 1.5125
+  Accuracy delta: -0.0340
+
+Exported bias vectors to /private/tmp/claude-502/-Users-tobiasm1-git-float-conservatism-paper/ddf998f9-1707-420c-b03a-1e27b49e17e8/scratchpad/biases_cifar_4e6.txt (237403 bytes)
+Built compliant numpy model: 9 layers, dtype float32, biases: yes
+Sanity (test point 0): ||keras - numpy||_2 = 1.732e+00, argmax keras=3 numpy=3
+Loaded L matrix shape: (10, 10)
+idx 0: stored eps=0.1051 | not found (31.3s) [t=0.0:R=0.105 no flip nb:tried; t=0.02:R=0.105 no flip nb:tried; t=0.05:R=0.105 no flip nb:tried; t=0.1:R=0.105 no flip nb:tried; t=0.2:R=0.105 no flip nb:tried; t=0.3:R=0.105 no flip nb:tried; t=0.5:R=0.105 no flip nb:tried]
+idx 1: stored eps=0.234 | FOUND t=0.0 how=ray dist=0.1707 R=0.234 max_eps=0.234 labels 9->8 (0.1s)
+idx 3: stored eps=0.08709 | FOUND t=0.0 how=ray dist=0.03658 R=0.08709 max_eps=0.08709 labels 8->0 (0.0s)
+idx 5: stored eps=0.1174 | FOUND t=0.0 how=ray dist=0.08583 R=0.1174 max_eps=0.1174 labels 7->6 (0.0s)
+idx 6: stored eps=0.1488 | FOUND t=0.0 how=ray dist=0.0918 R=0.1488 max_eps=0.1488 labels 3->1 (0.0s)
+idx 7: stored eps=0.0855 | not found (31.5s) [t=0.0:R=0.0855 no flip nb:tried; t=0.02:R=0.0855 no flip nb:tried; t=0.05:R=0.0855 no flip nb:tried; t=0.1:R=0.0855 no flip nb:tried; t=0.2:R=0.0855 no flip nb:tried; t=0.3:R=0.0855 no flip nb:tried; t=0.5:R=0.0855 no flip nb:tried]
+idx 9: stored eps=0.117 | FOUND t=0.0 how=ray dist=0.0686 R=0.117 max_eps=0.117 labels 9->1 (0.0s)
+idx 10: stored eps=0.08709 | FOUND t=0.0 how=ray dist=0.02 R=0.08709 max_eps=0.08709 labels 8->0 (0.0s)
+idx 12: stored eps=0.04864 | not found (31.4s) [t=0.0:R=0.0486 no flip nb:tried; t=0.02:R=0.0486 no flip nb:tried; t=0.05:R=0.0486 no flip nb:tried; t=0.1:R=0.0486 no flip nb:tried; t=0.2:R=0.0486 no flip nb:tried; t=0.3:R=0.0486 no flip nb:tried; t=0.5:R=0.0486 no flip nb:tried]
+idx 13: stored eps=0.05872 | not found (0.0s) [t=0.0:certifier certifies nothing at qc_t; t=0.02:certifier certifies nothing at qc_t; t=0.05:certifier certifies nothing at qc_t; t=0.1:certifier certifies nothing at qc_t; t=0.2:certifier certifies nothing at qc_t; t=0.3:certifier certifies nothing at qc_t; t=0.5:certifier certifies nothing at qc_t]
+idx 14: stored eps=0.0585 | not found (0.1s) [t=0.0:certifier certifies nothing at qc_t; t=0.02:certifier certifies nothing at qc_t; t=0.05:certifier certifies nothing at qc_t; t=0.1:certifier certifies nothing at qc_t; t=0.2:certifier certifies nothing at qc_t; t=0.3:certifier certifies nothing at qc_t; t=0.5:certifier certifies nothing at qc_t]
+idx 18: stored eps=0.05578 | FOUND t=0.2 how=ray dist=0.02385 R=0.05578 max_eps=0.05578 labels 8->1 (0.1s)
+idx 19: stored eps=0.05872 | FOUND t=0.0 how=ray dist=0.03782 R=0.05872 max_eps=0.05872 labels 7->6 (0.0s)
+idx 23: stored eps=0.0585 | not found (0.1s) [t=0.0:certifier certifies nothing at qc_t; t=0.02:certifier certifies nothing at qc_t; t=0.05:certifier certifies nothing at qc_t; t=0.1:certifier certifies nothing at qc_t; t=0.2:certifier certifies nothing at qc_t; t=0.3:certifier certifies nothing at qc_t; t=0.5:certifier certifies nothing at qc_t]
+idx 28: stored eps=0.0585 | not found (0.1s) [t=0.0:certifier certifies nothing at qc_t; t=0.02:certifier certifies nothing at qc_t; t=0.05:certifier certifies nothing at qc_t; t=0.1:certifier certifies nothing at qc_t; t=0.2:certifier certifies nothing at qc_t; t=0.3:certifier certifies nothing at qc_t; t=0.5:certifier certifies nothing at qc_t]
+idx 29: stored eps=0.05872 | FOUND t=0.0 how=ray dist=0.04803 R=0.05872 max_eps=0.05872 labels 7->6 (0.0s)
+idx 30: stored eps=0.09189 | FOUND t=0.05 how=ray dist=0.0266 R=0.09189 max_eps=0.09189 labels 6->3 (11.1s)
+idx 34: stored eps=0.05652 | FOUND t=0.02 how=ray dist=0.02572 R=0.05652 max_eps=0.05652 labels 7->9 (0.0s)
+idx 37: stored eps=0.117 | FOUND t=0.0 how=ray dist=0.03186 R=0.117 max_eps=0.117 labels 9->1 (0.0s)
+idx 38: stored eps=0.05978 | FOUND t=0.0 how=ray dist=0.03508 R=0.05978 max_eps=0.05978 labels 9->3 (0.0s)
+idx 40: stored eps=0.1709 | FOUND t=0.0 how=ray dist=0.1264 R=0.1709 max_eps=0.1709 labels 4->0 (0.1s)
+idx 41: stored eps=0.049 | not found (32.1s) [t=0.0:R=0.049 no flip nb:tried; t=0.02:R=0.049 no flip nb:tried; t=0.05:R=0.049 no flip nb:tried; t=0.1:R=0.049 no flip nb:tried; t=0.2:R=0.049 no flip nb:tried; t=0.3:R=0.049 no flip nb:tried; t=0.5:R=0.049 no flip nb:tried]
+idx 45: stored eps=0.06679 | FOUND t=0.0 how=ray dist=0.04349 R=0.06679 max_eps=0.06679 labels 9->0 (0.0s)
+idx 50: stored eps=0.06215 | FOUND t=0.0 how=ray dist=0.05462 R=0.06215 max_eps=0.06215 labels 8->9 (0.1s)
+idx 51: stored eps=0.0544 | not found (32.4s) [t=0.0:R=0.0544 no flip nb:tried; t=0.02:R=0.0544 no flip nb:tried; t=0.05:R=0.0544 no flip nb:tried; t=0.1:R=0.0544 no flip nb:tried; t=0.2:R=0.0544 no flip nb:tried; t=0.3:R=0.0544 no flip nb:tried; t=0.5:R=0.0544 no flip nb:tried]
+idx 54: stored eps=0.05578 | not found (31.5s) [t=0.0:R=0.0558 no flip nb:tried; t=0.02:R=0.0558 no flip nb:tried; t=0.05:R=0.0558 no flip nb:tried; t=0.1:R=0.0558 no flip nb:tried; t=0.2:R=0.0558 no flip nb:tried; t=0.3:R=0.0558 no flip nb:tried; t=0.5:R=0.0558 no flip nb:tried]
+idx 55: stored eps=0.08709 | not found (0.1s) [t=0.0:certifier certifies nothing at qc_t; t=0.02:certifier certifies nothing at qc_t; t=0.05:certifier certifies nothing at qc_t; t=0.1:certifier certifies nothing at qc_t; t=0.2:certifier certifies nothing at qc_t; t=0.3:certifier certifies nothing at qc_t; t=0.5:certifier certifies nothing at qc_t]
+idx 56: stored eps=0.05872 | FOUND t=0.0 how=ray dist=0.04349 R=0.05872 max_eps=0.05872 labels 7->6 (0.0s)
+idx 60: stored eps=0.07576 | FOUND t=0.0 how=ray dist=0.02038 R=0.07576 max_eps=0.07576 labels 4->7 (0.0s)
+idx 64: stored eps=0.1051 | FOUND t=0.0 how=ray+repair dist=0.105 R=0.1051 max_eps=0.1051 labels 2->6 (0.1s)
+
+SUMMARY: {
+ "cex_dir": "/Users/tobiasm1/git/python-certifier/tests/cex_cifar10_float32_biased_4e6_end_numpy",
+ "format": "float32",
+ "seed": 0,
+ "n": 30,
+ "found": 19,
+ "max_eps_max": 0.233996110849616,
+ "max_eps_min": 0.055781797010570025,
+ "max_eps_median": 0.08708770439033005,
+ "found_gt_0.1": 7,
+ "found_by_how": {
+  "ray": 18,
+  "ray+repair": 1,
+  "neigh1": 0,
+  "neigh2": 0,
+  "neigh3": 0
+ },
+ "allow_label_change": true,
+ "found_with_label_change": 0,
+ "records_all_t_label_mismatch": 5,
+ "records_no_R_ge_1_over_255": 5,
+ "found_by_t": {
+  "0.0": 16,
+  "0.02": 1,
+  "0.05": 1,
+  "0.1": 0,
+  "0.2": 1,
+  "0.3": 0,
+  "0.5": 0
+ },
+ "records_with_label_mismatch_at_t0": 7,
+ "verify_failed": 0,
+ "total_secs": 202.5,
+ "naive_rounding": {
+  "path": "results/quantised_cex/quant_cifar_biased.json",
+  "quantised_cex": 2,
+  "quantised_max_eps_max": 0.233996110849616,
+  "quantised_max_eps_min": 0.116998055424808,
+  "quantised_cex_gt_0.1": 2
+ }
+}
+Wrote results/quantised_cex/gridsearch_cifar_biased_anylabel.json (points in results/quantised_cex/gridsearch_cifar_biased_anylabel_points)

@@ -1,0 +1,83 @@
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/art/estimators/certification/__init__.py:30: UserWarning: PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality
+  warnings.warn("PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality")
+Running Keras (DeepFool only) with precision: <Policy "float16">
+Counter-example search runs against compliant numpy at: float16
+No bias amplification (set FP_BIAS=1e6 to amplify FP errors)
+Built compliant numpy model: 9 layers, dtype float16, biases: no
+Sanity (test point 0): ||keras - numpy||_2 = 2.817e-02, argmax keras=7 numpy=7
+Loaded L matrix shape: (10, 10)
+idx 0: stored eps=0.00543 | not found (0.0s) [t=0.0:R=0.00181 no flip nb:R < 1/255: no grid point within R; t=0.02:R=0.00181 no flip nb:R < 1/255: no grid point within R; t=0.05:R=0.00181 no flip nb:R < 1/255: no grid point within R; t=0.1:label(qc_t) != label(c); t=0.2:label(qc_t) != label(c); t=0.3:label(qc_t) != label(c); t=0.5:label(qc_t) != label(c)]
+idx 1: stored eps=0.007414 | not found (0.0s) [t=0.0:label(qc_t) != label(c); t=0.02:label(qc_t) != label(c); t=0.05:R=0.00185 no flip nb:R < 1/255: no grid point within R; t=0.1:label(qc_t) != label(c); t=0.2:R=0.00371 no flip nb:R < 1/255: no grid point within R; t=0.3:R=0.00371 no flip nb:R < 1/255: no grid point within R; t=0.5:R=0.00371 no flip nb:R < 1/255: no grid point within R]
+idx 2: stored eps=0.006257 | not found (2.1s) [t=0.0:R=0.00358 no flip nb:R < 1/255: no grid point within R; t=0.02:R=0.00358 no flip nb:R < 1/255: no grid point within R; t=0.05:R=0.00358 no flip nb:R < 1/255: no grid point within R; t=0.1:R=0.00358 no flip nb:R < 1/255: no grid point within R; t=0.2:R=0.00358 no flip nb:R < 1/255: no grid point within R; t=0.3:R=0.00358 no flip nb:R < 1/255: no grid point within R; t=0.5:R=0.00536 no flip nb:tried]
+idx 3: stored eps=0.006761 | FOUND t=0.5 how=ray dist=0.003906 R=0.005071 max_eps=0.005071 labels 7->0 (0.0s)
+idx 4: stored eps=0.009669 | FOUND t=0.2 how=neigh1 dist=0.003922 R=0.005801 max_eps=0.005801 labels 9->4 (0.4s)
+idx 5: stored eps=0.01249 | not found (27.6s) [t=0.0:R=0.00416 no flip nb:tried; t=0.02:R=0.00833 no flip nb:tried; t=0.05:R=0.00625 no flip nb:tried; t=0.1:R=0.00833 no flip nb:tried; t=0.2:R=0.00625 no flip nb:tried; t=0.3:R=0.00833 no flip nb:tried; t=0.5:R=0.0104 no flip nb:tried]
+idx 6: stored eps=0.003314 | not found (0.0s) [t=0.0:R=0.00166 no flip nb:R < 1/255: no grid point within R; t=0.02:R=0.00166 no flip nb:R < 1/255: no grid point within R; t=0.05:R=0.00166 no flip nb:R < 1/255: no grid point within R; t=0.1:R=0.00249 no flip nb:R < 1/255: no grid point within R; t=0.2:R=0.00249 no flip nb:R < 1/255: no grid point within R; t=0.3:R=0.00249 no flip nb:R < 1/255: no grid point within R; t=0.5:R=0.00249 no flip nb:R < 1/255: no grid point within R]
+idx 7: stored eps=0.002943 | not found (0.0s) [t=0.0:label(qc_t) != label(c); t=0.02:label(qc_t) != label(c); t=0.05:label(qc_t) != label(c); t=0.1:label(qc_t) != label(c); t=0.2:label(qc_t) != label(c); t=0.3:label(qc_t) != label(c); t=0.5:label(qc_t) != label(c)]
+idx 8: stored eps=0.006958 | not found (11.5s) [t=0.0:R=0.00261 no flip nb:R < 1/255: no grid point within R; t=0.02:R=0.00261 no flip nb:R < 1/255: no grid point within R; t=0.05:R=0.00261 no flip nb:R < 1/255: no grid point within R; t=0.1:R=0.00435 no flip nb:tried; t=0.2:R=0.00435 no flip nb:tried; t=0.3:R=0.00696 no flip nb:tried; t=0.5:R=0.00522 no flip nb:tried]
+idx 9: stored eps=0.009669 | not found (0.0s) [t=0.0:label(qc_t) != label(c); t=0.02:label(qc_t) != label(c); t=0.05:R=0.00387 no flip nb:R < 1/255: no grid point within R; t=0.1:R=0.00387 no flip nb:R < 1/255: no grid point within R; t=0.2:label(qc_t) != label(c); t=0.3:label(qc_t) != label(c); t=0.5:R=0.00193 no flip nb:R < 1/255: no grid point within R]
+idx 10: stored eps=0.003484 | not found (0.0s) [t=0.0:R=0.000871 no flip nb:R < 1/255: no grid point within R; t=0.02:R=0.000871 no flip nb:R < 1/255: no grid point within R; t=0.05:R=0.000871 no flip nb:R < 1/255: no grid point within R; t=0.1:label(qc_t) != label(c); t=0.2:R=0.00174 no flip nb:R < 1/255: no grid point within R; t=0.3:label(qc_t) != label(c); t=0.5:R=0.000871 no flip nb:R < 1/255: no grid point within R]
+idx 11: stored eps=0.005218 | not found (0.0s) [t=0.0:R=0.00261 no flip nb:R < 1/255: no grid point within R; t=0.02:R=0.00261 no flip nb:R < 1/255: no grid point within R; t=0.05:R=0.00261 no flip nb:R < 1/255: no grid point within R; t=0.1:R=0.00261 no flip nb:R < 1/255: no grid point within R; t=0.2:R=0.00261 no flip nb:R < 1/255: no grid point within R; t=0.3:label(qc_t) != label(c); t=0.5:R=0.00261 no flip nb:R < 1/255: no grid point within R]
+idx 12: stored eps=0.005801 | not found (0.0s) [t=0.0:R=0.00193 no flip nb:R < 1/255: no grid point within R; t=0.02:R=0.00193 no flip nb:R < 1/255: no grid point within R; t=0.05:R=0.00193 no flip nb:R < 1/255: no grid point within R; t=0.1:R=0.00387 no flip nb:R < 1/255: no grid point within R; t=0.2:R=0.00193 no flip nb:R < 1/255: no grid point within R; t=0.3:R=0.00387 no flip nb:R < 1/255: no grid point within R; t=0.5:certifier certifies nothing at qc_t]
+idx 13: stored eps=0.005071 | not found (0.0s) [t=0.0:R=0.00169 no flip nb:R < 1/255: no grid point within R; t=0.02:R=0.00169 no flip nb:R < 1/255: no grid point within R; t=0.05:R=0.00169 no flip nb:R < 1/255: no grid point within R; t=0.1:R=0.000845 no flip nb:R < 1/255: no grid point within R; t=0.2:R=0.000845 no flip nb:R < 1/255: no grid point within R; t=0.3:R=0.00254 no flip nb:R < 1/255: no grid point within R; t=0.5:R=0.00254 no flip nb:R < 1/255: no grid point within R]
+idx 14: stored eps=0.006746 | FOUND t=0.02 how=neigh1 dist=0.003922 R=0.00506 max_eps=0.00506 labels 3->1 (0.1s)
+idx 15: stored eps=0.005374 | not found (0.0s) [t=0.0:R=0.000896 no flip nb:R < 1/255: no grid point within R; t=0.02:R=0.000896 no flip nb:R < 1/255: no grid point within R; t=0.05:label(qc_t) != label(c); t=0.1:label(qc_t) != label(c); t=0.2:label(qc_t) != label(c); t=0.3:label(qc_t) != label(c); t=0.5:label(qc_t) != label(c)]
+idx 16: stored eps=0.007735 | not found (4.9s) [t=0.0:R=0.00387 no flip nb:R < 1/255: no grid point within R; t=0.02:R=0.00387 no flip nb:R < 1/255: no grid point within R; t=0.05:R=0.00387 no flip nb:R < 1/255: no grid point within R; t=0.1:R=0.00387 no flip nb:R < 1/255: no grid point within R; t=0.2:R=0.00387 no flip nb:R < 1/255: no grid point within R; t=0.3:R=0.00774 no flip nb:tried; t=0.5:R=0.00387 no flip nb:R < 1/255: no grid point within R]
+idx 17: stored eps=0.00543 | not found (0.0s) [t=0.0:label(qc_t) != label(c); t=0.02:label(qc_t) != label(c); t=0.05:label(qc_t) != label(c); t=0.1:label(qc_t) != label(c); t=0.2:label(qc_t) != label(c); t=0.3:certifier certifies nothing at qc_t; t=0.5:certifier certifies nothing at qc_t]
+idx 18: stored eps=0.007403 | FOUND t=0.0 how=neigh1 dist=0.003922 R=0.005552 max_eps=0.005552 labels 8->3 (0.0s)
+idx 19: stored eps=0.004834 | not found (0.0s) [t=0.0:label(qc_t) != label(c); t=0.02:label(qc_t) != label(c); t=0.05:R=0.000967 no flip nb:R < 1/255: no grid point within R; t=0.1:R=0.00193 no flip nb:R < 1/255: no grid point within R; t=0.2:R=0.0029 no flip nb:R < 1/255: no grid point within R; t=0.3:R=0.00193 no flip nb:R < 1/255: no grid point within R; t=0.5:R=0.00193 no flip nb:R < 1/255: no grid point within R]
+idx 20: stored eps=0.005506 | not found (0.0s) [t=0.0:label(qc_t) != label(c); t=0.02:R=0.00184 no flip nb:R < 1/255: no grid point within R; t=0.05:R=0.00184 no flip nb:R < 1/255: no grid point within R; t=0.1:certifier certifies nothing at qc_t; t=0.2:R=0.00184 no flip nb:R < 1/255: no grid point within R; t=0.3:R=0.00367 no flip nb:R < 1/255: no grid point within R; t=0.5:R=0.00367 no flip nb:R < 1/255: no grid point within R]
+idx 21: stored eps=0.005218 | not found (0.0s) [t=0.0:certifier certifies nothing at qc_t; t=0.02:certifier certifies nothing at qc_t; t=0.05:certifier certifies nothing at qc_t; t=0.1:certifier certifies nothing at qc_t; t=0.2:certifier certifies nothing at qc_t; t=0.3:R=0.00348 no flip nb:R < 1/255: no grid point within R; t=0.5:label(qc_t) != label(c)]
+idx 22: stored eps=0.003104 | not found (0.0s) [t=0.0:label(qc_t) != label(c); t=0.02:R=0.000776 no flip nb:R < 1/255: no grid point within R; t=0.05:R=0.000776 no flip nb:R < 1/255: no grid point within R; t=0.1:R=0.000776 no flip nb:R < 1/255: no grid point within R; t=0.2:R=0.000776 no flip nb:R < 1/255: no grid point within R; t=0.3:R=0.000776 no flip nb:R < 1/255: no grid point within R; t=0.5:R=0.00233 no flip nb:R < 1/255: no grid point within R]
+idx 23: stored eps=0.001739 | not found (0.0s) [t=0.0:R=0.00087 no flip nb:R < 1/255: no grid point within R; t=0.02:R=0.00087 no flip nb:R < 1/255: no grid point within R; t=0.05:R=0.00087 no flip nb:R < 1/255: no grid point within R; t=0.1:R=0.00087 no flip nb:R < 1/255: no grid point within R; t=0.2:R=0.00087 no flip nb:R < 1/255: no grid point within R; t=0.3:R=0.00087 no flip nb:R < 1/255: no grid point within R; t=0.5:R=0.00087 no flip nb:R < 1/255: no grid point within R]
+idx 24: stored eps=0.007735 | not found (0.0s) [t=0.0:R=0.00193 no flip nb:R < 1/255: no grid point within R; t=0.02:R=0.00193 no flip nb:R < 1/255: no grid point within R; t=0.05:R=0.00387 no flip nb:R < 1/255: no grid point within R; t=0.1:R=0.00387 no flip nb:R < 1/255: no grid point within R; t=0.2:R=0.00193 no flip nb:R < 1/255: no grid point within R; t=0.3:R=0.000967 no flip nb:R < 1/255: no grid point within R; t=0.5:R=0.0029 no flip nb:R < 1/255: no grid point within R]
+idx 25: stored eps=0.007441 | not found (0.0s) [t=0.0:R=0.00372 no flip nb:R < 1/255: no grid point within R; t=0.02:R=0.00372 no flip nb:R < 1/255: no grid point within R; t=0.05:R=0.00372 no flip nb:R < 1/255: no grid point within R; t=0.1:R=0.00372 no flip nb:R < 1/255: no grid point within R; t=0.2:R=0.00372 no flip nb:R < 1/255: no grid point within R; t=0.3:R=0.00372 no flip nb:R < 1/255: no grid point within R; t=0.5:R=0.00372 no flip nb:R < 1/255: no grid point within R]
+idx 26: stored eps=0.006424 | FOUND t=0.0 how=neigh2 dist=0.005557 R=0.006424 max_eps=0.006424 labels 9->7 (2.2s)
+idx 27: stored eps=0.009669 | FOUND t=0.0 how=neigh1 dist=0.003922 R=0.005801 max_eps=0.005801 labels 9->4 (1.9s)
+idx 28: stored eps=0.01219 | not found (35.8s) [t=0.0:R=0.00697 no flip nb:tried; t=0.02:R=0.00871 no flip nb:tried; t=0.05:R=0.00871 no flip nb:tried; t=0.1:R=0.00871 no flip nb:tried; t=0.2:R=0.00871 no flip nb:tried; t=0.3:R=0.0105 no flip nb:tried; t=0.5:R=0.0105 no flip nb:tried]
+idx 29: stored eps=0.00506 | not found (0.0s) [t=0.0:label(qc_t) != label(c); t=0.02:label(qc_t) != label(c); t=0.05:label(qc_t) != label(c); t=0.1:label(qc_t) != label(c); t=0.2:label(qc_t) != label(c); t=0.3:label(qc_t) != label(c); t=0.5:R=0.00169 no flip nb:R < 1/255: no grid point within R]
+
+SUMMARY: {
+ "cex_dir": "/Users/tobiasm1/git/python-certifier/tests/cex_mnist_float16_numpy",
+ "format": "float16",
+ "seed": 0,
+ "n": 30,
+ "found": 6,
+ "max_eps_max": 0.006423876067507213,
+ "max_eps_min": 0.005059681385305226,
+ "max_eps_median": 0.005676647896338226,
+ "found_gt_0.1": 0,
+ "found_by_how": {
+  "ray": 1,
+  "ray+repair": 0,
+  "neigh1": 4,
+  "neigh2": 1,
+  "neigh3": 0
+ },
+ "allow_label_change": false,
+ "found_with_label_change": 0,
+ "records_all_t_label_mismatch": 1,
+ "records_no_R_ge_1_over_255": 19,
+ "found_by_t": {
+  "0.0": 3,
+  "0.02": 1,
+  "0.05": 0,
+  "0.1": 0,
+  "0.2": 1,
+  "0.3": 0,
+  "0.5": 1
+ },
+ "records_with_label_mismatch_at_t0": 9,
+ "verify_failed": 0,
+ "total_secs": 87.1,
+ "naive_rounding": {
+  "path": "results/quantised_cex/quant_mnist_float16.json",
+  "quantised_cex": 0,
+  "quantised_max_eps_max": null,
+  "quantised_max_eps_min": null,
+  "quantised_cex_gt_0.1": 0
+ }
+}
+Wrote results/quantised_cex/gridsearch_mnist_float16.json (points in results/quantised_cex/gridsearch_mnist_float16_points)
