@@ -86,6 +86,7 @@ limit = _pop_opt("--limit")
 indices_opt = _pop_opt("--indices")
 summarise_only = _pop_flag("--summarise")
 reverify_only = _pop_flag("--reverify")
+certify_only = _pop_flag("--certify-only")   # only count accuracy and certified-at-eps, no search
 if EPS_STR is None or out_path is None:
     print("--eps and --out are required")
     sys.exit(1)
@@ -414,7 +415,7 @@ def main():
         lab = int(np.argmax(y))
         rec = {"index": idx, "true_label": true, "label": lab, "correct": lab == true}
         rec["certified_at_eps"] = certified_at(y, lab, EPS)
-        if rec["certified_at_eps"]:
+        if rec["certified_at_eps"] and not certify_only:
             rec["R"] = certified_radius(y, lab)
             xadv, info = search(x32, lab)
             rec.update(info)
@@ -439,6 +440,9 @@ def main():
             print(f"idx {idx}: FOUND dist={rec['dist']:.5f} R={rec['R']:.4g} labels {lab}->{rec['label_xadv']} "
                   f"pixels={rec['pixels_changed']} restart={rec['restart']} step={rec['step']} "
                   f"shrink={rec['shrink_moves']} ({rec['secs']}s)", flush=True)
+        elif certify_only:
+            if idx % 1000 == 999:
+                print(f"idx {idx}: certified so far {sum(1 for r in done.values() if r['certified_at_eps'])}", flush=True)
         elif rec["certified_at_eps"]:
             print(f"idx {idx}: not found (R={rec['R']:.4g}, min real margin {rec['min_real_margin']:.3g}, "
                   f"{rec['grid_evals']} grid evals, {rec['secs']}s)", flush=True)
