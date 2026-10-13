@@ -17,10 +17,12 @@ iterate just outside the ball; the pixels furthest from x are then moved back
 one grey level at a time until it is inside. The first in-ball grid image whose
 float32 label differs from x's is returned.
 
-Verification of each success, independent of the search: both images on the
-grid; exact distance <= EPS (mpmath at 60 digits on the float32 pixel values the
-model actually consumes); the compliant float32 labels differ; the certifier
-oracle certifies x at EPS. The float32 logits of x and the radius EPS are also
+Verification of each success, independent of the search, in EXACT rational
+arithmetic (Python Fraction; float32 pixel values, float32 logits, the decimal
+EPS and the certifier's decimal Lipschitz constants are all exact rationals):
+both images on the grid; sum of squared pixel differences <= EPS^2 (no square
+root, no rounding); the compliant float32 labels differ; the certifier's margin
+test certifies x at EPS. The float32 logits of x and the radius EPS are also
 written in Tobler et al.'s certifier input format (one line per instance) so
 that their Dafny binary can be run on the instances.
 
@@ -44,6 +46,7 @@ import json
 import os
 import sys
 import time
+from fractions import Fraction
 
 # The float64 matvecs are tiny; OpenBLAS's thread pool costs ~2 ms per call
 # here (200x the single-threaded time), so pin BLAS to one thread.
@@ -82,6 +85,7 @@ seed = int(_pop_opt("--seed", "0"))
 limit = _pop_opt("--limit")
 indices_opt = _pop_opt("--indices")
 summarise_only = _pop_flag("--summarise")
+reverify_only = _pop_flag("--reverify")
 if EPS_STR is None or out_path is None:
     print("--eps and --out are required")
     sys.exit(1)
@@ -165,6 +169,35 @@ def l2(a, b):
 
 def exact_dist(a32, b32):
     return A.l2_norm_mph(A.vector_to_mph(f64(a32)), A.vector_to_mph(f64(b32)))
+
+
+EPS_Q = Fraction(EPS_STR)        # the radius as an exact rational
+
+
+def _load_L_exact(path):
+    with open(path) as f:
+        data = json.load(f, parse_float=Fraction)
+    for obj in data:
+        if isinstance(obj, dict) and "lipschitz_bounds" in obj:
+            return [[Fraction(v) for v in row] for row in obj["lipschitz_bounds"]]
+    raise ValueError("no lipschitz_bounds in " + path)
+
+
+L_Q = _load_L_exact(A.lipschitz_json)
+
+
+def certified_at_exact(y, lab):
+    """The certifier's margin test y_lab - y_j > L_{lab,j} * EPS, in exact rationals."""
+    yq = [Fraction(float(v)) for v in np.asarray(y, dtype=np.float64).ravel()]
+    return all(yq[lab] - yq[j] > L_Q[lab][j] * EPS_Q for j in range(len(yq)) if j != lab)
+
+
+def exact_sq_dist(a32, b32):
+    """Squared distance as an exact rational: float32 pixel values are exact
+    rationals, so no rounding occurs anywhere (and no square root is needed)."""
+    a = np.asarray(a32, dtype=np.float32).reshape(-1)
+    b = np.asarray(b32, dtype=np.float32).reshape(-1)
+    return sum((Fraction(float(u)) - Fraction(float(v))) ** 2 for u, v in zip(a, b))
 
 
 def label32(q32):
@@ -275,14 +308,14 @@ def verify(x32, xadv32, lab):
     det["x_on_grid"] = on_grid(x32)
     det["xadv_on_grid"] = on_grid(xadv32)
     dist = exact_dist(x32, xadv32)
-    det["dist"] = float(dist)
-    det["dist_le_eps"] = bool(dist <= EPS)
+    det["dist"] = float(dist)                      # for reporting only
+    det["dist_le_eps"] = exact_sq_dist(x32, xadv32) <= EPS_Q * EPS_Q   # exact rational test
     y = A.np_logits(x32)
     det["label_x"] = int(np.argmax(y))
     det["label_xadv"] = label32(xadv32)
     det["labels_differ"] = det["label_x"] != det["label_xadv"]
     det["label_x_as_given"] = det["label_x"] == lab
-    det["certified_at_eps"] = certified_at(y, lab, EPS)
+    det["certified_at_eps"] = certified_at_exact(y, lab)
     ok = (det["x_on_grid"] and det["xadv_on_grid"] and det["dist_le_eps"]
           and det["labels_differ"] and det["label_x_as_given"] and det["certified_at_eps"])
     return ok, det
@@ -340,6 +373,23 @@ def main():
     done = load_done()
     if summarise_only:
         print(json.dumps(summarise(done), indent=1))
+        return
+    if reverify_only:
+        bad = 0
+        n = 0
+        for idx, rec in sorted(done.items()):
+            if not rec.get("found"):
+                continue
+            n += 1
+            x32 = np.load(os.path.join(points_dir, f"idx{idx}_x.npy")).reshape(-1)
+            xadv32 = np.load(os.path.join(points_dir, f"idx{idx}_xadv.npy")).reshape(-1)
+            assert x32.dtype == np.float32 and xadv32.dtype == np.float32
+            assert np.array_equal(x32, np.asarray(A.x_test[idx], dtype=np.float32).reshape(-1))
+            ok, det = verify(x32, xadv32, rec["label"])
+            if not ok:
+                bad += 1
+                print(f"idx {idx}: RE-VERIFICATION FAILED {det}")
+        print(f"re-verified {n} stored pairs with the exact rational distance test: {bad} failures")
         return
     total = A.x_test.shape[0]
     idxs = list(range(total))
