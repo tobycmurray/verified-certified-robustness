@@ -500,7 +500,10 @@ def search_cex(x_nat, x_adv, verbose=False):
     low  = np.float64(0.0)
     high = np.float64(1.0)
     x_nat64 = np.asarray(x_nat, dtype=np.float64)
-    x_adv64 = np.asarray(x_adv, dtype=np.float64)
+    # Every point the search returns must be a vector of the model's format: the
+    # deployed execution casts its input, so a stored float64 point that is not
+    # representable would be judged (and its distance measured) at the wrong point.
+    x_adv64 = np.asarray(x_adv, dtype=np.float64).astype(NP_DT).astype(np.float64)
     vec64   = x_adv64 - x_nat64
 
     x_low=x_nat64
@@ -565,7 +568,9 @@ def try_to_improve_cex_by_extension(x0, x1):
         max_noisy_search=2000
         while steps_to_find<max_noisy_search and not cex:
             noise = np.random.normal(loc=0.0, scale=np.max(np.abs(a))*0.1, size=a.shape)
-            x1=np.clip(x0+a+noise, 0.0, 1.0)
+            # cast to the model's format (see search_cex) so the stored x1 and the
+            # distance ||x1 - x0|| are those of the point the execution actually sees
+            x1=np.clip(x0+a+noise, 0.0, 1.0).astype(NP_DT).astype(np.float64)
             cex, max_eps = check_counter_example(x0, x1)
             steps_to_find=steps_to_find+1
         return cex, max_eps, x1

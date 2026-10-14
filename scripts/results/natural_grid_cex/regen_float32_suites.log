@@ -1,0 +1,1262 @@
+>>> cex_mnist_float32_numpy
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/art/estimators/certification/__init__.py:30: UserWarning: PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality
+  warnings.warn("PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality")
+Running Keras (DeepFool only) with precision: <Policy "float32">
+Counter-example search runs against compliant numpy at: float32
+No bias amplification (set FP_BIAS=1e6 to amplify FP errors)
+Built compliant numpy model: 9 layers, dtype float32, biases: no
+Sanity (test point 0): ||keras - numpy||_2 = 7.464e-06, argmax keras=7 numpy=7
+Loaded L matrix shape: (10, 10)
+Total test points: 10000
+
+Running with index 0. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]WARNING:tensorflow:Calling GradientTape.gradient on a persistent tape inside its context is significantly less efficient than calling it outside the context (it causes the gradient ops to be recorded on the tape, leading to increased CPU and memory usage). Only call GradientTape.gradient inside the context if you actually want to trace the gradient in order to compute higher order derivatives.
+DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.34it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.33it/s]
+/Users/tobiasm1/git/verified-certified-robustness/scripts/attack_verified_certifier_nat_numpy.py:471: DeprecationWarning: 'mode' parameter is deprecated and will be removed in Pillow 13 (2026-10-15)
+  image = Image.fromarray(x_final, mode=image_mode)
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000441919155834481226809815346125300369328738161978244510353741!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000441919155834481226809815346125300369328738161978244510353741
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.000000441919155834481226809815346125300369328738161978244510353741!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_ifnqzbql.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000315500547745543453064085521530573313235985458774001611511149, F(x0)==7 but F(x1)==3 (F = compliant numpy)
+
+Running with index 1. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.41s/it]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.41s/it]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000226257477875986183073657005890268012031268691099119425940356!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000226257477875986183073657005890268012031268691099119425940356
+[cex extend] steps 2, max_max_eps: 0.000000678772433627967001390565776561110226339432201751267558661283
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000678772433627967001390565776561110226339432201751267558661283
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.000000905029911503955692246445011863617967766655831314987834951736!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_1y6drkht.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000712545257579806779594087047681407744736405239676719663387741, F(x0)==2 but F(x1)==3 (F = compliant numpy)
+
+Running with index 2. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.93it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.92it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000109120205602919381546776276101715918908443991167695711564378!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000109120205602919381546776276101715918908443991167695711564378
+[cex extend] steps 2, max_max_eps: 0.000000218240411205838422258027335442037438632841075588209025123753
+[cex extend] steps 4, max_max_eps: 0.000000436480822411688361760790362822806302695922998883294284887483
+[cex extend] mid 6, low 5.0, high 7, max_max_eps: 0.000000436480822411688361760790362822806302695922998883294284887483
+[cex extend] mid 5, low 5.0, high 5, max_max_eps: 0.000000436480822411688361760790362822806302695922998883294284887483
+Best counter-example found on step: 4
+Got counter-example with max_eps 0.000000436480822411688361760790362822806302695922998883294284887483!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_qklt2f0v.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000435590219546418573289355816630287258309199536199730512847507, F(x0)==1 but F(x1)==2 (F = compliant numpy)
+
+Running with index 3. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.13it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.13it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000412674146533266089279124194537617021361423095619374857985073!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000412674146533266089279124194537617021361423095619374857985073
+[cex extend] steps 2, max_max_eps: 0.000000825348293066539335925660520570183731878651529596796951866448
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000825348293066539335925660520570183731878651529596796951866448
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.00000123802243959981365707869337991727940260526118184576525019084!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_zcpyhfhw.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.00000104630128178299167156193061240701147887525445328706636000895, F(x0)==0 but F(x1)==7 (F = compliant numpy)
+
+Running with index 4. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  7.18it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  7.17it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000236054724143904063646583131985600470453896951560372361173673!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000236054724143904063646583131985600470453896951560372361173673
+[cex extend] steps 2, max_max_eps: 0.000000708164172431720079142436203949707073004177703889816252926595
+[cex extend] steps 4, max_max_eps: 0.00000118027362071953866429437542396672073055724842545667855370631
+[cex extend] mid 6, low 5.0, high 7, max_max_eps: 0.00000118027362071953866429437542396672073055724842545667855370631
+[cex extend] mid 7, low 7, high 7, max_max_eps: 0.0000016523830690073540884817364306611331580897363678418316806708
+Best counter-example found on step: 6
+Got counter-example with max_eps 0.0000016523830690073540884817364306611331580897363678418316806708!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_nddip_k1.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.00000163658700530077483983052298202508358404036510551984326169512, F(x0)==4 but F(x1)==9 (F = compliant numpy)
+
+Running with index 5. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.94it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.93it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000254149247544911694308450856683160972507763107942747997262361!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000254149247544911694308450856683160972507763107942747997262361
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.000000254149247544911694308450856683160972507763107942747997262361!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_aljlr58a.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000251855696361332748803242783564985938900876120807868585083173, F(x0)==1 but F(x1)==7 (F = compliant numpy)
+
+Running with index 6. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.46it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.46it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000101128281614977483644155877734623080709948963856090256862988!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000101128281614977483644155877734623080709948963856090256862988
+[cex extend] steps 2, max_max_eps: 0.000000404513126459919886230422002249603522630872413438328161493
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000404513126459919886230422002249603522630872413438328161493
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.000000606769689689886067228820776772511864153969643308232464484139!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_wtpwootb.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000534078048152456354787053510670838751221272882012882565594739, F(x0)==4 but F(x1)==8 (F = compliant numpy)
+
+Running with index 7. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.43it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.43it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000119734860026413045169352549379903396217733366971609457862228!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000119734860026413045169352549379903396217733366971609457862228
+[cex extend] steps 2, max_max_eps: 0.00000035920458007924760310714316974946520114069648714109372899248
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.00000035920458007924760310714316974946520114069648714109372899248
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.000000598674300132076916702938249198646280110836147547426417747944!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_oat10k2v.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000567860418852178741594855660383196119872276830981245750319334, F(x0)==9 but F(x1)==8 (F = compliant numpy)
+
+Running with index 8. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.42s/it]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.42s/it]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000106169245628219914020002164589175529943411478730602393762594!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000106169245628219914020002164589175529943411478730602393762594
+[cex extend] steps 2, max_max_eps: 0.000000424676982512900848365979361720367666890060209502250694641725
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000424676982512900848365979361720367666890060209502250694641725
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.000000530846228141126324987904775926152158999894877893912136215514!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_n3k8jnxy.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000524470033452993611679155730785995905023173159548230114007586, F(x0)==5 but F(x1)==6 (F = compliant numpy)
+
+Running with index 9. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.17it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.16it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.00000047210944828781273131654259439470970822871289902390624188033!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.00000047210944828781273131654259439470970822871289902390624188033
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.00000047210944828781273131654259439470970822871289902390624188033!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_r97we49_.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.00000037703148066770481820810005581458163764175477171451688058582, F(x0)==9 but F(x1)==4 (F = compliant numpy)
+
+Running with index 10. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.41s/it]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.41s/it]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000425293989112174727075578662073543859671846248837053635243318!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000425293989112174727075578662073543859671846248837053635243318
+[cex extend] steps 2, max_max_eps: 0.000000531617486390217861558937723061929629954280696396201300205348
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000531617486390217861558937723061929629954280696396201300205348
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.000000744264480946302814165799636597316597626068163811017919464606!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_92gsm_m6.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000687169271288444396424496459786194136782397403431799790797632, F(x0)==0 but F(x1)==2 (F = compliant numpy)
+
+Running with index 11. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.77it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.77it/s]
+Searching for counter-example (against numpy execution)...
+Search did not return a counter-example. Checking the other way around...
+Other way around is a counter-example. Swapping x0 and x1.
+Got counter-example with max_eps 0.000000212338491256444382625584993879391504725025462454984076770408!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000212338491256444382625584993879391504725025462454984076770408
+[cex extend] steps 2, max_max_eps: 0.000000212338491256444382625584993879391504725025462454984076770408
+[cex extend] steps 4, max_max_eps: 0.000000318507736884672838908455665972059556764197118060153800924331
+[cex extend] steps 8, max_max_eps: 0.000000424676982512903388345696774024750594673560892184099913276379
+[cex extend] steps 16, max_max_eps: 0.000000424676982512903523814014726866710088721283136492904645768703
+[cex extend] steps 32, max_max_eps: 0.000000743184719397579763051887369151373054488366577091794780099526
+[cex extend] mid 48, low 33.0, high 63, max_max_eps: 0.000000743184719397579763051887369151373054488366577091794780099526
+[cex extend] mid 40, low 33.0, high 47, max_max_eps: 0.000000743184719397579763051887369151373054488366577091794780099526
+[cex extend] mid 44, low 41, high 47, max_max_eps: 0.000000849353965025802571817947223492107983990573947931667047836784
+[cex extend] mid 42, low 41, high 43, max_max_eps: 0.000000849353965025802571817947223492107983990573947931667047836784
+[cex extend] mid 41, low 41, high 41, max_max_eps: 0.000000849353965025802571817947223492107983990573947931667047836784
+Best counter-example found on step: 40
+Got counter-example with max_eps 0.000000849353965025802571817947223492107983990573947931667047836784!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_jaxaijpt.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000820485275403497283148618473446030458523944239877322798728956, F(x0)==5 but F(x1)==6 (F = compliant numpy)
+
+Running with index 12. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.01it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.01it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000236054724143904490248482162872662820420643775400787367334707!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000236054724143904490248482162872662820420643775400787367334707
+[cex extend] steps 2, max_max_eps: 0.000000472109448287813123691162917376960488641238625601901391145701
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000472109448287813123691162917376960488641238625601901391145701
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.000000708164172431721453341048836157731220026939600766173714164066!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_i9o3_ojl.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.00000067274210653869407531241914971654584481317293175512423793451, F(x0)==9 but F(x1)==4 (F = compliant numpy)
+
+Running with index 13. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.38it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.38it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.00000010316853663331395586807438534772765192531734741683839577395!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.00000010316853663331395586807438534772765192531734741683839577395
+[cex extend] steps 2, max_max_eps: 0.00000051584268316658535276571668503893021943491210994299445751437
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.00000051584268316658535276571668503893021943491210994299445751437
+Best counter-example found on step: 2
+Got counter-example with max_eps 0.00000051584268316658535276571668503893021943491210994299445751437!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_rf4btxa8.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000332233957426590226865921724746142984056351029205141597250888, F(x0)==0 but F(x1)==7 (F = compliant numpy)
+
+Running with index 14. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.78it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.78it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000411757925236419328504236948770482307391035266260895996650011!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000411757925236419328504236948770482307391035266260895996650011
+[cex extend] steps 2, max_max_eps: 0.00000082351585047285179631401792781814338519818579596345041000893
+[cex extend] steps 4, max_max_eps: 0.00000123527377570927735643609091002342431351021124824746122895434
+[cex extend] mid 6, low 5.0, high 7, max_max_eps: 0.00000123527377570927735643609091002342431351021124824746122895434
+[cex extend] mid 5, low 5.0, high 5, max_max_eps: 0.00000123527377570927735643609091002342431351021124824746122895434
+Best counter-example found on step: 5
+Got counter-example with max_eps 0.0000016470317009457060469659081061415387179559096714852685888551!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_3uf_keon.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.00000150781039077801112958576574770766149674261570969226600849035, F(x0)==1 but F(x1)==3 (F = compliant numpy)
+
+Running with index 15. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.14it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.14it/s]
+Searching for counter-example (against numpy execution)...
+Search did not return a counter-example. Checking the other way around...
+Other way around is a counter-example. Swapping x0 and x1.
+Got counter-example with max_eps 0.000000218654765134370885824929781996120330213283762061740172290154!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000218654765134370885824929781996120330213283762061740172290154
+[cex extend] steps 2, max_max_eps: 0.000000218654765134370885824929781996120330213283762061740172290154
+[cex extend] steps 4, max_max_eps: 0.000000218654765134370885824929781996120330213283762061740172290154
+[cex extend] steps 8, max_max_eps: 0.000000218654765134370885824929781996120330213283762061740172290154
+[cex extend] steps 16, max_max_eps: 0.000000218654765134370885824929781996120330213283762061740172290154
+[cex extend] steps 32, max_max_eps: 0.000000327982147701556549360360659587175994003998019944577131409273
+[cex extend] mid 48, low 33.0, high 63, max_max_eps: 0.000000327982147701556549360360659587175994003998019944577131409273
+[cex extend] mid 56, low 49, high 63, max_max_eps: 0.000000546636912835923298855676728740709755033991130963810214951472
+[cex extend] mid 52, low 49, high 55, max_max_eps: 0.000000546636912835923298855676728740709755033991130963810214951472
+[cex extend] mid 54, low 53, high 55, max_max_eps: 0.000000546636912835926061602629146039403668899764176927792962899738
+[cex extend] mid 55, low 55, high 55, max_max_eps: 0.000000546636912835926061602629146039403668899764176927792962899738
+Best counter-example found on step: 52
+Got counter-example with max_eps 0.000000546636912835926061602629146039403668899764176927792962899738!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_k97ok0zb.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000505439339245687077491558286993867353774038859788631571055947, F(x0)==3 but F(x1)==5 (F = compliant numpy)
+
+Running with index 16. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.47it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.46it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000236054724143903702075123985767400161717184361564463252683316!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000236054724143903702075123985767400161717184361564463252683316
+[cex extend] steps 2, max_max_eps: 0.000000708164172431721350813035435971418571106398026512741183006838
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000708164172431721350813035435971418571106398026512741183006838
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.000000944218896575627436550806201110158246947931713252845976646858!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_19pg6vrh.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000858321672152217994021359816478920936267520365118777742560472, F(x0)==9 but F(x1)==4 (F = compliant numpy)
+
+Running with index 17. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  6.05it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  6.05it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000220959577917242107460264884661510790320092216065330998070171!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000220959577917242107460264884661510790320092216065330998070171
+[cex extend] steps 2, max_max_eps: 0.00000044191915583448477452331479224551379571861437893637932347341
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.00000044191915583448477452331479224551379571861437893637932347341
+Best counter-example found on step: 2
+Got counter-example with max_eps 0.00000044191915583448477452331479224551379571861437893637932347341!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_sz7qj8nd.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000367703050202918786037541236301803621726622517205162999774037, F(x0)==7 but F(x1)==3 (F = compliant numpy)
+
+Running with index 18. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.39s/it]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.39s/it]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000225912064295068293900984124911877633153465295451839867422298!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000225912064295068293900984124911877633153465295451839867422298
+[cex extend] steps 2, max_max_eps: 0.000000677736192885220243965919440820400697153524820790601811642287
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000677736192885220243965919440820400697153524820790601811642287
+Best counter-example found on step: 2
+Got counter-example with max_eps 0.000000677736192885220243965919440820400697153524820790601811642287!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_pztb0gwd.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.00000047893169193613120866312458672497333121837552428512968554659, F(x0)==3 but F(x1)==8 (F = compliant numpy)
+
+Running with index 19. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  7.10it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  7.09it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000354082086215854603721562123636819655816032795184375640911077!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000354082086215854603721562123636819655816032795184375640911077
+[cex extend] steps 2, max_max_eps: 0.000000590136810359768025113449807979711311802324250584986018547976
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000590136810359768025113449807979711311802324250584986018547976
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.000000826191534503673014060988654287988947646295257552051583288739!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_yq7wsdu8.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000823858564172600058861877674123418748203452440556339926692227, F(x0)==4 but F(x1)==9 (F = compliant numpy)
+
+Running with index 20. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.39it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.38it/s]
+Searching for counter-example (against numpy execution)...
+Search did not return a counter-example. Checking the other way around...
+Other way around is a counter-example. Swapping x0 and x1.
+Got counter-example with max_eps 0.000000224047016863385648673002934577007657190156347001134183982934!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000224047016863385648673002934577007657190156347001134183982934
+[cex extend] steps 2, max_max_eps: 0.000000224047016863389188563003140027201134601378230793773118099713
+[cex extend] steps 4, max_max_eps: 0.000000224047016863390834958709813755156552393837705566893400447838
+[cex extend] steps 8, max_max_eps: 0.000000224047016863390834958709813755156552393837705566893400447838
+[cex extend] steps 16, max_max_eps: 0.000000224047016863392711137777500125652062813832298044561579377536
+[cex extend] steps 32, max_max_eps: 0.000000224047016863392711137777500125652062813832298044561579377536
+[cex extend] steps 64, max_max_eps: 0.000000448094033726786154749655415080230822882691791558848923686908
+[cex extend] steps 128, max_max_eps: 0.000000672141050590173648221642016107640091245973416668128459708214
+[cex extend] mid 192, low 129.0, high 255, max_max_eps: 0.000000672141050590173648221642016107640091245973416668128459708214
+[cex extend] mid 160, low 129.0, high 191, max_max_eps: 0.000000672141050590173648221642016107640091245973416668128459708214
+[cex extend] mid 144, low 129.0, high 159, max_max_eps: 0.000000672141050590173648221642016107640091245973416668128459708214
+[cex extend] mid 136, low 129.0, high 143, max_max_eps: 0.000000672141050590173648221642016107640091245973416668128459708214
+[cex extend] mid 140, low 137, high 143, max_max_eps: 0.000000896188067453565317810403148425820535251773718989958852307533
+[cex extend] mid 142, low 141, high 143, max_max_eps: 0.000000896188067453572989246700561455923702908468221382467501288918
+[cex extend] mid 143, low 143, high 143, max_max_eps: 0.000000896188067453572989246700561455923702908468221382467501288918
+Best counter-example found on step: 140
+Got counter-example with max_eps 0.000000896188067453572989246700561455923702908468221382467501288918!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_1uip2fe_.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.0000007326720783113257017987457888423769848744348718004690695824, F(x0)==7 but F(x1)==9 (F = compliant numpy)
+
+Running with index 21. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.51it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.50it/s]
+Searching for counter-example (against numpy execution)...
+Search did not return a counter-example. Checking the other way around...
+Other way around is a counter-example. Swapping x0 and x1.
+Got counter-example with max_eps 0.000000212338491256452192018810404985824148975600715377395899530199!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000212338491256452192018810404985824148975600715377395899530199
+[cex extend] steps 2, max_max_eps: 0.000000212338491256452192018810404985824148975600715377395899530199
+[cex extend] steps 4, max_max_eps: 0.000000212338491256452192018810404985824148975600715377395899530199
+[cex extend] steps 8, max_max_eps: 0.000000530846228141129547245507405471351496696966937679227733254987
+[cex extend] mid 12, low 9.0, high 15, max_max_eps: 0.000000530846228141129547245507405471351496696966937679227733254987
+[cex extend] mid 14, low 13, high 15, max_max_eps: 0.000000530846228141129686985973781432083358887609501363853287589119
+[cex extend] mid 13, low 13, high 13, max_max_eps: 0.000000530846228141129686985973781432083358887609501363853287589119
+Best counter-example found on step: 12
+Got counter-example with max_eps 0.000000530846228141129686985973781432083358887609501363853287589119!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_9mrx5mkt.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000492785100188715440670046026644816349065470139538691392849944, F(x0)==5 but F(x1)==6 (F = compliant numpy)
+
+Running with index 22. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  2.66it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  2.66it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.0000000947326352691679031925554455448817441429258856089737887251956!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.0000000947326352691679031925554455448817441429258856089737887251956
+[cex extend] steps 2, max_max_eps: 0.00000037893054107668271006122037234315428762624353618006462434825
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.00000037893054107668271006122037234315428762624353618006462434825
+Best counter-example found on step: 2
+Got counter-example with max_eps 0.00000037893054107668271006122037234315428762624353618006462434825!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_z9fvt6tn.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000347649004669271943302916372448522543971718464493119537883653, F(x0)==6 but F(x1)==4 (F = compliant numpy)
+
+Running with index 23. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.47it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.47it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000212338491256452276965447189002078615325860290600716372547753!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000212338491256452276965447189002078615325860290600716372547753
+[cex extend] steps 2, max_max_eps: 0.000000424676982512899212088051565036704557080105293611850596286472
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000424676982512899212088051565036704557080105293611850596286472
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.000000637015473769353918503658744058358920729870655103780562115401!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_bpb2zjed.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000632708365883971778844013128902543576317289401673670376725621, F(x0)==5 but F(x1)==6 (F = compliant numpy)
+
+Running with index 24. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.39s/it]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.39s/it]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000354082086215856162302359453200900391127341823026355165050397!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000354082086215856162302359453200900391127341823026355165050397
+[cex extend] steps 2, max_max_eps: 0.000000708164172431721165266146042150441917225523061648203190628022
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000708164172431721165266146042150441917225523061648203190628022
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.00000106224625864758437225139762345033523187127555072972421194067!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_dlhi4apn.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.00000104283947597507888053876995478677286919194154218323861085424, F(x0)==4 but F(x1)==9 (F = compliant numpy)
+
+Running with index 25. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.41s/it]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.41s/it]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000908301185054545579663435712808913804734239399256327183848301!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000908301185054545579663435712808913804734239399256327183848301
+[cex extend] steps 2, max_max_eps: 0.00000158952707384545237793592005204676043067100805664144566712782
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.00000158952707384545237793592005204676043067100805664144566712782
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.00000227075296263636151537756938985532127558942957065444788844822!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_40kz3815.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.00000219924435123506669728679274047348108411715885531839184170187, F(x0)==0 but F(x1)==6 (F = compliant numpy)
+
+Running with index 26. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.88it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.88it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.00000011202350843169580619860157020425716547093759507904512530025!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.00000011202350843169580619860157020425716547093759507904512530025
+[cex extend] steps 2, max_max_eps: 0.000000448094033726780699602768530514076573814753138336957302392419
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000448094033726780699602768530514076573814753138336957302392419
+Best counter-example found on step: 2
+Got counter-example with max_eps 0.000000448094033726780699602768530514076573814753138336957302392419!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_31t0uzso.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000341190043552039335053992216986264525122442705605891352924881, F(x0)==7 but F(x1)==9 (F = compliant numpy)
+
+Running with index 27. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.40s/it]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.40s/it]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000236054724143906500841272161444835286586329481579159854307074!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000236054724143906500841272161444835286586329481579159854307074
+[cex extend] steps 2, max_max_eps: 0.000000472109448287813646387816365058020999727281935102997794535762
+[cex extend] steps 4, max_max_eps: 0.000000944218896575630586208126393258025963539781756826197956851918
+[cex extend] mid 6, low 5.0, high 7, max_max_eps: 0.000000944218896575630586208126393258025963539781756826197956851918
+[cex extend] mid 7, low 7, high 7, max_max_eps: 0.00000141632834486344613861083234116826046270510841747160293955323
+Best counter-example found on step: 6
+Got counter-example with max_eps 0.00000141632834486344613861083234116826046270510841747160293955323!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_bud8153w.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.00000138033710372735482569726577272297898264723164680292170974251, F(x0)==4 but F(x1)==9 (F = compliant numpy)
+
+Running with index 28. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.41s/it]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.41s/it]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000212646994556087845685708478307562275656606036062499731316619!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000212646994556087845685708478307562275656606036062499731316619
+[cex extend] steps 2, max_max_eps: 0.000000425293989112172014814991531091172342248356860046334970192663
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000425293989112172014814991531091172342248356860046334970192663
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.000000637940983668258832135899164284970637254462662029138633398006!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_0r8ubrck.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000630864309922827075660434661297811884860126156525503933210308, F(x0)==0 but F(x1)==2 (F = compliant numpy)
+
+Running with index 29. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.46s/it]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.46s/it]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000411757925236424764442298935354477644012489837810488119838993!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000411757925236424764442298935354477644012489837810488119838993
+[cex extend] steps 2, max_max_eps: 0.000000823515850472852353405529367295936694894045512006853415925545
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000823515850472852353405529367295936694894045512006853415925545
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.00000123527377570928300267219496410742914394354384783694183334346!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_mnist_float32_numpy/x_qv8sx1e1.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.00000119944943010331096474682449030747151677999529424306160937805, F(x0)==1 but F(x1)==3 (F = compliant numpy)
+
+Reached max_cex=30 counter-examples. Stopping.
+>>> cex_fashion_mnist_float32_numpy
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/art/estimators/certification/__init__.py:30: UserWarning: PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality
+  warnings.warn("PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality")
+Running Keras (DeepFool only) with precision: <Policy "float32">
+Counter-example search runs against compliant numpy at: float32
+No bias amplification (set FP_BIAS=1e6 to amplify FP errors)
+Built compliant numpy model: 13 layers, dtype float32, biases: no
+Sanity (test point 0): ||keras - numpy||_2 = 7.692e-06, argmax keras=9 numpy=9
+Loaded L matrix shape: (10, 10)
+Total test points: 10000
+
+Running with index 0. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]WARNING:tensorflow:Calling GradientTape.gradient on a persistent tape inside its context is significantly less efficient than calling it outside the context (it causes the gradient ops to be recorded on the tape, leading to increased CPU and memory usage). Only call GradientTape.gradient inside the context if you actually want to trace the gradient in order to compute higher order derivatives.
+DeepFool: 100%|██████████| 1/1 [00:00<00:00,  3.51it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  3.50it/s]
+/Users/tobiasm1/git/verified-certified-robustness/scripts/attack_verified_certifier_nat_numpy.py:471: DeprecationWarning: 'mode' parameter is deprecated and will be removed in Pillow 13 (2026-10-15)
+  image = Image.fromarray(x_final, mode=image_mode)
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000853295647373132725508338012932232480096935095653069731401343!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000853295647373132725508338012932232480096935095653069731401343
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.000000853295647373132725508338012932232480096935095653069731401343!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_ryhfdeqs.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000841701834588956939185881357312566240666965332309190672146542, F(x0)==9 but F(x1)==7 (F = compliant numpy)
+
+Running with index 1. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.16it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.16it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.00000022364430145386350597639854199824867722453774112259174771873!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.00000022364430145386350597639854199824867722453774112259174771873
+[cex extend] steps 2, max_max_eps: 0.000000536746323489285616756302956825712837344325444435923580190232
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000536746323489285616756302956825712837344325444435923580190232
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.000000849848345524697838535222400230479272446328187642824891914797!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_cz5momap.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000815831445897578753453018423819413978447601738111749599470682, F(x0)==2 but F(x1)==4 (F = compliant numpy)
+
+Running with index 2. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.92it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.91it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000045221162084731245437938080263202917756626760578394746991859!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000045221162084731245437938080263202917756626760578394746991859
+[cex extend] steps 2, max_max_eps: 0.000000226105810423690907164260315179353417515600437343114819021769
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000226105810423690907164260315179353417515600437343114819021769
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.000000271326972508432034710098879202480379892936238913544885661209!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_q2av5dwe.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000229289097233448183722366599402298777284388983787712547165517, F(x0)==1 but F(x1)==3 (F = compliant numpy)
+
+Running with index 3. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00, 26.48it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.00000022610581042369347537959669796679150202765971340427332913049!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.00000022610581042369347537959669796679150202765971340427332913049
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.00000022610581042369347537959669796679150202765971340427332913049!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_n6no8dnr.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000199250129286161597756081710812824815752855501622581076023106, F(x0)==1 but F(x1)==3 (F = compliant numpy)
+
+Running with index 4. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  6.79it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  6.79it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000117910324095261543921921629706132124020953775933156827686576!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000117910324095261543921921629706132124020953775933156827686576
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.000000117910324095261543921921629706132124020953775933156827686576!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_izyb1ibk.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.0000000863806247674671570500965977720993866880337601915453885248451, F(x0)==6 but F(x1)==0 (F = compliant numpy)
+
+Running with index 5. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.99it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.98it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.00000016791687236566088674783459050793855332653703123189263034513!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.00000016791687236566088674783459050793855332653703123189263034513
+[cex extend] steps 2, max_max_eps: 0.000000335833744731328987305692637549772384626190816923053937126134
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000335833744731328987305692637549772384626190816923053937126134
+Best counter-example found on step: 2
+Got counter-example with max_eps 0.000000335833744731328987305692637549772384626190816923053937126134!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_yxg1br9f.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.00000033154486868054733270511472064754274772595341817252030416212, F(x0)==1 but F(x1)==0 (F = compliant numpy)
+
+Running with index 6. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.48it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.47it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.0000000634133252233782391150997251882990986469510305102665442340856!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.0000000634133252233782391150997251882990986469510305102665442340856
+[cex extend] steps 2, max_max_eps: 0.000000253653300893528949944464986674204324957658580133659927628729
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000253653300893528949944464986674204324957658580133659927628729
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.00000027479107596798960429193817066021751990927136357779604165698!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_ea3rg541.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000267101981546506981701488872353982440272149533495398083842628, F(x0)==4 but F(x1)==6 (F = compliant numpy)
+
+Running with index 7. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.99it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.98it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000137395537983994873002430597235603400533303443168656457922576!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000137395537983994873002430597235603400533303443168656457922576
+[cex extend] steps 2, max_max_eps: 0.000000422755501489210101403101608773732630578741515008021366907681
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000422755501489210101403101608773732630578741515008021366907681
+Best counter-example found on step: 2
+Got counter-example with max_eps 0.000000422755501489210101403101608773732630578741515008021366907681!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_uywv_3rx.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000378059070601257541411982528411514124356543172030826713707288, F(x0)==6 but F(x1)==4 (F = compliant numpy)
+
+Running with index 8. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.55it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.55it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.0000000682071914732827731608178888145222245201145145177369015219059!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.0000000682071914732827731608178888145222245201145145177369015219059
+[cex extend] steps 2, max_max_eps: 0.00000020462157441984392772446666131035429938365757206688039933237
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.00000020462157441984392772446666131035429938365757206688039933237
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.000000272828765893133434877298153992052941826659664930052582290032!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_3x3ktros.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000270936686524687234037692270719570749711019404949534976615742, F(x0)==5 but F(x1)==7 (F = compliant numpy)
+
+Running with index 9. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.85s/it]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.85s/it]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.00000024379875639232026559817419725295773469863317365299116307956!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.00000024379875639232026559817419725295773469863317365299116307956
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.00000024379875639232026559817419725295773469863317365299116307956!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_sesv9re3.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000145994527585928846103353626996221042928448395290613003037556, F(x0)==7 but F(x1)==9 (F = compliant numpy)
+
+Running with index 10. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.99it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.99it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000357830882326186145633660950239279967538961785213537602386581!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000357830882326186145633660950239279967538961785213537602386581
+[cex extend] steps 2, max_max_eps: 0.000000715661764652380202496109519131398068725635838668045980137833
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000715661764652380202496109519131398068725635838668045980137833
+Best counter-example found on step: 2
+Got counter-example with max_eps 0.000000715661764652380202496109519131398068725635838668045980137833!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_u8tuhuhu.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000706571667985183965806821808959903965092048188677449572850495, F(x0)==4 but F(x1)==2 (F = compliant numpy)
+
+Running with index 11. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.84s/it]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.84s/it]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.0000000341035957366370086311460235335142746702168841208027560129066!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.0000000341035957366370086311460235335142746702168841208027560129066
+[cex extend] steps 2, max_max_eps: 0.000000170517978683204682731138929716759432434966103283424057709347
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000170517978683204682731138929716759432434966103283424057709347
+Best counter-example found on step: 2
+Got counter-example with max_eps 0.000000170517978683204682731138929716759432434966103283424057709347!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_rgzv8vej.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000154502355270354473835059006757044100590091249347978534176227, F(x0)==5 but F(x1)==7 (F = compliant numpy)
+
+Running with index 13. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.53it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.53it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000090442324169474592382534899731526965992812816503859386853406!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000090442324169474592382534899731526965992812816503859386853406
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.000000090442324169474592382534899731526965992812816503859386853406!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_6zxjz6k9.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.0000000872719027965599877876745744361649351956288664222778778029401, F(x0)==3 but F(x1)==1 (F = compliant numpy)
+
+Running with index 14. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.37it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.37it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000169102200595682392549725076863692499426506931000997876613435!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000169102200595682392549725076863692499426506931000997876613435
+[cex extend] steps 2, max_max_eps: 0.000000274791075967988338305959904882127777984589793203738023330541
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000274791075967988338305959904882127777984589793203738023330541
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.000000612995477159359530790001876087265797589486140735514243487092!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_b61mqjhi.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000527485876617832791076004276086726916637338908919881895507895, F(x0)==4 but F(x1)==6 (F = compliant numpy)
+
+Running with index 15. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.46it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.46it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000113052905211843681396413149986653484360806049733188703384441!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000113052905211843681396413149986653484360806049733188703384441
+[cex extend] steps 2, max_max_eps: 0.000000384379877720280023591775395758494924717955511436485865668019
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000384379877720280023591775395758494924717955511436485865668019
+Best counter-example found on step: 2
+Got counter-example with max_eps 0.000000384379877720280023591775395758494924717955511436485865668019!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_oobxwjzk.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000326494369411483255295784845624588105226830630173008034013476, F(x0)==1 but F(x1)==3 (F = compliant numpy)
+
+Running with index 16. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.97it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.97it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.0000000794173015850138126011369853195592877339427043566737237117662!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.0000000794173015850138126011369853195592877339427043566737237117662
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.0000000794173015850138126011369853195592877339427043566737237117662!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_b8szsdrw.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.0000000768085908980111785847107570649753510401387379450647957707628, F(x0)==2 but F(x1)==1 (F = compliant numpy)
+
+Running with index 18. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  3.04it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  3.04it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.0000000262864140164112403535344502242421496313044446689739742279138!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.0000000262864140164112403535344502242421496313044446689739742279138
+[cex extend] steps 2, max_max_eps: 0.0000000788592420492399103048665667182658579865735483418971514132846
+[cex extend] steps 4, max_max_eps: 0.000000157718484098484979211688323744725252213484841523800526189704
+[cex extend] mid 6, low 5.0, high 7, max_max_eps: 0.000000157718484098484979211688323744725252213484841523800526189704
+[cex extend] mid 7, low 7, high 7, max_max_eps: 0.000000236577726147724833933848796220510220638422167298532732716193
+Best counter-example found on step: 6
+Got counter-example with max_eps 0.000000236577726147724833933848796220510220638422167298532732716193!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_fqn9gjeo.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000192509419943107754007983197628622437214524035716972370241687, F(x0)==8 but F(x1)==5 (F = compliant numpy)
+
+Running with index 19. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.91s/it]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.91s/it]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000235820648190524308427570938557506891925881713586840487934936!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000235820648190524308427570938557506891925881713586840487934936
+[cex extend] steps 2, max_max_eps: 0.000000471641296381049010036597835460930999551714509561573592789208
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000471641296381049010036597835460930999551714509561573592789208
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.00000094328259276210015216137097815502595052681003948371614601843!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_kml8zcw9.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000778008529423993564341383910067459202336328212545569852965905, F(x0)==0 but F(x1)==6 (F = compliant numpy)
+
+Running with index 20. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  6.10it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  6.10it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000163872303598983365285057436569713016551703043019120766516439!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000163872303598983365285057436569713016551703043019120766516439
+[cex extend] steps 2, max_max_eps: 0.000000327744607197968818342973758288091584008624177979213967856679
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000327744607197968818342973758288091584008624177979213967856679
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.000000655489214395938270154910819105221641306215106060303826199702!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_7cpd759t.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000560995936766070176594509497915362173897774307318020402438259, F(x0)==2 but F(x1)==0 (F = compliant numpy)
+
+Running with index 21. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  6.71it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  6.71it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.00000013641438294656318170081591503636960387770389274641849689224!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.00000013641438294656318170081591503636960387770389274641849689224
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.00000013641438294656318170081591503636960387770389274641849689224!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_nhgoxvax.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.0000000998085551186547508137798490593071640391652250983428503537696, F(x0)==5 but F(x1)==7 (F = compliant numpy)
+
+Running with index 22. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.17it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.17it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000136414382946563452117025571272062154769276575870612118219606!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000136414382946563452117025571272062154769276575870612118219606
+[cex extend] steps 2, max_max_eps: 0.000000341035957366417852697406776120478859558461686538895158755322
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000341035957366417852697406776120478859558461686538895158755322
+Best counter-example found on step: 2
+Got counter-example with max_eps 0.000000341035957366417852697406776120478859558461686538895158755322!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_knb0bn1q.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000294024033250539729649772645588119844626848878949758436975486, F(x0)==7 but F(x1)==5 (F = compliant numpy)
+
+Running with index 24. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.85s/it]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.85s/it]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000112264133233692968082754255885092705496932809819272689984737!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000112264133233692968082754255885092705496932809819272689984737
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.000000112264133233692968082754255885092705496932809819272689984737!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_8q2y7vnj.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.0000000917658316581839222706339394280979584482551643174662443439786, F(x0)==1 but F(x1)==5 (F = compliant numpy)
+
+Running with index 26. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.39it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  5.39it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000137395537983990731344569272758158042076184881105194163253214!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000137395537983990731344569272758158042076184881105194163253214
+[cex extend] steps 2, max_max_eps: 0.000000412186613951987180044962586936130551948735317539923780061547
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000412186613951987180044962586936130551948735317539923780061547
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.000000591857702084899713669566298687081097392241446245189416371399!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_vp7z3w8n.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000551772424742295753401693903529418469440363176422452930702411, F(x0)==6 but F(x1)==4 (F = compliant numpy)
+
+Running with index 27. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.16it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.15it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000471641296381046962454453092661063334878548649289765201063081!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000471641296381046962454453092661063334878548649289765201063081
+[cex extend] steps 2, max_max_eps: 0.000000825372268666839168043851199680643036443419488164071686681248
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000825372268666839168043851199680643036443419488164071686681248
+Best counter-example found on step: 2
+Got counter-example with max_eps 0.000000825372268666839168043851199680643036443419488164071686681248!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_mauizu_e.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000759342263456370149660224282890454348098539255899286403217642, F(x0)==0 but F(x1)==6 (F = compliant numpy)
+
+Running with index 28. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.15it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.15it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000121899378196158053163291430314312267064704750871447256049287!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000121899378196158053163291430314312267064704750871447256049287
+[cex extend] steps 2, max_max_eps: 0.000000121899378196161981251852831855612189031192179118453627541293
+[cex extend] steps 4, max_max_eps: 0.000000243798756392323333615740360489701102699397116016260028421101
+[cex extend] steps 8, max_max_eps: 0.00000036569813458848139946739941659048490200698619346220699425597
+[cex extend] mid 12, low 9.0, high 15, max_max_eps: 0.00000036569813458848139946739941659048490200698619346220699425597
+[cex extend] mid 10, low 9.0, high 11, max_max_eps: 0.00000036569813458848139946739941659048490200698619346220699425597
+[cex extend] mid 9, low 9.0, high 9, max_max_eps: 0.00000036569813458848139946739941659048490200698619346220699425597
+Best counter-example found on step: 8
+Got counter-example with max_eps 0.00000036569813458848139946739941659048490200698619346220699425597!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_n22dp21v.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000323950992655442292523386287454192733833257689212878006835936, F(x0)==9 but F(x1)==7 (F = compliant numpy)
+
+Running with index 30. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  2.79it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  2.79it/s]
+Searching for counter-example (against numpy execution)...
+Search did not return a counter-example. Checking the other way around...
+Other way around is a counter-example. Swapping x0 and x1.
+Got counter-example with max_eps 0.000000210291312131309562174322889569963446199096779309911653399467!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000210291312131309562174322889569963446199096779309911653399467
+[cex extend] steps 2, max_max_eps: 0.000000315436968196966597420803264852721981026472726140093745452639
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000315436968196966597420803264852721981026472726140093745452639
+Best counter-example found on step: 2
+Got counter-example with max_eps 0.000000315436968196966597420803264852721981026472726140093745452639!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_o4v7hk2c.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000256392811499541639911502565298078319080550100685552747767702, F(x0)==5 but F(x1)==8 (F = compliant numpy)
+
+Running with index 31. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  2.58it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  2.58it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000315436968196970684458944817223239942679951500147115208868341!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000315436968196970684458944817223239942679951500147115208868341
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.000000315436968196970684458944817223239942679951500147115208868341!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_lczlfzui.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000290770643678629429932667581061192511609795230618022962556691, F(x0)==8 but F(x1)==5 (F = compliant numpy)
+
+Running with index 32. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  2.46it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  2.46it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.0000000134676145215885749526121476548135987308731704033549454948814!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.0000000134676145215885749526121476548135987308731704033549454948814
+[cex extend] steps 2, max_max_eps: 0.0000000404028435647804618359220462437642744680128296096275987530123
+[cex extend] steps 4, max_max_eps: 0.000000107740916172745703295248220805098008435585218437397502865607
+[cex extend] mid 6, low 5.0, high 7, max_max_eps: 0.000000107740916172745703295248220805098008435585218437397502865607
+[cex extend] mid 7, low 7, high 7, max_max_eps: 0.000000114474723433546504931452310524710309130208809690332157974344
+Best counter-example found on step: 7
+Got counter-example with max_eps 0.000000141409952476729142508994361548479795252069970577334819769443!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_7ulaals0.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000138760132937128504213703856779934085356785654374671500182805, F(x0)==3 but F(x1)==7 (F = compliant numpy)
+
+Running with index 33. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.48it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  4.47it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000109552263794087318189258964563545383351660216839763436401366!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000109552263794087318189258964563545383351660216839763436401366
+[cex extend] steps 2, max_max_eps: 0.000000394388149658715537958691671835046325060252190862523453012561
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000394388149658715537958691671835046325060252190862523453012561
+Best counter-example found on step: 2
+Got counter-example with max_eps 0.000000394388149658715537958691671835046325060252190862523453012561!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_5t885gst.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000329825618317056246912013876173825729173385115920451018192063, F(x0)==3 but F(x1)==8 (F = compliant numpy)
+
+Running with index 34. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  3.34it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  3.33it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000157718484098482254501230090403074324500458765440997972027523!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000157718484098482254501230090403074324500458765440997972027523
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.000000157718484098482254501230090403074324500458765440997972027523!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_fashion_mnist_float32_numpy/x_y1h6v1pf.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000150344291985261998882413040222279680862335750983492153467743, F(x0)==8 but F(x1)==5 (F = compliant numpy)
+
+Reached max_cex=30 counter-examples. Stopping.
+>>> cex_cifar10_float32_numpy
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/art/estimators/certification/__init__.py:30: UserWarning: PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality
+  warnings.warn("PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality")
+Running Keras (DeepFool only) with precision: <Policy "float32">
+Counter-example search runs against compliant numpy at: float32
+No bias amplification (set FP_BIAS=1e6 to amplify FP errors)
+Built compliant numpy model: 9 layers, dtype float32, biases: no
+Sanity (test point 0): ||keras - numpy||_2 = 5.535e-06, argmax keras=3 numpy=3
+Loaded L matrix shape: (10, 10)
+Total test points: 10000
+
+Running with index 0. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]WARNING:tensorflow:Calling GradientTape.gradient on a persistent tape inside its context is significantly less efficient than calling it outside the context (it causes the gradient ops to be recorded on the tape, leading to increased CPU and memory usage). Only call GradientTape.gradient inside the context if you actually want to trace the gradient in order to compute higher order derivatives.
+DeepFool: 100%|██████████| 1/1 [00:00<00:00, 10.67it/s]
+/Users/tobiasm1/git/verified-certified-robustness/scripts/attack_verified_certifier_nat_numpy.py:471: DeprecationWarning: 'mode' parameter is deprecated and will be removed in Pillow 13 (2026-10-15)
+  image = Image.fromarray(x_final, mode=image_mode)
+Searching for counter-example (against numpy execution)...
+Search did not return a counter-example. Checking the other way around...
+Other way around is a counter-example. Swapping x0 and x1.
+Got counter-example with max_eps 0.00000010018725673959164781765198586928333757128939396352507174015!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.00000010018725673959164781765198586928333757128939396352507174015
+[cex extend] steps 2, max_max_eps: 0.000000200374513479177030195869655492987877108768598946357976351929
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000200374513479177030195869655492987877108768598946357976351929
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.000000400749026958363225239733656439118484364620939411304402839678!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_uazreevw.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000397769605169742226078725126300980183513568815578469569397148, F(x0)==2 but F(x1)==3 (F = compliant numpy)
+
+Running with index 1. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  2.00s/it]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  2.00s/it]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000118540419665549281625279916888956231301794710012334745543419!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000118540419665549281625279916888956231301794710012334745543419
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.000000118540419665549281625279916888956231301794710012334745543419!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_hzo3_awj.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.0000000597920064113567258946885354826218910543444654303998665588255, F(x0)==8 but F(x1)==9 (F = compliant numpy)
+
+Running with index 3. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00, 10.35it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000166106613903672207791123025933411149533500239387630716533262!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000166106613903672207791123025933411149533500239387630716533262
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.000000166106613903672207791123025933411149533500239387630716533262!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_h0ew6ds9.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000114457990942427637812043533052971548930741117561085282683741, F(x0)==0 but F(x1)==8 (F = compliant numpy)
+
+Running with index 5. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00, 15.50it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000111993670253212471750034997198960468284475215588024336858145!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000111993670253212471750034997198960468284475215588024336858145
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.000000111993670253212471750034997198960468284475215588024336858145!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_41d8oup1.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.0000000844633073882062658585279793621040092107238316099872765242087, F(x0)==6 but F(x1)==7 (F = compliant numpy)
+
+Running with index 6. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00, 24.05it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.0000000472932172367576766713261867366101405541872401569634394609185!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.0000000472932172367576766713261867366101405541872401569634394609185
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.0000000472932172367576766713261867366101405541872401569634394609185!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_69oe_8j_.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.0000000400374759010250236142707996257048800939787817267208973237194, F(x0)==1 but F(x1)==3 (F = compliant numpy)
+
+Running with index 7. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00, 12.22it/s]
+Searching for counter-example (against numpy execution)...
+Search did not return a counter-example. Checking the other way around...
+Other way around is a counter-example. Swapping x0 and x1.
+Got counter-example with max_eps 0.0000000843365011040259391091575832427733004161322320074711811344058!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.0000000843365011040259391091575832427733004161322320074711811344058
+[cex extend] steps 2, max_max_eps: 0.0000000843365011040275589745056151499872978818631331822750649150445
+[cex extend] steps 4, max_max_eps: 0.0000000843365011040275589745056151499872978818631331822750649150445
+[cex extend] mid 6, low 5.0, high 7, max_max_eps: 0.0000000843365011040275589745056151499872978818631331822750649150445
+[cex extend] mid 7, low 7, high 7, max_max_eps: 0.000000168673002208058210959433103049759780863898164818091496117168
+Best counter-example found on step: 7
+Got counter-example with max_eps 0.000000253009503312089663242471154291427668852665689470291242104694!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_2d1y5rg_.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000195462400054110661294449114286053891969606765147574024161052, F(x0)==2 but F(x1)==6 (F = compliant numpy)
+
+Running with index 8. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.93s/it]DeepFool: 100%|██████████| 1/1 [00:01<00:00,  1.93s/it]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.00000017086436588720129088863101029761960430080279409576762628949!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.00000017086436588720129088863101029761960430080279409576762628949
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.00000017086436588720129088863101029761960430080279409576762628949!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_jumjr9h4.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000136774478485329592961756285419368539387203814513856171370643, F(x0)==3 but F(x1)==5 (F = compliant numpy)
+
+Running with index 9. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00, 12.72it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.0000000557890202640524558986765322661172068702707193581249632776803!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.0000000557890202640524558986765322661172068702707193581249632776803
+[cex extend] steps 2, max_max_eps: 0.000000223156081056228494767737940911796308065719408033350325936713
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000223156081056228494767737940911796308065719408033350325936713
+Best counter-example found on step: 2
+Got counter-example with max_eps 0.000000223156081056228494767737940911796308065719408033350325936713!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_n_ofd2cl.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000168092760036565030975886244186376190176919863882296249103149, F(x0)==1 but F(x1)==9 (F = compliant numpy)
+
+Running with index 10. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00, 23.96it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.0000000830533069518308023245772180910562187960977098555304110050201!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.0000000830533069518308023245772180910562187960977098555304110050201
+[cex extend] steps 2, max_max_eps: 0.000000249159920855509672097976137861230872538514696375554002486139
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000249159920855509672097976137861230872538514696375554002486139
+Best counter-example found on step: 3
+Got counter-example with max_eps 0.000000332213227807344027426029640213826350251967977143878799494737!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_44ez8spm.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000293707897431061024561254091364895502401763850240580971617688, F(x0)==0 but F(x1)==8 (F = compliant numpy)
+
+Running with index 12. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  7.24it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  7.23it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.0000000463830181852812995063891600793946448347826626850853468732648!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.0000000463830181852812995063891600793946448347826626850853468732648
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.0000000463830181852812995063891600793946448347826626850853468732648!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_8ul16vh_.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.0000000298750252588043609213883639841893018053252793934412967264744, F(x0)==5 but F(x1)==1 (F = compliant numpy)
+
+Running with index 13. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00, 10.13it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000055996835126601764128658068467447786639723047149795276079458!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000055996835126601764128658068467447786639723047149795276079458
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.000000055996835126601764128658068467447786639723047149795276079458!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_6k0ox_8b.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.0000000301648365066467622046550925004499685878045870765654060150492, F(x0)==7 but F(x1)==6 (F = compliant numpy)
+
+Running with index 14. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  7.06it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  7.06it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.0000000557890202640510543741828267602782361825387945878061736390114!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.0000000557890202640510543741828267602782361825387945878061736390114
+[cex extend] steps 2, max_max_eps: 0.000000223156081056225796974601391352143402911507079878770134798257
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000223156081056225796974601391352143402911507079878770134798257
+Best counter-example found on step: 2
+Got counter-example with max_eps 0.000000223156081056225796974601391352143402911507079878770134798257!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_9gx0v6ue.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000220115766807928573445733262138803991250470440836625809254193, F(x0)==9 but F(x1)==1 (F = compliant numpy)
+
+Running with index 18. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  9.62it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  9.61it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000106395334263934574300557306844193925524565025317540399971356!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000106395334263934574300557306844193925524565025317540399971356
+[cex extend] steps 2, max_max_eps: 0.000000265988335659837664834568775535912047873337725650329633566755
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000265988335659837664834568775535912047873337725650329633566755
+Best counter-example found on step: 2
+Got counter-example with max_eps 0.000000265988335659837664834568775535912047873337725650329633566755!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_h800cpar.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.00000023206337257775745634723778807842052863150715605804086870943, F(x0)==8 but F(x1)==1 (F = compliant numpy)
+
+Running with index 19. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00, 12.21it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000111993670253212537860957092767929319902706057764979100694258!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000111993670253212537860957092767929319902706057764979100694258
+[cex extend] steps 2, max_max_eps: 0.000000335981010759639716639639630946772897405734353764097159065352
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000335981010759639716639639630946772897405734353764097159065352
+Best counter-example found on step: 2
+Got counter-example with max_eps 0.000000335981010759639716639639630946772897405734353764097159065352!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_4c56nstz.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000298116341587045142413527938408701432432402072316598496561019, F(x0)==6 but F(x1)==7 (F = compliant numpy)
+
+Running with index 21. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  7.14it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  7.13it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000333779711362627170920009351263952824559101480414335190594831!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000333779711362627170920009351263952824559101480414335190594831
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.000000333779711362627170920009351263952824559101480414335190594831!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_dqemjwn_.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000208874164509477663830626687783369128478177409199249037675108, F(x0)==0 but F(x1)==2 (F = compliant numpy)
+
+Running with index 23. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00, 17.23it/s]
+Searching for counter-example (against numpy execution)...
+Search did not return a counter-example. Checking the other way around...
+Other way around is a counter-example. Swapping x0 and x1.
+Got counter-example with max_eps 0.000000111578040528108730366759853307950339500066372550902971116926!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000111578040528108730366759853307950339500066372550902971116926
+[cex extend] steps 2, max_max_eps: 0.000000111578040528113425826879457548352996249673375053089337645418
+[cex extend] steps 4, max_max_eps: 0.000000111578040528113425826879457548352996249673375053089337645418
+[cex extend] steps 8, max_max_eps: 0.000000223156081056223802179698324985665239286648165457249437315761
+[cex extend] mid 12, low 9.0, high 15, max_max_eps: 0.000000223156081056223802179698324985665239286648165457249437315761
+[cex extend] mid 10, low 9.0, high 11, max_max_eps: 0.000000223156081056223802179698324985665239286648165457249437315761
+[cex extend] mid 9, low 9.0, high 9, max_max_eps: 0.000000223156081056223802179698324985665239286648165457249437315761
+Best counter-example found on step: 9
+Got counter-example with max_eps 0.000000334734121584342157003867126218424230098388386138444209411809!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_1xfe2cjk.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000293550317665005902814579124040779935995844740250524996840381, F(x0)==1 but F(x1)==9 (F = compliant numpy)
+
+Running with index 25. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:02<00:00,  2.21s/it]DeepFool: 100%|██████████| 1/1 [00:02<00:00,  2.21s/it]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.0000000843365011040244727611586705862123380939010530710220336914063!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.0000000843365011040244727611586705862123380939010530710220336914063
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.0000000843365011040244727611586705862123380939010530710220336914063!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_gwkcutij.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.00000007450580596923828125, F(x0)==2 but F(x1)==6 (F = compliant numpy)
+
+Running with index 26. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00, 24.95it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000121159924536437119897316944593684040834255648075079903466512!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000121159924536437119897316944593684040834255648075079903466512
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.000000121159924536437119897316944593684040834255648075079903466512!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_bdghblg5.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000105958153704761652547609943436492042921993087876703899469672, F(x0)==4 but F(x1)==2 (F = compliant numpy)
+
+Running with index 28. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  8.35it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  8.35it/s]
+Searching for counter-example (against numpy execution)...
+Search did not return a counter-example. Checking the other way around...
+Other way around also wasn't a counter-example. Skipping...
+
+Running with index 29. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:02<00:00,  2.07s/it]DeepFool: 100%|██████████| 1/1 [00:02<00:00,  2.07s/it]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.0000000559968351266070578567304387699381010098701879478849668030841!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.0000000559968351266070578567304387699381010098701879478849668030841
+[cex extend] steps 2, max_max_eps: 0.0000000559968351266070578567304387699381010098701879478849668030841
+[cex extend] steps 4, max_max_eps: 0.000000111993670253207314070185417033385891208692131859958439448659
+[cex extend] mid 6, low 5.0, high 7, max_max_eps: 0.000000111993670253207314070185417033385891208692131859958439448659
+[cex extend] mid 7, low 7, high 7, max_max_eps: 0.000000223987340506424793862693429261619776627887614689863611682067
+Best counter-example found on step: 6
+Got counter-example with max_eps 0.000000223987340506424793862693429261619776627887614689863611682067!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_wjjcb77y.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000189422861284229042607560703328991639708652583411201991345593, F(x0)==6 but F(x1)==7 (F = compliant numpy)
+
+Running with index 30. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00, 12.49it/s]
+Searching for counter-example (against numpy execution)...
+Search did not return a counter-example. Checking the other way around...
+Other way around is a counter-example. Swapping x0 and x1.
+Got counter-example with max_eps 0.0000000476539695455699931638683477709862441711041736169818250345997!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.0000000476539695455699931638683477709862441711041736169818250345997
+[cex extend] steps 2, max_max_eps: 0.0000000953079390911447926770183613173218776090256067287195506210505
+[cex extend] steps 4, max_max_eps: 0.000000142961908636723639099553085425602285135716221429986059912031
+[cex extend] mid 6, low 5.0, high 7, max_max_eps: 0.000000142961908636723639099553085425602285135716221429986059912031
+[cex extend] mid 7, low 7, high 7, max_max_eps: 0.00000023826984772788165050201589527154293662946051026352591716192
+Best counter-example found on step: 7
+Got counter-example with max_eps 0.00000028592381727345404478117459298702733900987272914255680648487!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_176ejox2.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000273292654612506013113617419717690608153722379693478073250968, F(x0)==3 but F(x1)==6 (F = compliant numpy)
+
+Running with index 32. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:02<00:00,  2.24s/it]DeepFool: 100%|██████████| 1/1 [00:02<00:00,  2.24s/it]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.0000000407381630604904782736591650760260563401971012353897094726562!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.0000000407381630604904782736591650760260563401971012353897094726562
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.0000000407381630604904782736591650760260563401971012353897094726562!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_xghlg5n9.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.0000000298023223876953125, F(x0)==4 but F(x1)==0 (F = compliant numpy)
+
+Running with index 33. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00, 11.65it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000202742251312896771056791432720829655168649784900561292044627!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000202742251312896771056791432720829655168649784900561292044627
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.000000202742251312896771056791432720829655168649784900561292044627!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_n2exu_wk.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000134935753615758070745673897370458638862552113296045963117208, F(x0)==5 but F(x1)==2 (F = compliant numpy)
+
+Running with index 34. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  9.21it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  9.20it/s]
+Searching for counter-example (against numpy execution)...
+Search did not return a counter-example. Checking the other way around...
+Other way around is a counter-example. Swapping x0 and x1.
+Got counter-example with max_eps 0.000000107809036780880589179388288741084678560785969914093129773391!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000107809036780880589179388288741084678560785969914093129773391
+[cex extend] steps 2, max_max_eps: 0.000000107809036780880589179388288741084678560785969914093129773391
+[cex extend] steps 4, max_max_eps: 0.000000269522591952211789644330088183965930819350861895059834295289
+[cex extend] mid 6, low 5.0, high 7, max_max_eps: 0.000000269522591952211789644330088183965930819350861895059834295289
+[cex extend] mid 5, low 5.0, high 5, max_max_eps: 0.000000269522591952211789644330088183965930819350861895059834295289
+Best counter-example found on step: 4
+Got counter-example with max_eps 0.000000269522591952211789644330088183965930819350861895059834295289!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_a6akcb1n.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000239087030138373979040005594271387710397883682247597107683488, F(x0)==7 but F(x1)==9 (F = compliant numpy)
+
+Running with index 37. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:02<00:00,  2.02s/it]DeepFool: 100%|██████████| 1/1 [00:02<00:00,  2.02s/it]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000111578040528106613214765322091028249321014379215374950198932!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000111578040528106613214765322091028249321014379215374950198932
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.000000111578040528106613214765322091028249321014379215374950198932!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_n_2tsq91.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000104573881980912384618218700486474079702522180554823090130621, F(x0)==1 but F(x1)==9 (F = compliant numpy)
+
+Running with index 38. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  9.60it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00,  9.58it/s]
+Searching for counter-example (against numpy execution)...
+Search did not return a counter-example. Checking the other way around...
+Other way around also wasn't a counter-example. Skipping...
+
+Running with index 39. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00, 16.35it/s]
+Searching for counter-example (against numpy execution)...
+Search did not return a counter-example. Checking the other way around...
+Other way around is a counter-example. Swapping x0 and x1.
+Got counter-example with max_eps 0.000000341728731774405880868349169645817710663782129643095686333254!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000341728731774405880868349169645817710663782129643095686333254
+[cex extend] steps 2, max_max_eps: 0.000000683457463548820430386106511592293354216051998741274011679422
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000683457463548820430386106511592293354216051998741274011679422
+Best counter-example found on step: 2
+Got counter-example with max_eps 0.000000683457463548820430386106511592293354216051998741274011679422!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_wg68skcy.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000626416730071049202633140203922241245956380965051755228536158, F(x0)==3 but F(x1)==5 (F = compliant numpy)
+
+Running with index 40. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00, 24.21it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.0000000814763261209784318152645945191798439486503752516174767726376!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.0000000814763261209784318152645945191798439486503752516174767726376
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.0000000814763261209784318152645945191798439486503752516174767726376!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_8w90s3cx.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.0000000690938420258142333665223127155764000584443577533684537811117, F(x0)==4 but F(x1)==0 (F = compliant numpy)
+
+Running with index 41. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00, 10.23it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.0000000421682505520105229136178867768942625974761317924076819705111!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.0000000421682505520105229136178867768942625974761317924076819705111
+[cex extend] steps 2, max_max_eps: 0.000000168673002208061728930843893860088500458280101267342643593828
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000168673002208061728930843893860088500458280101267342643593828
+Best counter-example found on step: 2
+Got counter-example with max_eps 0.000000168673002208061728930843893860088500458280101267342643593828!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_szh18tse.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000138766386687743145385783911873269675604744061853342428232306, F(x0)==6 but F(x1)==2 (F = compliant numpy)
+
+Running with index 44. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:02<00:00,  2.03s/it]DeepFool: 100%|██████████| 1/1 [00:02<00:00,  2.03s/it]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000166889855681308022154176863028090954823166645220477908061082!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000166889855681308022154176863028090954823166645220477908061082
+Best counter-example found on step: 0
+Got counter-example with max_eps 0.000000166889855681308022154176863028090954823166645220477908061082!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_z8ixagi4.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.00000016443708572019441845634130880764810985764346519933087017606, F(x0)==0 but F(x1)==2 (F = compliant numpy)
+
+Running with index 45. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00, 10.03it/s]
+Searching for counter-example (against numpy execution)...
+Got counter-example with max_eps 0.000000127396046358051866212730796188888019587759359296796901617199!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.000000127396046358051866212730796188888019587759359296796901617199
+[cex extend] steps 2, max_max_eps: 0.000000191094069537076544733176348849380357843572971727354907938822
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000191094069537076544733176348849380357843572971727354907938822
+Best counter-example found on step: 2
+Got counter-example with max_eps 0.000000191094069537076544733176348849380357843572971727354907938822!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_z1niqs8y.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000138187684051628466733044625431152800116888715506736907562223, F(x0)==9 but F(x1)==0 (F = compliant numpy)
+
+Running with index 49. Optimising to competitor...
+DeepFool:   0%|          | 0/1 [00:00<?, ?it/s]DeepFool: 100%|██████████| 1/1 [00:00<00:00, 25.02it/s]
+Searching for counter-example (against numpy execution)...
+Search did not return a counter-example. Checking the other way around...
+Other way around is a counter-example. Swapping x0 and x1.
+Got counter-example with max_eps 0.0000000843365011040277460380615607779541953448187996400520205497741!
+Trying to improve counter-example by extension...
+[cex extend] steps 1, max_max_eps: 0.0000000843365011040277460380615607779541953448187996400520205497741
+[cex extend] steps 2, max_max_eps: 0.000000253009503312092093724290849607291116091736811022283110393648
+[cex extend] mid 3, low 3.0, high 3, max_max_eps: 0.000000253009503312092093724290849607291116091736811022283110393648
+Best counter-example found on step: 2
+Got counter-example with max_eps 0.000000253009503312092093724290849607291116091736811022283110393648!
+Image saved /Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/float32_suites_regen/cex_cifar10_float32_numpy/x_yg8jx85g.png
+Manually confirmed x0 and x1 such that ||x1-x0||==0.000000250371658795275590920131298459935745857278023651061523141099, F(x0)==2 but F(x1)==6 (F = compliant numpy)
+
+Reached max_cex=30 counter-examples. Stopping.
+### done (float32 suites regen)
