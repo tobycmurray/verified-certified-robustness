@@ -72,13 +72,20 @@ if fmt not in ("float16", "float32", "float64"):
           "(compliant_forward supports float16/float32/float64)")
     sys.exit(1)
 
+# The deployed weights are float32 (the trained model's format). A float64 run means
+# "the float32-weighted network executed in float64", so the Keras model that
+# supplies the weight tensors is built at the float32 policy and the tensors are
+# cast UP to float64 below (lossless); loading at a float64 policy would parse the
+# CSV decimals straight to float64 and silently certify a different model (the
+# certifier's .txt weights are the exact float32 values).
+keras_policy = "float32" if fmt == "float64" else fmt
 try:
-    mixed_precision.set_global_policy(fmt)
+    mixed_precision.set_global_policy(keras_policy)
 except Exception as e:
     print("Failed to set precision", str(e))
     sys.exit(1)
 
-print(f"Keras policy (weight loading only): {mixed_precision.global_policy()}")
+print(f"Keras policy (weight loading only): {mixed_precision.global_policy()} (weights are float32; cast to {fmt})")
 print(f"y1 logits computed by compliant numpy execution at: {fmt}")
 
 dataset = sys.argv[2]
