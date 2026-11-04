@@ -1,0 +1,149 @@
+>>> pgd (Thu  5 Nov 2026 08:19:38 AEDT)
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/art/estimators/certification/__init__.py:30: UserWarning: PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality
+  warnings.warn("PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality")
+cifar10: 10000 test points, eps=0.141 (exact), attack radius 0.14099858999999998 (inset 1e-05), PGD steps=100 restarts=5
+clean acc: numpy 0.5774, keras 0.5774 (7s)
+attacking all 10000 points against the numpy execution's predicted labels
+  256/10000: attacked so far (numpy) 85 of 256 eligible (18s)
+  512/10000: attacked so far (numpy) 168 of 512 eligible (29s)
+  768/10000: attacked so far (numpy) 237 of 768 eligible (40s)
+  1024/10000: attacked so far (numpy) 318 of 1024 eligible (51s)
+  1280/10000: attacked so far (numpy) 384 of 1280 eligible (62s)
+  1536/10000: attacked so far (numpy) 462 of 1536 eligible (73s)
+  1792/10000: attacked so far (numpy) 543 of 1792 eligible (85s)
+  2048/10000: attacked so far (numpy) 621 of 2048 eligible (96s)
+  2304/10000: attacked so far (numpy) 708 of 2304 eligible (107s)
+  2560/10000: attacked so far (numpy) 783 of 2560 eligible (118s)
+  2816/10000: attacked so far (numpy) 878 of 2816 eligible (130s)
+  3072/10000: attacked so far (numpy) 963 of 3072 eligible (141s)
+  3328/10000: attacked so far (numpy) 1054 of 3328 eligible (153s)
+  3584/10000: attacked so far (numpy) 1134 of 3584 eligible (164s)
+  3840/10000: attacked so far (numpy) 1217 of 3840 eligible (175s)
+  4096/10000: attacked so far (numpy) 1290 of 4096 eligible (186s)
+  4352/10000: attacked so far (numpy) 1376 of 4352 eligible (197s)
+  4608/10000: attacked so far (numpy) 1459 of 4608 eligible (209s)
+  4864/10000: attacked so far (numpy) 1541 of 4864 eligible (220s)
+  5120/10000: attacked so far (numpy) 1617 of 5120 eligible (231s)
+  5376/10000: attacked so far (numpy) 1682 of 5376 eligible (242s)
+  5632/10000: attacked so far (numpy) 1762 of 5632 eligible (253s)
+  5888/10000: attacked so far (numpy) 1848 of 5888 eligible (264s)
+  6144/10000: attacked so far (numpy) 1938 of 6144 eligible (275s)
+  6400/10000: attacked so far (numpy) 2026 of 6400 eligible (286s)
+  6656/10000: attacked so far (numpy) 2109 of 6656 eligible (298s)
+  6912/10000: attacked so far (numpy) 2191 of 6912 eligible (309s)
+  7168/10000: attacked so far (numpy) 2265 of 7168 eligible (320s)
+  7424/10000: attacked so far (numpy) 2345 of 7424 eligible (331s)
+  7680/10000: attacked so far (numpy) 2424 of 7680 eligible (342s)
+  7936/10000: attacked so far (numpy) 2505 of 7936 eligible (353s)
+  8192/10000: attacked so far (numpy) 2590 of 8192 eligible (365s)
+  8448/10000: attacked so far (numpy) 2668 of 8448 eligible (376s)
+  8704/10000: attacked so far (numpy) 2746 of 8704 eligible (387s)
+  8960/10000: attacked so far (numpy) 2809 of 8960 eligible (398s)
+  9216/10000: attacked so far (numpy) 2882 of 9216 eligible (409s)
+  9472/10000: attacked so far (numpy) 2972 of 9472 eligible (420s)
+  9728/10000: attacked so far (numpy) 3051 of 9728 eligible (431s)
+  9984/10000: attacked so far (numpy) 3141 of 9984 eligible (443s)
+  10000/10000: attacked so far (numpy) 3148 of 10000 eligible (445s)
+
+SUMMARY: {
+ "dataset": "cifar10",
+ "eps": "0.141",
+ "attack_eps": 0.14099858999999998,
+ "inset": 1e-05,
+ "n": 10000,
+ "attack": "pgd",
+ "label_mode": "predicted",
+ "distance_check": "exact",
+ "pgd_steps": 100,
+ "pgd_restarts": 5,
+ "flips_numpy": 3148,
+ "flips_outside_ball": 0,
+ "n_eligible": 10000,
+ "unbroken_rate_numpy": 0.6852,
+ "clean_acc_numpy": 0.5774,
+ "clean_acc_keras": 0.5774,
+ "pgd_robust_acc_numpy": 0.4637,
+ "pgd_robust_acc_keras": 0.4637,
+ "attacked_numpy": 3148,
+ "attacked_keras": 3148,
+ "n_correct_numpy": 5774,
+ "seconds": 445.02918004989624
+}
+Wrote results/pgd_l2_cifar10_eps0.141_predlabel_exact.json and results/pgd_l2_cifar10_eps0.141_predlabel_exact_adv.npz (3148 adversarials)
+>>> apgd (Thu  5 Nov 2026 08:27:10 AEDT)
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/art/estimators/certification/__init__.py:30: UserWarning: PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality
+  warnings.warn("PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality")
+cifar10: 10000 test points, eps=0.141 (exact), attack radius 0.14099858999999998 (inset 1e-05), PGD steps=100 restarts=5
+clean acc: numpy 0.5774, keras 0.5774 (6s)
+attacking all 10000 points against the numpy execution's predicted labels
+  256/10000: attacked so far (numpy) 91 of 256 eligible (50s)
+  512/10000: attacked so far (numpy) 180 of 512 eligible (94s)
+  768/10000: attacked so far (numpy) 253 of 768 eligible (140s)
+  1024/10000: attacked so far (numpy) 338 of 1024 eligible (185s)
+  1280/10000: attacked so far (numpy) 407 of 1280 eligible (232s)
+  1536/10000: attacked so far (numpy) 489 of 1536 eligible (277s)
+  1792/10000: attacked so far (numpy) 579 of 1792 eligible (321s)
+  2048/10000: attacked so far (numpy) 660 of 2048 eligible (366s)
+  2304/10000: attacked so far (numpy) 752 of 2304 eligible (410s)
+  2560/10000: attacked so far (numpy) 836 of 2560 eligible (455s)
+  2816/10000: attacked so far (numpy) 934 of 2816 eligible (497s)
+  3072/10000: attacked so far (numpy) 1022 of 3072 eligible (541s)
+  3328/10000: attacked so far (numpy) 1121 of 3328 eligible (583s)
+  3584/10000: attacked so far (numpy) 1204 of 3584 eligible (628s)
+  3840/10000: attacked so far (numpy) 1292 of 3840 eligible (672s)
+  4096/10000: attacked so far (numpy) 1371 of 4096 eligible (718s)
+  4352/10000: attacked so far (numpy) 1461 of 4352 eligible (761s)
+  4608/10000: attacked so far (numpy) 1545 of 4608 eligible (806s)
+  4864/10000: attacked so far (numpy) 1634 of 4864 eligible (850s)
+  5120/10000: attacked so far (numpy) 1718 of 5120 eligible (895s)
+  5376/10000: attacked so far (numpy) 1788 of 5376 eligible (942s)
+  5632/10000: attacked so far (numpy) 1875 of 5632 eligible (987s)
+  5888/10000: attacked so far (numpy) 1964 of 5888 eligible (1031s)
+  6144/10000: attacked so far (numpy) 2058 of 6144 eligible (1074s)
+  6400/10000: attacked so far (numpy) 2153 of 6400 eligible (1118s)
+  6656/10000: attacked so far (numpy) 2244 of 6656 eligible (1161s)
+  6912/10000: attacked so far (numpy) 2329 of 6912 eligible (1206s)
+  7168/10000: attacked so far (numpy) 2406 of 7168 eligible (1251s)
+  7424/10000: attacked so far (numpy) 2488 of 7424 eligible (1296s)
+  7680/10000: attacked so far (numpy) 2570 of 7680 eligible (1340s)
+  7936/10000: attacked so far (numpy) 2655 of 7936 eligible (1385s)
+  8192/10000: attacked so far (numpy) 2746 of 8192 eligible (1429s)
+  8448/10000: attacked so far (numpy) 2830 of 8448 eligible (1473s)
+  8704/10000: attacked so far (numpy) 2911 of 8704 eligible (1518s)
+  8960/10000: attacked so far (numpy) 2976 of 8960 eligible (1566s)
+  9216/10000: attacked so far (numpy) 3054 of 9216 eligible (1612s)
+  9472/10000: attacked so far (numpy) 3150 of 9472 eligible (1654s)
+  9728/10000: attacked so far (numpy) 3237 of 9728 eligible (1699s)
+  9984/10000: attacked so far (numpy) 3335 of 9984 eligible (1741s)
+  10000/10000: attacked so far (numpy) 3342 of 10000 eligible (1749s)
+
+SUMMARY: {
+ "dataset": "cifar10",
+ "eps": "0.141",
+ "attack_eps": 0.14099858999999998,
+ "inset": 1e-05,
+ "n": 10000,
+ "attack": "apgd",
+ "label_mode": "predicted",
+ "distance_check": "exact",
+ "pgd_steps": 100,
+ "pgd_restarts": 5,
+ "flips_numpy": 3342,
+ "flips_outside_ball": 0,
+ "n_eligible": 10000,
+ "unbroken_rate_numpy": 0.6658,
+ "clean_acc_numpy": 0.5774,
+ "clean_acc_keras": 0.5774,
+ "pgd_robust_acc_numpy": 0.4574,
+ "pgd_robust_acc_keras": 0.4574,
+ "attacked_numpy": 3342,
+ "attacked_keras": 3342,
+ "n_correct_numpy": 5774,
+ "seconds": 1748.6474010944366
+}
+Wrote results/apgd_l2_cifar10_eps0.141_predlabel_exact.json and results/apgd_l2_cifar10_eps0.141_predlabel_exact_adv.npz (3342 adversarials)
+### done (Thu  5 Nov 2026 08:56:24 AEDT)

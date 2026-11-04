@@ -17,18 +17,24 @@ model (validated tooling, as for the DeepFool step of the counter-example
 search). Every verdict is then RE-JUDGED under the IEEE-754-compliant numpy
 execution (python-certifier/compliant_forward.py), which is the execution the
 paper certifies: a point counts as attacked only if the numpy execution
-misclassifies the adversarial point AND ||x_adv - x||_2 <= eps (float64). If ART's
-float32 projection lands a hair outside the ball, the perturbation is shrunk
-back onto it before re-judging.
+misclassifies the adversarial point AND ||x_adv - x||_2 <= eps, the distance computed
+EXACTLY (fractions.Fraction over the two float32 vectors, eps the exact decimal given on
+the command line), as reverify_cex_suite.py judges the paper's counterexamples. ART is
+given a radius a hair inside eps (eps * (1 - inset), --inset, default 1e-5) so that its
+float32 projection lands inside the ball by construction; nothing is shrunk afterwards,
+and an adversarial the exact check rejects is simply not counted (reported as
+flips_outside_ball). The adversarials of every point whose label flipped are saved
+(float32) next to the JSON for independent re-verification.
 
 Usage:
   python pgd_l2_robust_accuracy.py dataset INTERNAL_LAYER_SIZES model_weights_csv_dir \
       input_size eps [--steps 100] [--restarts 5] [--batch 256] [--n N] [--out out.json]
-      [--attack pgd|apgd]
+      [--attack pgd|apgd] [--inset 1e-5]
 Run under cav2025-artifact-venv.
 """
 import json
 import os
+from fractions import Fraction
 import sys
 import time
 
@@ -61,13 +67,18 @@ dataset = sys.argv[1]
 INTERNAL_LAYER_SIZES = eval(sys.argv[2])
 csv_loc = sys.argv[3].rstrip("/") + "/"
 input_size = int(sys.argv[4])
-eps = float(sys.argv[5])
+eps_str = sys.argv[5]
+eps = float(eps_str)
+eps_q = Fraction(eps_str)  # the exact radius the verdict uses
+inset = opt("--inset", 1e-5, float)
+eps_att = eps * (1.0 - inset)  # the radius ART attacks at
 steps = opt("--steps", 100, int)
 restarts = opt("--restarts", 5, int)
 batch = opt("--batch", 256, int)
 n_limit = opt("--n", None, int)
 attack_kind = opt("--attack", "pgd", str)  # pgd | apgd (APGD-CE then APGD-DLR on survivors, as in AutoAttack)
-out_path = opt("--out", f"results/{attack_kind}_l2_{dataset}_eps{eps}_predlabel.json", str)
+out_path = opt("--out", f"results/{attack_kind}_l2_{dataset}_eps{eps}_predlabel_exact.json", str)
+adv_path = out_path[:-5] + "_adv.npz" if out_path.endswith(".json") else out_path + "_adv.npz"
 
 inputs, outputs = doitlib.build_model(Input, Flatten, Dense, input_size=input_size,
                                       dataset=dataset, internal_layer_sizes=INTERNAL_LAYER_SIZES)
@@ -75,11 +86,13 @@ model = Model(inputs, outputs)
 doitlib.load_and_set_weights(csv_loc, INTERNAL_LAYER_SIZES, model)
 num_classes = int(model.output_shape[-1])
 x_test, y_test = doitlib.load_test_data(input_size=input_size, dataset=dataset)
+x_test = np.asarray(x_test, dtype=np.float32)  # the points are float32, as the deployed execution sees them
 if n_limit is not None:
     x_test, y_test = x_test[:n_limit], y_test[:n_limit]
 labels = np.argmax(y_test, axis=1)
 N = len(x_test)
-print(f"{dataset}: {N} test points, eps={eps}, PGD steps={steps} restarts={restarts}", flush=True)
+print(f"{dataset}: {N} test points, eps={eps_str} (exact), attack radius {eps_att!r} (inset {inset}), "
+      f"PGD steps={steps} restarts={restarts}", flush=True)
 
 # ---- compliant numpy execution (same construction as attack_verified_certifier_nat_numpy) ----
 NP_DT = np.float32
@@ -114,11 +127,11 @@ classifier = TensorFlowV2Classifier(
     clip_values=(0.0, 1.0),
 )
 if attack_kind == "pgd":
-    attacks = [ProjectedGradientDescent(classifier, norm=2, eps=eps, eps_step=eps / 10.0,
+    attacks = [ProjectedGradientDescent(classifier, norm=2, eps=eps_att, eps_step=eps_att / 10.0,
                                         max_iter=steps, num_random_init=restarts,
                                         batch_size=batch, verbose=False)]
 else:  # the two gradient-based components of AutoAttack (Croce & Hein 2020), run in sequence
-    attacks = [AutoProjectedGradientDescent(classifier, norm=2, eps=eps, eps_step=2 * eps, max_iter=steps,
+    attacks = [AutoProjectedGradientDescent(classifier, norm=2, eps=eps_att, eps_step=2 * eps_att, max_iter=steps,
                                             nb_random_init=restarts, batch_size=batch, loss_type=lt, verbose=False)
                for lt in ("cross_entropy", "difference_logits_ratio")]
 
@@ -138,7 +151,14 @@ def generate(x, y):
         todo[idx[succ]] = False
     return x_adv
 
+def sq_dist_exact(a, b):
+    """Exact squared l2 distance of two float32 vectors (every float32 value is a rational)."""
+    return sum((Fraction(float(u)) - Fraction(float(v))) ** 2 for u, v in zip(a.ravel().tolist(), b.ravel().tolist()))
+
+
 records = []
+adv_idx, adv_x = [], []
+flips_outside = 0
 attacked_np = np.zeros(N, dtype=bool)
 attacked_keras = np.zeros(N, dtype=bool)
 idx_all = np.arange(N)
@@ -150,28 +170,34 @@ for start in range(0, N, batch):
     x = x_test[sel]
     x_adv = generate(x, y_att[sel])
     for k, i in enumerate(sel):
-        xi = x[k].astype(np.float64)
-        xa = x_adv[k].astype(np.float64)
-        d = float(np.linalg.norm((xa - xi).ravel()))
-        if d > eps:  # float32 projection overshoot: shrink back onto the ball
-            xa = xi + (xa - xi) * (eps / d) * (1 - 1e-7)
-            xa = np.clip(xa, 0.0, 1.0).astype(np.float32).astype(np.float64)
-            d = float(np.linalg.norm((xa - xi).ravel()))
+        xi = x[k]  # float32
+        xa = np.asarray(x_adv[k], dtype=np.float32)
+        d = float(np.linalg.norm((xa.astype(np.float64) - xi.astype(np.float64)).ravel()))  # advisory only
         p_np = np_pred(xa)
-        p_keras = int(np.argmax(model.predict(xa[None].astype(np.float32), verbose=0)[0]))
-        ok = d <= eps
-        attacked_np[i] = ok and p_np != att_labels_np[i]
-        attacked_keras[i] = ok and p_keras != att_labels_keras[i]
+        p_keras = int(np.argmax(model.predict(xa[None], verbose=0)[0]))
+        flip_np = p_np != att_labels_np[i]
+        flip_keras = p_keras != att_labels_keras[i]
+        ok = None
+        if flip_np or flip_keras:  # the exact check is only needed where the label flipped
+            ok = sq_dist_exact(xi, xa) <= eps_q * eps_q
+            if flip_np and not ok:
+                flips_outside += 1
+            adv_idx.append(int(i))
+            adv_x.append(xa.reshape(-1))
+        attacked_np[i] = bool(flip_np and ok)
+        attacked_keras[i] = bool(flip_keras and ok)
         records.append({"idx": int(i), "label": int(labels[i]), "attack_label_numpy": int(att_labels_np[i]), "dist": d,
-                        "adv_pred_numpy": p_np, "adv_pred_keras": p_keras,
+                        "dist_le_eps_exact": ok, "adv_pred_numpy": p_np, "adv_pred_keras": p_keras,
                         "attacked_numpy": bool(attacked_np[i]), "attacked_keras": bool(attacked_keras[i])})
     done = start + batch
     print(f"  {min(done, N)}/{N}: attacked so far (numpy) {int(attacked_np.sum())} "
           f"of {int(eligible[:done].sum())} eligible ({time.time() - t0:.0f}s)", flush=True)
 
 summary = {
-    "dataset": dataset, "eps": eps, "n": int(N), "attack": attack_kind, "label_mode": "predicted",
-    "pgd_steps": steps, "pgd_restarts": restarts,
+    "dataset": dataset, "eps": eps_str, "attack_eps": eps_att, "inset": inset, "n": int(N), "attack": attack_kind,
+    "label_mode": "predicted", "distance_check": "exact", "pgd_steps": steps, "pgd_restarts": restarts,
+    "flips_numpy": int(sum(1 for r in records if r["adv_pred_numpy"] != r["attack_label_numpy"])),
+    "flips_outside_ball": int(flips_outside),
     "n_eligible": int(eligible.sum()),
     "unbroken_rate_numpy": float((~attacked_np).mean()),  # fraction of ALL N not attacked (upper-bounds the robust rate in predicted mode)
     "clean_acc_numpy": float(correct_np.mean()),
@@ -187,4 +213,6 @@ print("\nSUMMARY:", json.dumps(summary, indent=1), flush=True)
 os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
 with open(out_path, "w") as f:
     json.dump({"summary": summary, "records": records}, f)
-print(f"Wrote {out_path}")
+np.savez_compressed(adv_path, idx=np.array(adv_idx, dtype=np.int64),
+                    x_adv=np.stack(adv_x).astype(np.float32) if adv_x else np.zeros((0,), dtype=np.float32))
+print(f"Wrote {out_path} and {adv_path} ({len(adv_idx)} adversarials)")
