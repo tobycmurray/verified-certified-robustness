@@ -1,0 +1,1622 @@
+[
+{
+  "index": 0,
+  "true_label": 3,
+  "argmax_y0": 3,
+  "argmax_y1": 2,
+  "is_counter_example": true,
+  "max_eps": "0.000820734007210743191717882464754213390022425530371445493731042",
+  "dist": "0.000585428652748134709667656013691735097655848027576187664365882",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_rw9p79ma.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_a4_lpc8w.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_727o61sd.npy",
+  "y0": [
+    5.2109375,
+    2.103515625,
+    8.5390625,
+    8.546875,
+    7.9375,
+    6.50390625,
+    4.0078125,
+    2.17578125,
+    4.71484375,
+    2.66796875
+  ],
+  "y1": [
+    5.2109375,
+    2.10546875,
+    8.546875,
+    8.5390625,
+    7.9296875,
+    6.5,
+    3.99609375,
+    2.169921875,
+    4.7109375,
+    2.66796875
+  ],
+  "extension_best_step": 0,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.000820734007210743191717882464754213390022425530371445493731042"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.000820734007210743191717882464754213390022425530371445493731042",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.000820734007210743191717882464754213390022425530371445493731042",
+      "best_step": 0
+    }
+  }
+}
+,
+{
+  "index": 1,
+  "true_label": 8,
+  "argmax_y0": 8,
+  "argmax_y1": 9,
+  "is_counter_example": true,
+  "max_eps": "0.00194216623580041377078804044944327424970337242917278233681476",
+  "dist": "0.00143744172925617993600455262925015181862399273361993602210335",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_zf4oo1h5.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_zlwzg54t.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_70r4hqui.npy",
+  "y0": [
+    8.734375,
+    8.5078125,
+    5.51953125,
+    4.5703125,
+    6.12109375,
+    3.693359375,
+    2.68359375,
+    4.68359375,
+    11.078125,
+    11.078125
+  ],
+  "y1": [
+    8.734375,
+    8.5078125,
+    5.515625,
+    4.5625,
+    6.1171875,
+    3.68359375,
+    2.67578125,
+    4.671875,
+    11.046875,
+    11.078125
+  ],
+  "extension_best_step": 2,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.000485541558950103436737633680944468104856215004092986951571605"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.000485541558950103436737633680944468104856215004092986951571605",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00194216623580041377078804044944327424970337242917278233681476",
+      "best_step": 2
+    }
+  }
+}
+,
+{
+  "index": 3,
+  "true_label": 0,
+  "argmax_y0": 0,
+  "argmax_y1": 8,
+  "is_counter_example": true,
+  "max_eps": "0.00204111807164836034861441818879923805804790990331375857890269",
+  "dist": "0.00188814798562719965575662243227687853011396358793525662560962",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_27tfy6_f.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_l4lf4n6q.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_1y999pih.npy",
+  "y0": [
+    9.15625,
+    5.0390625,
+    6.75,
+    2.9296875,
+    6.51953125,
+    1.603515625,
+    2.5625,
+    4.98046875,
+    9.15625,
+    3.21875
+  ],
+  "y1": [
+    9.140625,
+    5.0390625,
+    6.7578125,
+    2.94140625,
+    6.51953125,
+    1.6171875,
+    2.572265625,
+    4.9765625,
+    9.1640625,
+    3.22265625
+  ],
+  "extension_best_step": 2,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.000680372690549453444021040836923708156531353793630489837825813"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.000680372690549453444021040836923708156531353793630489837825813",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00204111807164836034861441818879923805804790990331375857890269",
+      "best_step": 2
+    }
+  }
+}
+,
+{
+  "index": 5,
+  "true_label": 6,
+  "argmax_y0": 6,
+  "argmax_y1": 7,
+  "is_counter_example": true,
+  "max_eps": "0.00183490429342867726192119798948354855977246495389705288627406",
+  "dist": "0.00183226690315434705643586867245688800860248377205765583477794",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_d53olh5g.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_hfh_211k.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_s7lkjs4i.npy",
+  "y0": [
+    7.875,
+    4.3125,
+    8.2578125,
+    8.296875,
+    8.71875,
+    8.2890625,
+    9.859375,
+    9.84375,
+    4.59375,
+    3.80859375
+  ],
+  "y1": [
+    7.875,
+    4.3125,
+    8.265625,
+    8.3046875,
+    8.7265625,
+    8.296875,
+    9.84375,
+    9.875,
+    4.58984375,
+    3.802734375
+  ],
+  "extension_best_step": 2,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.000458726073357169314559129486111978968027233487800182461172284"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.000458726073357169314559129486111978968027233487800182461172284",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00183490429342867726192119798948354855977246495389705288627406",
+      "best_step": 2
+    }
+  }
+}
+,
+{
+  "index": 6,
+  "true_label": 1,
+  "argmax_y0": 1,
+  "argmax_y1": 3,
+  "is_counter_example": true,
+  "max_eps": "0.0019371301780176945736273964969818219980195419630242523076522",
+  "dist": "0.00175910914266764321433585455662184957038149297993026474829627",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_wuospuc3.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_5xdf3ac8.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_nn3ep7pq.npy",
+  "y0": [
+    9.5078125,
+    12.4765625,
+    10.625,
+    12.46875,
+    5.4765625,
+    11.375,
+    9.7109375,
+    6.31640625,
+    3.705078125,
+    10.25
+  ],
+  "y1": [
+    9.515625,
+    12.453125,
+    10.6328125,
+    12.4921875,
+    5.484375,
+    11.3984375,
+    9.71875,
+    6.33203125,
+    3.69921875,
+    10.2578125
+  ],
+  "extension_best_step": 3,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.000387426035603538913466273253127395946660696548347620679212066"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.000387426035603538913466273253127395946660696548347620679212066",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.0019371301780176945736273964969818219980195419630242523076522",
+      "best_step": 3
+    }
+  }
+}
+,
+{
+  "index": 7,
+  "true_label": 6,
+  "argmax_y0": 2,
+  "argmax_y1": 6,
+  "is_counter_example": true,
+  "max_eps": "0.00207265385113266661430571309518234560345766441159022382667645",
+  "dist": "0.0019869263684885289245644845380258872722676831524632643169129",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_cglpzejx.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_1uz_ktv8.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_48e_ime1.npy",
+  "y0": [
+    5.29296875,
+    1.771484375,
+    8.625,
+    7.671875,
+    7.828125,
+    6.7890625,
+    8.625,
+    4.7734375,
+    3.48046875,
+    4.6875
+  ],
+  "y1": [
+    5.296875,
+    1.775390625,
+    8.6171875,
+    7.67578125,
+    7.82421875,
+    6.79296875,
+    8.640625,
+    4.76171875,
+    3.486328125,
+    4.69140625
+  ],
+  "extension_best_step": 4,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.00138176923408844441217331147200596369052219522012298763558036"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.00138176923408844441217331147200596369052219522012298763558036",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00207265385113266661430571309518234560345766441159022382667645",
+      "best_step": 4
+    }
+  }
+}
+,
+{
+  "index": 8,
+  "true_label": 3,
+  "argmax_y0": 3,
+  "argmax_y1": 5,
+  "is_counter_example": true,
+  "max_eps": "0.00419916265604397377817509994479242955209644713343645988708028",
+  "dist": "0.00374857239569924003938852344978066459011190533911230437806381",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_pua20_sy.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_xh8e504g.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_cv6zg0id.npy",
+  "y0": [
+    5.8984375,
+    3.19921875,
+    10.3046875,
+    13.53125,
+    11.09375,
+    13.53125,
+    10.578125,
+    10.03125,
+    2.146484375,
+    5.6484375
+  ],
+  "y1": [
+    5.90625,
+    3.19921875,
+    10.3203125,
+    13.5390625,
+    11.1015625,
+    13.5625,
+    10.5859375,
+    10.0546875,
+    2.1484375,
+    5.65625
+  ],
+  "extension_best_step": 0,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.00419916265604397377817509994479242955209644713343645988708028"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.00419916265604397377817509994479242955209644713343645988708028",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00419916265604397377817509994479242955209644713343645988708028",
+      "best_step": 0
+    }
+  }
+}
+,
+{
+  "index": 9,
+  "true_label": 1,
+  "argmax_y0": 1,
+  "argmax_y1": 9,
+  "is_counter_example": true,
+  "max_eps": "0.000914047308006312495865851206058613192365149372082073569040233",
+  "dist": "0.000545915033569284593849895915217596737168119716702032647527075",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_9nphaebb.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_aivu2ovj.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_l716dkdk.npy",
+  "y0": [
+    6.4609375,
+    11.25,
+    3.775390625,
+    4.0859375,
+    4.1328125,
+    3.841796875,
+    2.06640625,
+    5.171875,
+    8.265625,
+    11.2421875
+  ],
+  "y1": [
+    6.46875,
+    11.234375,
+    3.779296875,
+    4.09375,
+    4.1328125,
+    3.84765625,
+    2.064453125,
+    5.171875,
+    8.2734375,
+    11.25
+  ],
+  "extension_best_step": 0,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.000914047308006312495865851206058613192365149372082073569040233"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.000914047308006312495865851206058613192365149372082073569040233",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.000914047308006312495865851206058613192365149372082073569040233",
+      "best_step": 0
+    }
+  }
+}
+,
+{
+  "index": 10,
+  "true_label": 0,
+  "argmax_y0": 0,
+  "argmax_y1": 8,
+  "is_counter_example": true,
+  "max_eps": "0.00408223614329672070046155075902238340189547690483436915315193",
+  "dist": "0.00330943401165184548294126682110312466745977196497084177076575",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_wqn0k7nc.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_ucfs20vp.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_xac629m0.npy",
+  "y0": [
+    10.1875,
+    2.751953125,
+    7.69921875,
+    6.85546875,
+    6.5234375,
+    5.96484375,
+    5.38671875,
+    3.2109375,
+    10.1875,
+    2.642578125
+  ],
+  "y1": [
+    10.171875,
+    2.748046875,
+    7.7109375,
+    6.8515625,
+    6.54296875,
+    5.9609375,
+    5.375,
+    3.23046875,
+    10.21875,
+    2.640625
+  ],
+  "extension_best_step": 0,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.00408223614329672070046155075902238340189547690483436915315193"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.00408223614329672070046155075902238340189547690483436915315193",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00408223614329672070046155075902238340189547690483436915315193",
+      "best_step": 0
+    }
+  }
+}
+,
+{
+  "index": 12,
+  "true_label": 5,
+  "argmax_y0": 5,
+  "argmax_y1": 1,
+  "is_counter_example": true,
+  "max_eps": "0.0026597877948171157211900966560265384701165070943584199426957",
+  "dist": "0.00238394052018753478338417175823959838987143206242153196573669",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_ej6ulnx3.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_edb5o49o.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_1g_nkg8m.npy",
+  "y0": [
+    6.40234375,
+    12.1484375,
+    10.4609375,
+    10.125,
+    8.21875,
+    12.15625,
+    9.828125,
+    7.90625,
+    8.09375,
+    6.95703125
+  ],
+  "y1": [
+    6.40234375,
+    12.1953125,
+    10.453125,
+    10.125,
+    8.21875,
+    12.140625,
+    9.8125,
+    7.8984375,
+    8.1015625,
+    6.9609375
+  ],
+  "extension_best_step": 4,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.000379969684973873672120611049766823648489098397353151538514893"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.000379969684973873672120611049766823648489098397353151538514893",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.0026597877948171157211900966560265384701165070943584199426957",
+      "best_step": 4
+    }
+  }
+}
+,
+{
+  "index": 13,
+  "true_label": 7,
+  "argmax_y0": 7,
+  "argmax_y1": 6,
+  "is_counter_example": true,
+  "max_eps": "0.0027523564401430158912178211888969442469629115329966442749118",
+  "dist": "0.00249006227935935783238904607505532297851789249570092844227396",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_4trl7gtj.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_qm0e0wyx.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_ky90tei1.npy",
+  "y0": [
+    12.96875,
+    6.953125,
+    13.6640625,
+    12.4375,
+    12.21875,
+    13.9453125,
+    14.28125,
+    14.3046875,
+    8.125,
+    6.5
+  ],
+  "y1": [
+    12.953125,
+    6.93359375,
+    13.6640625,
+    12.4453125,
+    12.234375,
+    13.9609375,
+    14.328125,
+    14.28125,
+    8.125,
+    6.5
+  ],
+  "extension_best_step": 2,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.00137617822007150794464171507073337189350708091882031398188115"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.00137617822007150794464171507073337189350708091882031398188115",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.0027523564401430158912178211888969442469629115329966442749118",
+      "best_step": 2
+    }
+  }
+}
+,
+{
+  "index": 18,
+  "true_label": 8,
+  "argmax_y0": 8,
+  "argmax_y1": 1,
+  "is_counter_example": true,
+  "max_eps": "0.00261477173487046997579599543590910069000336591764455381387991",
+  "dist": "0.00220653498430680196451988318276123963377160372066199382121909",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_3sar5tak.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_6qnj1jfm.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_syevz2ru.npy",
+  "y0": [
+    7.796875,
+    12.5,
+    4.49609375,
+    3.107421875,
+    3.337890625,
+    1.58203125,
+    2.01171875,
+    0.37890625,
+    12.5078125,
+    5.94140625
+  ],
+  "y1": [
+    7.7890625,
+    12.53125,
+    4.4921875,
+    3.08984375,
+    3.33984375,
+    1.572265625,
+    2.0,
+    0.38671875,
+    12.484375,
+    5.9453125
+  ],
+  "extension_best_step": 8,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.000435795289145078327334459196171737525424379802930102079623295"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.000435795289145078327334459196171737525424379802930102079623295",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00261477173487046997579599543590910069000336591764455381387991",
+      "best_step": 8
+    }
+  }
+}
+,
+{
+  "index": 19,
+  "true_label": 6,
+  "argmax_y0": 6,
+  "argmax_y1": 7,
+  "is_counter_example": true,
+  "max_eps": "0.00183490429342867725968120018048085536581968546771372326961049",
+  "dist": "0.00115322531907294825934496264361784276362088898631976897745145",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_ped1z9gs.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_bd9bi0mr.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_frti_4mv.npy",
+  "y0": [
+    8.8515625,
+    3.857421875,
+    10.5078125,
+    12.6875,
+    12.65625,
+    11.921875,
+    16.0625,
+    16.0625,
+    5.16796875,
+    8.8125
+  ],
+  "y1": [
+    8.859375,
+    3.85546875,
+    10.515625,
+    12.6875,
+    12.65625,
+    11.921875,
+    16.0625,
+    16.09375,
+    5.171875,
+    8.828125
+  ],
+  "extension_best_step": 0,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.00183490429342867725968120018048085536581968546771372326961049"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.00183490429342867725968120018048085536581968546771372326961049",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00183490429342867725968120018048085536581968546771372326961049",
+      "best_step": 0
+    }
+  }
+}
+,
+{
+  "index": 21,
+  "true_label": 0,
+  "argmax_y0": 0,
+  "argmax_y1": 2,
+  "is_counter_example": true,
+  "max_eps": "0.00478506594209463151506719559402103765662574632707447952456597",
+  "dist": "0.0046143625256773252406602838914281121751273530615358874612179",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_j5bc104x.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_xwpyuio1.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_5l_01gbi.npy",
+  "y0": [
+    15.34375,
+    -1.71875,
+    15.34375,
+    11.421875,
+    15.03125,
+    12.0703125,
+    7.625,
+    10.4921875,
+    3.03125,
+    3.837890625
+  ],
+  "y1": [
+    15.3203125,
+    -1.73046875,
+    15.375,
+    11.453125,
+    15.046875,
+    12.109375,
+    7.6484375,
+    10.5,
+    3.0234375,
+    3.830078125
+  ],
+  "extension_best_step": 2,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.0020507425466119849311368894208416772846103724852476008809145"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.0020507425466119849311368894208416772846103724852476008809145",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00478506594209463151506719559402103765662574632707447952456597",
+      "best_step": 2
+    }
+  }
+}
+,
+{
+  "index": 23,
+  "true_label": 9,
+  "argmax_y0": 1,
+  "argmax_y1": 9,
+  "is_counter_example": true,
+  "max_eps": "0.00274214192401893750552517189550175239573240752118727262017764",
+  "dist": "0.00182392933087386153515011779170212998862949983356752681065885",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_mxhtltoh.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_7b9crcgg.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_hl4vwzqd.npy",
+  "y0": [
+    6.57421875,
+    16.3125,
+    1.44140625,
+    2.83203125,
+    1.248046875,
+    2.978515625,
+    2.408203125,
+    0.654296875,
+    6.73046875,
+    16.3125
+  ],
+  "y1": [
+    6.578125,
+    16.296875,
+    1.447265625,
+    2.83203125,
+    1.251953125,
+    2.98046875,
+    2.408203125,
+    0.654296875,
+    6.73046875,
+    16.34375
+  ],
+  "extension_best_step": 2,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.000914047308006312500868325465440140508571742472554433334153145"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.000914047308006312500868325465440140508571742472554433334153145",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00274214192401893750552517189550175239573240752118727262017764",
+      "best_step": 2
+    }
+  }
+}
+,
+{
+  "index": 25,
+  "true_label": 2,
+  "argmax_y0": 2,
+  "argmax_y1": 6,
+  "is_counter_example": true,
+  "max_eps": "0.00207265385113266661767968370362337112809435470087187943407205",
+  "dist": "0.00187527972360073441791252124553988585768126247012082127149041",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_dxqv9rht.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_fvf5au8n.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x__ntluxl8.npy",
+  "y0": [
+    4.3203125,
+    2.94140625,
+    12.0234375,
+    11.171875,
+    11.453125,
+    11.703125,
+    12.0234375,
+    8.4765625,
+    4.12890625,
+    2.310546875
+  ],
+  "y1": [
+    4.3125,
+    2.9375,
+    12.015625,
+    11.171875,
+    11.453125,
+    11.6953125,
+    12.0390625,
+    8.46875,
+    4.1171875,
+    2.296875
+  ],
+  "extension_best_step": 2,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.0006908846170442222009507738199681183022182663831591609877816"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.0006908846170442222009507738199681183022182663831591609877816",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00207265385113266661767968370362337112809435470087187943407205",
+      "best_step": 2
+    }
+  }
+}
+,
+{
+  "index": 26,
+  "true_label": 4,
+  "argmax_y0": 2,
+  "argmax_y1": 4,
+  "is_counter_example": true,
+  "max_eps": "0.00198508420360501115416605229199048000821026249695933074690401",
+  "dist": "0.00048828125",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_a9g6q4pf.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_lk22wz51.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_03ffadm5.npy",
+  "y0": [
+    5.5859375,
+    3.462890625,
+    11.421875,
+    10.03125,
+    11.421875,
+    10.390625,
+    10.09375,
+    7.6875,
+    1.541015625,
+    6.2109375
+  ],
+  "y1": [
+    5.5859375,
+    3.4609375,
+    11.421875,
+    10.03125,
+    11.4375,
+    10.390625,
+    10.109375,
+    7.6875,
+    1.5390625,
+    6.203125
+  ],
+  "extension_best_step": 0,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.00198508420360501115416605229199048000821026249695933074690401"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.00198508420360501115416605229199048000821026249695933074690401",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00198508420360501115416605229199048000821026249695933074690401",
+      "best_step": 0
+    }
+  }
+}
+,
+{
+  "index": 28,
+  "true_label": 9,
+  "argmax_y0": 3,
+  "argmax_y1": 9,
+  "is_counter_example": true,
+  "max_eps": "0.00189984706738812422700907594698264931790685776714531686129061",
+  "dist": "0.00179956700975031009498076045563079174667356456277109627342329",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_6pb4uimr.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_4fj160ry.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_bxa8s_g7.npy",
+  "y0": [
+    6.9921875,
+    5.0,
+    8.4140625,
+    10.078125,
+    8.90625,
+    9.203125,
+    6.54296875,
+    7.6796875,
+    4.65625,
+    10.078125
+  ],
+  "y1": [
+    6.984375,
+    5.03125,
+    8.3984375,
+    10.0546875,
+    8.890625,
+    9.1875,
+    6.53125,
+    7.65234375,
+    4.65625,
+    10.0859375
+  ],
+  "extension_best_step": 4,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.000474961766847031054934526718058919849199672746919986821012571"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.000474961766847031054934526718058919849199672746919986821012571",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00189984706738812422700907594698264931790685776714531686129061",
+      "best_step": 4
+    }
+  }
+}
+,
+{
+  "index": 29,
+  "true_label": 6,
+  "argmax_y0": 6,
+  "argmax_y1": 7,
+  "is_counter_example": true,
+  "max_eps": "0.000917452146714338627749161674765217721302302029203288705924051",
+  "dist": "0.000908733031950621457124360153752905835486171419651642696830628",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_yomvcptk.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_kdibdmp3.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_ujgpy_17.npy",
+  "y0": [
+    6.67578125,
+    1.9375,
+    8.1015625,
+    8.921875,
+    8.96875,
+    9.953125,
+    11.0,
+    10.984375,
+    3.67578125,
+    3.2578125
+  ],
+  "y1": [
+    6.6796875,
+    1.9326171875,
+    8.1015625,
+    8.921875,
+    8.96875,
+    9.953125,
+    10.984375,
+    11.0,
+    3.67578125,
+    3.259765625
+  ],
+  "extension_best_step": 0,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.000917452146714338627749161674765217721302302029203288705924051"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.000917452146714338627749161674765217721302302029203288705924051",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.000917452146714338627749161674765217721302302029203288705924051",
+      "best_step": 0
+    }
+  }
+}
+,
+{
+  "index": 30,
+  "true_label": 6,
+  "argmax_y0": 6,
+  "argmax_y1": 3,
+  "is_counter_example": true,
+  "max_eps": "0.000390381318517361458626477246457180707044678816134945753759136",
+  "dist": "0.000318612869534623723747490051957643056588435358817132560821698",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_ytwq3md_.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x__qpaypf6.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_c8hm090x.npy",
+  "y0": [
+    4.421875,
+    4.23046875,
+    5.890625,
+    7.8046875,
+    5.5625,
+    7.1796875,
+    7.80859375,
+    5.6015625,
+    1.5908203125,
+    4.4140625
+  ],
+  "y1": [
+    4.421875,
+    4.234375,
+    5.8984375,
+    7.8125,
+    5.5703125,
+    7.1796875,
+    7.80859375,
+    5.609375,
+    1.5888671875,
+    4.421875
+  ],
+  "extension_best_step": 0,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.000390381318517361458626477246457180707044678816134945753759136"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.000390381318517361458626477246457180707044678816134945753759136",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.000390381318517361458626477246457180707044678816134945753759136",
+      "best_step": 0
+    }
+  }
+}
+,
+{
+  "index": 33,
+  "true_label": 5,
+  "argmax_y0": 2,
+  "argmax_y1": 5,
+  "is_counter_example": true,
+  "max_eps": "0.00415216130688820050142411759678706155319918190029648123214442",
+  "dist": "0.0038160398028175259155281933531362822596264022449658881357628",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_appbx4o0.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_mp8uq7y4.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_qicl248x.npy",
+  "y0": [
+    8.1640625,
+    7.6328125,
+    13.671875,
+    12.7578125,
+    10.5703125,
+    13.671875,
+    9.71875,
+    11.2421875,
+    6.71484375,
+    5.7890625
+  ],
+  "y1": [
+    8.15625,
+    7.6328125,
+    13.65625,
+    12.765625,
+    10.5703125,
+    13.6953125,
+    9.734375,
+    11.25,
+    6.7109375,
+    5.8046875
+  ],
+  "extension_best_step": 6,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.00249129678413292029821535299389849860587371727744729343889673"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.00249129678413292029821535299389849860587371727744729343889673",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00415216130688820050142411759678706155319918190029648123214442",
+      "best_step": 6
+    }
+  }
+}
+,
+{
+  "index": 34,
+  "true_label": 9,
+  "argmax_y0": 7,
+  "argmax_y1": 9,
+  "is_counter_example": true,
+  "max_eps": "0.00309110070258152705693146320885338901131505646364604363709337",
+  "dist": "0.00207002781764057862875093045679288511995017895657153547451619",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_b_i1lq__.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_lq6ary03.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_w925hq3o.npy",
+  "y0": [
+    7.0234375,
+    4.359375,
+    8.3828125,
+    7.1953125,
+    7.703125,
+    6.453125,
+    5.59375,
+    11.609375,
+    3.666015625,
+    11.609375
+  ],
+  "y1": [
+    7.01953125,
+    4.375,
+    8.375,
+    7.1875,
+    7.6953125,
+    6.4375,
+    5.5859375,
+    11.5625,
+    3.66796875,
+    11.6171875
+  ],
+  "extension_best_step": 4,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.000441585814654503863275408719105108966418438143364255665801465"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.000441585814654503863275408719105108966418438143364255665801465",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00309110070258152705693146320885338901131505646364604363709337",
+      "best_step": 4
+    }
+  }
+}
+,
+{
+  "index": 37,
+  "true_label": 1,
+  "argmax_y0": 1,
+  "argmax_y1": 9,
+  "is_counter_example": true,
+  "max_eps": "0.00319916557802209375822762213486318469213056719993956687704237",
+  "dist": "0.00281440908488880570828214563368803307850998821933268726702508",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_kgcrysut.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_yydy40rr.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_7_0226de.npy",
+  "y0": [
+    8.3828125,
+    14.328125,
+    3.12890625,
+    3.607421875,
+    3.6015625,
+    1.681640625,
+    1.982421875,
+    -0.9599609375,
+    11.53125,
+    14.328125
+  ],
+  "y1": [
+    8.390625,
+    14.2890625,
+    3.1328125,
+    3.615234375,
+    3.609375,
+    1.69140625,
+    1.984375,
+    -0.94921875,
+    11.515625,
+    14.34375
+  ],
+  "extension_best_step": 5,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.000457023654003156245438370238303091576404664274599923770060716"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.000457023654003156245438370238303091576404664274599923770060716",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00319916557802209375822762213486318469213056719993956687704237",
+      "best_step": 5
+    }
+  }
+}
+,
+{
+  "index": 38,
+  "true_label": 9,
+  "argmax_y0": 3,
+  "argmax_y1": 9,
+  "is_counter_example": true,
+  "max_eps": "0.00142488530054109317184031133985499346645164851814611765012048",
+  "dist": "0.00132070120633989961457030654140782981805740764401052311791713",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_etzyg520.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_ud_xhbpv.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_c28yfhiw.npy",
+  "y0": [
+    5.22265625,
+    5.046875,
+    6.85546875,
+    8.171875,
+    7.203125,
+    7.73828125,
+    6.015625,
+    5.671875,
+    4.56640625,
+    8.171875
+  ],
+  "y1": [
+    5.2265625,
+    5.046875,
+    6.859375,
+    8.1640625,
+    7.19921875,
+    7.7421875,
+    6.015625,
+    5.67578125,
+    4.5703125,
+    8.1875
+  ],
+  "extension_best_step": 2,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.000474961766847031053908278173947277167599168024025857448577881"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.000474961766847031053908278173947277167599168024025857448577881",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00142488530054109317184031133985499346645164851814611765012048",
+      "best_step": 2
+    }
+  }
+}
+,
+{
+  "index": 39,
+  "true_label": 5,
+  "argmax_y0": 3,
+  "argmax_y1": 5,
+  "is_counter_example": true,
+  "max_eps": "0.00559888354139196504184204150947615227968472694315591340540877",
+  "dist": "0.00512086984223470983856000756113175344281503548875370409615607",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_0suxui0v.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_8p28ptnz.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_6we54g6f.npy",
+  "y0": [
+    7.3828125,
+    1.740234375,
+    8.9296875,
+    12.59375,
+    11.1015625,
+    12.59375,
+    10.421875,
+    6.328125,
+    10.65625,
+    6.09375
+  ],
+  "y1": [
+    7.37890625,
+    1.748046875,
+    8.9296875,
+    12.5625,
+    11.078125,
+    12.59375,
+    10.40625,
+    6.3046875,
+    10.65625,
+    6.09765625
+  ],
+  "extension_best_step": 2,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.00139972088534799125757820110338295119256635246074438327923417"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.00139972088534799125757820110338295119256635246074438327923417",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00559888354139196504184204150947615227968472694315591340540877",
+      "best_step": 2
+    }
+  }
+}
+,
+{
+  "index": 40,
+  "true_label": 4,
+  "argmax_y0": 0,
+  "argmax_y1": 4,
+  "is_counter_example": true,
+  "max_eps": "0.00333727031791552202183246996088352920499134690459021289603223",
+  "dist": "0.00303050256489814615254842031533566667534176501889629301333527",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_vp_xe6jy.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_bno7_igx.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_csf4r5u1.npy",
+  "y0": [
+    10.546875,
+    4.6875,
+    7.16796875,
+    5.75,
+    10.546875,
+    4.5,
+    4.08984375,
+    7.0625,
+    6.17578125,
+    4.49609375
+  ],
+  "y1": [
+    10.53125,
+    4.67578125,
+    7.17578125,
+    5.765625,
+    10.5703125,
+    4.515625,
+    4.09375,
+    7.08203125,
+    6.171875,
+    4.5
+  ],
+  "extension_best_step": 3,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.000667454063583104403202213476992060735944071817479731203945507"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.000667454063583104403202213476992060735944071817479731203945507",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00333727031791552202183246996088352920499134690459021289603223",
+      "best_step": 3
+    }
+  }
+}
+,
+{
+  "index": 41,
+  "true_label": 6,
+  "argmax_y0": 2,
+  "argmax_y1": 6,
+  "is_counter_example": true,
+  "max_eps": "0.00138176923408844440790608905978349848467336446371118633610363",
+  "dist": "0.00109671619271423185300486216799330016390948489981529090021681",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_3kvolskj.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_54kf8jvs.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_rouibfyf.npy",
+  "y0": [
+    4.8828125,
+    3.1875,
+    6.5390625,
+    4.96875,
+    4.09375,
+    5.265625,
+    6.5390625,
+    3.19140625,
+    2.43359375,
+    4.59375
+  ],
+  "y1": [
+    4.88671875,
+    3.177734375,
+    6.5390625,
+    4.9765625,
+    4.09765625,
+    5.265625,
+    6.5546875,
+    3.193359375,
+    2.439453125,
+    4.5859375
+  ],
+  "extension_best_step": 2,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.00034544230852211109683723749597160715407717646030505420640111"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.00034544230852211109683723749597160715407717646030505420640111",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00138176923408844440790608905978349848467336446371118633610363",
+      "best_step": 2
+    }
+  }
+}
+,
+{
+  "index": 44,
+  "true_label": 0,
+  "argmax_y0": 0,
+  "argmax_y1": 2,
+  "is_counter_example": true,
+  "max_eps": "0.00136716169774132328401557297763218942271715808306283094584724",
+  "dist": "0.0011873325908723887059792603915814556941252539086180230796303",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_ndkucvut.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_egzik1nl.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_35q7j94j.npy",
+  "y0": [
+    12.078125,
+    8.859375,
+    12.078125,
+    5.109375,
+    10.1484375,
+    4.62890625,
+    2.802734375,
+    6.1796875,
+    6.33203125,
+    9.796875
+  ],
+  "y1": [
+    12.078125,
+    8.875,
+    12.09375,
+    5.1171875,
+    10.1640625,
+    4.64453125,
+    2.8125,
+    6.1875,
+    6.328125,
+    9.8046875
+  ],
+  "extension_best_step": 0,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.00136716169774132328401557297763218942271715808306283094584724"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.00136716169774132328401557297763218942271715808306283094584724",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00136716169774132328401557297763218942271715808306283094584724",
+      "best_step": 0
+    }
+  }
+}
+,
+{
+  "index": 45,
+  "true_label": 9,
+  "argmax_y0": 0,
+  "argmax_y1": 9,
+  "is_counter_example": true,
+  "max_eps": "0.00260907102941296913662748444312180917393333897935401314587934",
+  "dist": "0.00252541026191127941155727525454760677937061093138957225236258",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_73im_42n.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_w0y1vekc.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_vr1srbtb.npy",
+  "y0": [
+    9.453125,
+    6.16796875,
+    5.68359375,
+    4.58203125,
+    6.87890625,
+    2.01171875,
+    4.73046875,
+    1.6162109375,
+    8.5234375,
+    9.453125
+  ],
+  "y1": [
+    9.4453125,
+    6.1796875,
+    5.67578125,
+    4.58984375,
+    6.8671875,
+    2.01953125,
+    4.734375,
+    1.6240234375,
+    8.53125,
+    9.484375
+  ],
+  "extension_best_step": 3,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.00104362841176518765429559380541205343764787905058710748562589"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.00104362841176518765429559380541205343764787905058710748562589",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00260907102941296913662748444312180917393333897935401314587934",
+      "best_step": 3
+    }
+  }
+}
+,
+{
+  "index": 49,
+  "true_label": 6,
+  "argmax_y0": 2,
+  "argmax_y1": 6,
+  "is_counter_example": true,
+  "max_eps": "0.00207265385113266661727780189368487514247405351563080445782606",
+  "dist": "0.00197917729090465835324442896773160679713365228070512852763252",
+  "img_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_ie6qla6j.png",
+  "x0_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_z7m6bpwm.npy",
+  "x1_file": "/Users/tobiasm1/git/verified-certified-robustness/scripts/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy/x_186e62w5.npy",
+  "y0": [
+    5.1875,
+    -2.1796875,
+    9.3671875,
+    7.3125,
+    9.0,
+    6.26953125,
+    9.3671875,
+    3.236328125,
+    2.896484375,
+    2.119140625
+  ],
+  "y1": [
+    5.1875,
+    -2.1796875,
+    9.3671875,
+    7.31640625,
+    9.0078125,
+    6.2734375,
+    9.390625,
+    3.23828125,
+    2.89453125,
+    2.115234375
+  ],
+  "extension_best_step": 2,
+  "model_execution": "numpy_ieee754_compliant",
+  "stages": {
+    "deepfool_bisect": {
+      "max_eps": "0.000690884617044222200704828017214006313784224744267703499644994"
+    },
+    "whitebox_extend": {
+      "max_eps": "0.000690884617044222200704828017214006313784224744267703499644994",
+      "multi_ray_eps": 0.0,
+      "multi_ray_slack": 0.0,
+      "multi_ray_class": -1
+    },
+    "blackbox_extend": {
+      "max_eps": "0.00207265385113266661727780189368487514247405351563080445782606",
+      "best_step": 2
+    }
+  }
+}
+
+]

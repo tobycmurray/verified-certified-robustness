@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Regenerate the five natural float16/float64 continuous-search suites (MNIST and
-# Fashion MNIST at float16; MNIST, Fashion MNIST and CIFAR-10 at float64; no CIFAR-10
-# float16: n*u >= 1, not certifiable) with the attack script's two fixes: points cast
+# Fashion MNIST at float16; MNIST, Fashion MNIST and CIFAR-10 at float64; CIFAR-10 at
+# float16, which the certifier by policy refuses (n*u = 1.5 >= 1), is generated separately by
+# regen_cifar10_float16_suite.sh for §2.2 only) with the attack script's two fixes: points cast
 # to the model's format (3cb2ba8) and weights loaded at the float32 policy and cast to
 # the target format (this commit; the July 2026 suites parsed the CSV decimals straight
 # to the target format, so the certifier's hybrid passes refused every float64

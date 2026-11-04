@@ -72,13 +72,17 @@ if fmt not in ("float16", "float32", "float64"):
           "(compliant_forward supports float16/float32/float64)")
     sys.exit(1)
 
-# The deployed weights are float32 (the trained model's format). A float64 run means
-# "the float32-weighted network executed in float64", so the Keras model that
-# supplies the weight tensors is built at the float32 policy and the tensors are
-# cast UP to float64 below (lossless); loading at a float64 policy would parse the
-# CSV decimals straight to float64 and silently certify a different model (the
-# certifier's .txt weights are the exact float32 values).
-keras_policy = "float32" if fmt == "float64" else fmt
+# The deployed weights are float32 (the trained model's format). A float64 or float16
+# run means "the float32-weighted network executed in that format", so the Keras
+# model that supplies the weight tensors is built at the float32 policy and the
+# tensors are cast below to the target dtype: UP to float64 (lossless) or DOWN to
+# float16 (the deployment rounding of the float32 weights, which is what the
+# certifier's compliant_forward.prepare does with its exact-float32 .txt weights).
+# Loading at a float64 policy would parse the CSV decimals straight to float64 and
+# silently certify a different model; at a float16 policy the decimals would be
+# rounded to float16 directly, which can differ from rounding the float32 value
+# (same fix as attack_verified_certifier_nat_numpy.py, 1d85695).
+keras_policy = "float32" if fmt in ("float16", "float64") else fmt
 try:
     mixed_precision.set_global_policy(keras_policy)
 except Exception as e:
