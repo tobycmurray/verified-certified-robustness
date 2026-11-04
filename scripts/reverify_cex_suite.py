@@ -4,14 +4,17 @@
 Per record (x1_file = the certified point x, x0_file = the differently-classified
 point x', max_eps = the radius eps as a decimal string), checks in exact rational
 arithmetic (Fraction) under the IEEE-754-compliant numpy execution:
-  * both stored points are float32 vectors (so their coordinates are exact rationals);
-  * the compliant float32 labels of x and x' differ;
+  * both stored points are vectors of the suite's format (float16/float32/float64, the
+    attack script's first argument), so their coordinates are exact rationals;
+  * the compliant labels of x and x' at that format differ;
   * ||x' - x||_2^2 <= eps^2 exactly (no square root, no rounding);
   * the certifier's margin test y_lab - y_j > L_{lab,j} * eps holds exactly for x's
     compliant logits y, with L parsed from the Dafny-verified JSON as exact decimals.
-The stored points are float64 arrays; the deployed execution casts them to float32
-(compliant_forward casts x to the model's format), so the checks that count are made
-on the float32 casts, and the suite's own float64 distance is reported alongside.
+The stored points are float64 arrays; the deployed execution casts them to the
+model's format (compliant_forward casts x), so the checks that count are made on
+those casts, and the suite's own float64 distance is reported alongside. The JSON
+keys keep their "f32cast"/"float32" names for every format: they mean "cast to the
+suite's format".
 Writes results/natural_grid_cex/reverify_<suite>.json (per-record verdicts + summary).
 CLI: the attack script's positional args plus --suite DIR, e.g.
   PYTHONPATH=. PYTHON_CERTIFIER=~/git/python-certifier cav2025-artifact-venv/bin/python \
@@ -46,10 +49,13 @@ def load_L_exact(path):
 L_Q = load_L_exact(A.lipschitz_json)
 
 
+DT = A.NP_DT   # the suite's format (float16/float32/float64), from the attack script's argv
+
+
 def load_pt(path):
-    """Returns (stored float64 vector, its float32 cast, whether the cast is lossless)."""
+    """Returns (stored float64 vector, its cast to the suite's format, whether the cast is lossless)."""
     x = np.asarray(np.load(os.path.join(SUITE, os.path.basename(path))), dtype=np.float64).reshape(-1)
-    x32 = x.astype(np.float32)
+    x32 = x.astype(DT)
     return x, x32, bool(np.array_equal(x32.astype(np.float64), x))
 
 

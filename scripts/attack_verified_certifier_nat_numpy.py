@@ -97,13 +97,26 @@ if fmt not in ("float16", "float32", "float64"):
           "(compliant_forward supports float16/float32/float64)")
     sys.exit(1)
 
+# The deployed weights are float32 (the trained model's format). A float64 or float16
+# run means "the float32-weighted network executed in that format", so the Keras model
+# that supplies the weight tensors (and runs DeepFool, a boundary heuristic only) is
+# built at the float32 policy and build_numpy_model casts the tensors to the target
+# dtype: UP to float64 (lossless) or DOWN to float16 (the deployment rounding of the
+# float32 weights, as compliant_forward.prepare applies to the certifier's exact
+# float32 .txt weights). Loading at a float64 policy would parse the CSV decimals
+# straight to float64 and silently search a different model (python-certifier
+# 6a6cce9 fixed the same bug in get_all_test_inputs_numpy); at a float16 policy the
+# decimals would be rounded to float16 directly, which can differ from rounding the
+# float32 value (double rounding).
+keras_policy = "float32" if fmt in ("float16", "float64") else fmt
 try:
-    mixed_precision.set_global_policy(fmt)
+    mixed_precision.set_global_policy(keras_policy)
 except Exception as e:
     print("Failed to set precision", str(e))
     sys.exit(1)
 
-print(f"Running Keras (DeepFool only) with precision: {mixed_precision.global_policy()}")
+print(f"Running Keras (DeepFool only) with precision: {mixed_precision.global_policy()} "
+      f"(weights are float32; cast to {fmt} for the compliant numpy model)")
 print(f"Counter-example search runs against compliant numpy at: {fmt}")
 
 
