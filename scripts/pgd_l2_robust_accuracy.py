@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
-"""Empirical l2 robust accuracy of a certifier-format dense model under PGD.
+"""Empirical l2 (non-)robustness of a certifier-format dense model under PGD / APGD.
 
-Purpose (POPL'27 reviewer B, Q3): split the gap between clean accuracy and the
-real-arithmetic verified robust accuracy into (a) points that are demonstrably
-NOT robust (an attack finds a misclassified point within eps) and (b) points
-where certification is loose. PGD robust accuracy upper-bounds the true robust
-accuracy, so
-    (PGD robust acc) - (real VRA)        upper-bounds the certification looseness,
-    (clean acc)      - (PGD robust acc)  lower-bounds the genuinely non-robust share.
+Purpose: partition the test set into points the real-arithmetic Lipschitz check certifies
+robust, points an attack BREAKS, and neither. A point is broken iff a point within eps is
+classified differently by the execution, the negation of the paper's robustness definition
+(Definition 2.1), regardless of the true label; every test point is attacked, correctly
+classified or not, against the label the compliant numpy execution predicts for it. The
+"neither" share upper-bounds the looseness of the Lipschitz bound (plus attack weakness);
+accuracy plays no role. (The 2026-09 POPL-response version attacked only the correctly
+classified points against their true labels, framing the split against clean accuracy, which
+conflates how robust the model was trained to be with how well the check certifies; that
+framing was dropped on 2026-11-05 and is not reproducible from this script.)
 
 Attack: ART's ProjectedGradientDescent (norm=2), run against the Keras float32
 model (validated tooling, as for the DeepFool step of the counter-example
@@ -18,18 +21,10 @@ misclassifies the adversarial point AND ||x_adv - x||_2 <= eps (float64). If ART
 float32 projection lands a hair outside the ball, the perturbation is shrunk
 back onto it before re-judging.
 
---label predicted (added 2026-11-05 for the PLDI cut): attack EVERY test point, correctly
-classified or not, against the label the compliant numpy execution predicts for it, so that
-"attacked" means "a point within eps that the execution classifies differently", exactly the
-negation of robustness (paper Definition 2.1) and independent of the true label. The test set
-is then partitioned into certified (real-arithmetic certified rate), attacked, and neither;
-the "neither" share upper-bounds the Lipschitz bound's looseness (plus attack weakness) with
-accuracy playing no role. The default --label true keeps the POPL-response behaviour above.
-
 Usage:
   python pgd_l2_robust_accuracy.py dataset INTERNAL_LAYER_SIZES model_weights_csv_dir \
       input_size eps [--steps 100] [--restarts 5] [--batch 256] [--n N] [--out out.json]
-      [--attack pgd|apgd] [--label true|predicted]
+      [--attack pgd|apgd]
 Run under cav2025-artifact-venv.
 """
 import json
@@ -72,9 +67,7 @@ restarts = opt("--restarts", 5, int)
 batch = opt("--batch", 256, int)
 n_limit = opt("--n", None, int)
 attack_kind = opt("--attack", "pgd", str)  # pgd | apgd (APGD-CE then APGD-DLR on survivors, as in AutoAttack)
-label_mode = opt("--label", "true", str)  # true: correct points vs their true label | predicted: all points vs numpy prediction
-assert label_mode in ("true", "predicted"), label_mode
-out_path = opt("--out", f"results/{attack_kind}_l2_{dataset}_eps{eps}{'_predlabel' if label_mode == 'predicted' else ''}.json", str)
+out_path = opt("--out", f"results/{attack_kind}_l2_{dataset}_eps{eps}_predlabel.json", str)
 
 inputs, outputs = doitlib.build_model(Input, Flatten, Dense, input_size=input_size,
                                       dataset=dataset, internal_layer_sizes=INTERNAL_LAYER_SIZES)
@@ -108,15 +101,10 @@ clean_keras = np.argmax(model.predict(x_test, batch_size=1024, verbose=0), axis=
 correct_np = clean_np == labels
 print(f"clean acc: numpy {correct_np.mean():.4f}, keras {(clean_keras == labels).mean():.4f} "
       f"({time.time() - t0:.0f}s)", flush=True)
-if label_mode == "predicted":
-    att_labels_np, att_labels_keras = clean_np, clean_keras  # attack away from the predicted class
-    y_att = np.eye(num_classes, dtype=y_test.dtype)[clean_np]
-    eligible = np.ones(N, dtype=bool)  # every point
-else:
-    att_labels_np = att_labels_keras = labels
-    y_att = y_test
-    eligible = correct_np  # only points the (numpy) model gets right
-print(f"label mode {label_mode}: attacking {int(eligible.sum())} of {N} points", flush=True)
+att_labels_np, att_labels_keras = clean_np, clean_keras  # attack away from the predicted class
+y_att = np.eye(num_classes, dtype=y_test.dtype)[clean_np]
+eligible = np.ones(N, dtype=bool)  # every point, correctly classified or not
+print(f"attacking all {N} points against the numpy execution's predicted labels", flush=True)
 
 classifier = TensorFlowV2Classifier(
     model=model,
@@ -182,7 +170,7 @@ for start in range(0, N, batch):
           f"of {int(eligible[:done].sum())} eligible ({time.time() - t0:.0f}s)", flush=True)
 
 summary = {
-    "dataset": dataset, "eps": eps, "n": int(N), "attack": attack_kind, "label_mode": label_mode,
+    "dataset": dataset, "eps": eps, "n": int(N), "attack": attack_kind, "label_mode": "predicted",
     "pgd_steps": steps, "pgd_restarts": restarts,
     "n_eligible": int(eligible.sum()),
     "unbroken_rate_numpy": float((~attacked_np).mean()),  # fraction of ALL N not attacked (upper-bounds the robust rate in predicted mode)

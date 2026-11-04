@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # CIFAR-10 l2 attacks over ALL 10,000 test points against the numpy execution's predicted
-# label (pgd_l2_robust_accuracy.py --label predicted), for the paper's RQ2 partition of the
+# label (pgd_l2_robust_accuracy.py), for the paper's RQ2 partition of the
 # test set into certified / attacked / neither. Same model, eps, steps and restarts as the
 # POPL-response runs (results/pgd_l2_cifar10_eps0.141.json, apgd_...): PGD-l2 then the two
 # AutoAttack gradient components. Outputs results/{pgd,apgd}_l2_cifar10_eps0.141_predlabel.json.
@@ -15,6 +15,6 @@ cd "$SCRIPTS"
 for atk in pgd apgd; do
   echo ">>> $atk ($(date))"
   env PYTHON_CERTIFIER="$PC" "$PY" pgd_l2_robust_accuracy.py cifar10 "$CIFAR_L" "$CIFAR_CSV" 32 0.141 \
-      --steps 100 --restarts 5 --attack "$atk" --label predicted
+      --steps 100 --restarts 5 --attack "$atk"
 done
 echo "### done ($(date))"
