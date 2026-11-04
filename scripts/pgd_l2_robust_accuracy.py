@@ -18,9 +18,18 @@ misclassifies the adversarial point AND ||x_adv - x||_2 <= eps (float64). If ART
 float32 projection lands a hair outside the ball, the perturbation is shrunk
 back onto it before re-judging.
 
+--label predicted (added 2026-11-05 for the PLDI cut): attack EVERY test point, correctly
+classified or not, against the label the compliant numpy execution predicts for it, so that
+"attacked" means "a point within eps that the execution classifies differently", exactly the
+negation of robustness (paper Definition 2.1) and independent of the true label. The test set
+is then partitioned into certified (real-arithmetic certified rate), attacked, and neither;
+the "neither" share upper-bounds the Lipschitz bound's looseness (plus attack weakness) with
+accuracy playing no role. The default --label true keeps the POPL-response behaviour above.
+
 Usage:
   python pgd_l2_robust_accuracy.py dataset INTERNAL_LAYER_SIZES model_weights_csv_dir \
       input_size eps [--steps 100] [--restarts 5] [--batch 256] [--n N] [--out out.json]
+      [--attack pgd|apgd] [--label true|predicted]
 Run under cav2025-artifact-venv.
 """
 import json
@@ -63,7 +72,9 @@ restarts = opt("--restarts", 5, int)
 batch = opt("--batch", 256, int)
 n_limit = opt("--n", None, int)
 attack_kind = opt("--attack", "pgd", str)  # pgd | apgd (APGD-CE then APGD-DLR on survivors, as in AutoAttack)
-out_path = opt("--out", f"results/{attack_kind}_l2_{dataset}_eps{eps}.json", str)
+label_mode = opt("--label", "true", str)  # true: correct points vs their true label | predicted: all points vs numpy prediction
+assert label_mode in ("true", "predicted"), label_mode
+out_path = opt("--out", f"results/{attack_kind}_l2_{dataset}_eps{eps}{'_predlabel' if label_mode == 'predicted' else ''}.json", str)
 
 inputs, outputs = doitlib.build_model(Input, Flatten, Dense, input_size=input_size,
                                       dataset=dataset, internal_layer_sizes=INTERNAL_LAYER_SIZES)
@@ -97,6 +108,15 @@ clean_keras = np.argmax(model.predict(x_test, batch_size=1024, verbose=0), axis=
 correct_np = clean_np == labels
 print(f"clean acc: numpy {correct_np.mean():.4f}, keras {(clean_keras == labels).mean():.4f} "
       f"({time.time() - t0:.0f}s)", flush=True)
+if label_mode == "predicted":
+    att_labels_np, att_labels_keras = clean_np, clean_keras  # attack away from the predicted class
+    y_att = np.eye(num_classes, dtype=y_test.dtype)[clean_np]
+    eligible = np.ones(N, dtype=bool)  # every point
+else:
+    att_labels_np = att_labels_keras = labels
+    y_att = y_test
+    eligible = correct_np  # only points the (numpy) model gets right
+print(f"label mode {label_mode}: attacking {int(eligible.sum())} of {N} points", flush=True)
 
 classifier = TensorFlowV2Classifier(
     model=model,
@@ -136,11 +156,11 @@ attacked_keras = np.zeros(N, dtype=bool)
 idx_all = np.arange(N)
 for start in range(0, N, batch):
     sel = idx_all[start:start + batch]
-    sel = sel[correct_np[sel]]  # only attack points the (numpy) model gets right
+    sel = sel[eligible[sel]]
     if len(sel) == 0:
         continue
     x = x_test[sel]
-    x_adv = generate(x, y_test[sel])
+    x_adv = generate(x, y_att[sel])
     for k, i in enumerate(sel):
         xi = x[k].astype(np.float64)
         xa = x_adv[k].astype(np.float64)
@@ -152,17 +172,20 @@ for start in range(0, N, batch):
         p_np = np_pred(xa)
         p_keras = int(np.argmax(model.predict(xa[None].astype(np.float32), verbose=0)[0]))
         ok = d <= eps
-        attacked_np[i] = ok and p_np != labels[i]
-        attacked_keras[i] = ok and p_keras != labels[i]
-        records.append({"idx": int(i), "label": int(labels[i]), "dist": d,
+        attacked_np[i] = ok and p_np != att_labels_np[i]
+        attacked_keras[i] = ok and p_keras != att_labels_keras[i]
+        records.append({"idx": int(i), "label": int(labels[i]), "attack_label_numpy": int(att_labels_np[i]), "dist": d,
                         "adv_pred_numpy": p_np, "adv_pred_keras": p_keras,
                         "attacked_numpy": bool(attacked_np[i]), "attacked_keras": bool(attacked_keras[i])})
     done = start + batch
     print(f"  {min(done, N)}/{N}: attacked so far (numpy) {int(attacked_np.sum())} "
-          f"of {int(correct_np[:done].sum())} correct ({time.time() - t0:.0f}s)", flush=True)
+          f"of {int(eligible[:done].sum())} eligible ({time.time() - t0:.0f}s)", flush=True)
 
 summary = {
-    "dataset": dataset, "eps": eps, "n": int(N), "attack": attack_kind, "pgd_steps": steps, "pgd_restarts": restarts,
+    "dataset": dataset, "eps": eps, "n": int(N), "attack": attack_kind, "label_mode": label_mode,
+    "pgd_steps": steps, "pgd_restarts": restarts,
+    "n_eligible": int(eligible.sum()),
+    "unbroken_rate_numpy": float((~attacked_np).mean()),  # fraction of ALL N not attacked (upper-bounds the robust rate in predicted mode)
     "clean_acc_numpy": float(correct_np.mean()),
     "clean_acc_keras": float((clean_keras == labels).mean()),
     "pgd_robust_acc_numpy": float((correct_np & ~attacked_np).mean()),
