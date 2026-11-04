@@ -1,0 +1,69 @@
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/art/estimators/certification/__init__.py:30: UserWarning: PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality
+  warnings.warn("PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality")
+cifar10: 10000 test points, eps=0.141, PGD steps=100 restarts=20
+clean acc: numpy 0.5774, keras 0.5774 (7s)
+attacking all 10000 points against the numpy execution's predicted labels
+  256/10000: attacked so far (numpy) 38 of 256 eligible (38s)
+  512/10000: attacked so far (numpy) 73 of 512 eligible (69s)
+  768/10000: attacked so far (numpy) 105 of 768 eligible (100s)
+  1024/10000: attacked so far (numpy) 144 of 1024 eligible (131s)
+  1280/10000: attacked so far (numpy) 180 of 1280 eligible (162s)
+  1536/10000: attacked so far (numpy) 220 of 1536 eligible (193s)
+  1792/10000: attacked so far (numpy) 259 of 1792 eligible (224s)
+  2048/10000: attacked so far (numpy) 295 of 2048 eligible (255s)
+  2304/10000: attacked so far (numpy) 337 of 2304 eligible (286s)
+  2560/10000: attacked so far (numpy) 373 of 2560 eligible (317s)
+  2816/10000: attacked so far (numpy) 417 of 2816 eligible (348s)
+  3072/10000: attacked so far (numpy) 462 of 3072 eligible (379s)
+  3328/10000: attacked so far (numpy) 510 of 3328 eligible (411s)
+  3584/10000: attacked so far (numpy) 547 of 3584 eligible (442s)
+  3840/10000: attacked so far (numpy) 588 of 3840 eligible (473s)
+  4096/10000: attacked so far (numpy) 629 of 4096 eligible (504s)
+  4352/10000: attacked so far (numpy) 670 of 4352 eligible (535s)
+  4608/10000: attacked so far (numpy) 707 of 4608 eligible (566s)
+  4864/10000: attacked so far (numpy) 748 of 4864 eligible (597s)
+  5120/10000: attacked so far (numpy) 781 of 5120 eligible (628s)
+  5376/10000: attacked so far (numpy) 815 of 5376 eligible (659s)
+  5632/10000: attacked so far (numpy) 847 of 5632 eligible (690s)
+  5888/10000: attacked so far (numpy) 891 of 5888 eligible (721s)
+  6144/10000: attacked so far (numpy) 934 of 6144 eligible (752s)
+  6400/10000: attacked so far (numpy) 972 of 6400 eligible (783s)
+  6656/10000: attacked so far (numpy) 1008 of 6656 eligible (814s)
+  6912/10000: attacked so far (numpy) 1051 of 6912 eligible (845s)
+  7168/10000: attacked so far (numpy) 1085 of 7168 eligible (876s)
+  7424/10000: attacked so far (numpy) 1124 of 7424 eligible (907s)
+  7680/10000: attacked so far (numpy) 1161 of 7680 eligible (939s)
+  7936/10000: attacked so far (numpy) 1198 of 7936 eligible (970s)
+  8192/10000: attacked so far (numpy) 1245 of 8192 eligible (1001s)
+  8448/10000: attacked so far (numpy) 1286 of 8448 eligible (1032s)
+  8704/10000: attacked so far (numpy) 1319 of 8704 eligible (1063s)
+  8960/10000: attacked so far (numpy) 1341 of 8960 eligible (1094s)
+  9216/10000: attacked so far (numpy) 1384 of 9216 eligible (1125s)
+  9472/10000: attacked so far (numpy) 1423 of 9472 eligible (1156s)
+  9728/10000: attacked so far (numpy) 1458 of 9728 eligible (1187s)
+  9984/10000: attacked so far (numpy) 1507 of 9984 eligible (1218s)
+  10000/10000: attacked so far (numpy) 1509 of 10000 eligible (1227s)
+
+SUMMARY: {
+ "dataset": "cifar10",
+ "eps": 0.141,
+ "n": 10000,
+ "attack": "pgd",
+ "label_mode": "predicted",
+ "pgd_steps": 100,
+ "pgd_restarts": 20,
+ "n_eligible": 10000,
+ "unbroken_rate_numpy": 0.8491,
+ "clean_acc_numpy": 0.5774,
+ "clean_acc_keras": 0.5774,
+ "pgd_robust_acc_numpy": 0.5231,
+ "pgd_robust_acc_keras": 0.5231,
+ "attacked_numpy": 1509,
+ "attacked_keras": 1509,
+ "n_correct_numpy": 5774,
+ "seconds": 1226.766979932785
+}
+Wrote results/pgd_l2_cifar10_eps0.141_predlabel_r20.json
+### done (Thu  5 Nov 2026 02:57:15 AEDT)
