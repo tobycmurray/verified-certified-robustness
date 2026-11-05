@@ -1,0 +1,17 @@
+{
+ "n": 10000,
+ "certifier": {
+  "certifier": "python_certifier_standard",
+  "format": "float32",
+  "gram_iterations": 12
+ },
+ "broken_source": "broken_union_cifar10_eps0.141_predlabel_exact.json",
+ "certified_real": 4612,
+ "broken": 3342,
+ "certified_and_broken": 0,
+ "neither": 2046,
+ "certified_real_pct": 46.12,
+ "broken_pct": 33.42,
+ "certified_and_broken_pct": 0.0,
+ "neither_pct": 20.46
+}

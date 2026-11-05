@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# SUPERSEDED (2026-11-05): generate_numpy_cexs.sh is the single continuous-search entry point
+# (same command lines, model table from python-certifier/models/registry.tsv; CEX_OUT_DIR for a
+# fresh output directory). Kept unchanged because results/natural_grid_cex/*regen*.log and the
+# commit history reference this script as the authors' actual float32 regeneration run.
 # Regenerate ONLY the three natural float32 continuous-search suites, with the
 # attack script's model-format cast fix (points stored as float32-representable
 # vectors), into a fresh directory so the committed python-certifier/tests suites

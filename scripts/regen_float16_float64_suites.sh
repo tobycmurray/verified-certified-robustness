@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# SUPERSEDED (2026-11-05): generate_numpy_cexs.sh is the single continuous-search entry point
+# (same command lines, model table from python-certifier/models/registry.tsv; CEX_OUT_DIR for a
+# fresh output directory). Kept unchanged because results/natural_grid_cex/f16f64_suites_regen.log
+# and python-certifier/tests/run_rq1_f16f64.sh reference this script as the authors' actual run.
 # Regenerate the five natural float16/float64 continuous-search suites (MNIST and
 # Fashion MNIST at float16; MNIST, Fashion MNIST and CIFAR-10 at float64; CIFAR-10 at
 # float16, which the certifier by policy refuses (n*u = 1.5 >= 1), is generated separately by

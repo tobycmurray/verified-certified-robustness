@@ -15,7 +15,8 @@ model's format (compliant_forward casts x), so the checks that count are made on
 those casts, and the suite's own float64 distance is reported alongside. The JSON
 keys keep their "f32cast"/"float32" names for every format: they mean "cast to the
 suite's format".
-Writes results/natural_grid_cex/reverify_<suite>.json (per-record verdicts + summary).
+Writes results/natural_grid_cex/reverify_<suite>.json (per-record verdicts + summary);
+REVERIFY_OUT_DIR overrides the directory.
 CLI: the attack script's positional args plus --suite DIR, e.g.
   PYTHONPATH=. PYTHON_CERTIFIER=~/git/python-certifier cav2025-artifact-venv/bin/python \
     reverify_cex_suite.py float32 mnist "[128,...]" CSV_DIR 28 L.json --suite ~/git/python-certifier/tests/cex_mnist_float32_numpy
@@ -33,7 +34,8 @@ if "--suite" not in sys.argv:
 _i = sys.argv.index("--suite")
 SUITE = os.path.expanduser(sys.argv[_i + 1])
 del sys.argv[_i:_i + 2]
-OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results", "natural_grid_cex")
+OUT_DIR = os.environ.get("REVERIFY_OUT_DIR") or os.path.join(   # the runner reverify_all_suites.sh sets it
+    os.path.dirname(os.path.abspath(__file__)), "results", "natural_grid_cex")
 import attack_verified_certifier_nat_numpy as A  # noqa: E402  (parses argv, builds models)
 
 

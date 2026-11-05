@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# SUPERSEDED (2026-11-05): generate_numpy_cexs.sh is the single continuous-search entry point
+# (same command lines, model table from python-certifier/models/registry.tsv; CEX_OUT_DIR for a
+# fresh output directory; note generate_numpy_cexs.sh has no CIFAR-10 float16 row, by policy --
+# that suite is §2.2's only). Kept unchanged because
+# results/natural_grid_cex/cifar10_float16_suite_regen.log references this script as the authors' run.
 # Generate the natural CIFAR-10 float16 continuous-search suite, the one suite that
 # regen_float16_float64_suites.sh left out. CIFAR-10 at float16 has n*u = 1.5 >= 1 at its
 # 3072-wide input layer, where the certifier's bounds are sound but useless, so by policy the

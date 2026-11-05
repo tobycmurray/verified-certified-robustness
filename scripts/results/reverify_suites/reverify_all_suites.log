@@ -1,0 +1,119 @@
+##### reverify cex_mnist_float32_numpy (Thu  5 Nov 2026 21:01:00 AEDT)
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/art/estimators/certification/__init__.py:30: UserWarning: PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality
+  warnings.warn("PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality")
+Counter-example search runs against compliant numpy at: float32
+No bias amplification (set FP_BIAS=1e6 to amplify FP errors)
+Built compliant numpy model: 9 layers, dtype float32, biases: no
+Sanity (test point 0): ||keras - numpy||_2 = 7.464e-06, argmax keras=7 numpy=7
+Loaded L matrix shape: (10, 10)
+{"suite": "cex_mnist_float32_numpy", "n_pairs": 30, "n_nonrepresentable": 0, "n_verified_float32": 30, "eps_min": 2.541492475449117e-07, "eps_max": 2.2707529626363616e-06, "dist_nat_median": 1.495858087081127, "dist_nat_min": 0.49386999829604633, "dist_nat_max": 2.504715709112467}
+SUMMARY {"suite": "cex_mnist_float32_numpy", "n_pairs": 30, "n_nonrepresentable": 0, "n_verified_float32": 30, "eps_min": 2.541492475449117e-07, "eps_max": 2.2707529626363616e-06, "dist_nat_median": 1.495858087081127, "dist_nat_min": 0.49386999829604633, "dist_nat_max": 2.504715709112467}
+##### reverify cex_fashion_mnist_float32_numpy (Thu  5 Nov 2026 21:01:04 AEDT)
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/art/estimators/certification/__init__.py:30: UserWarning: PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality
+  warnings.warn("PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality")
+Counter-example search runs against compliant numpy at: float32
+No bias amplification (set FP_BIAS=1e6 to amplify FP errors)
+Built compliant numpy model: 13 layers, dtype float32, biases: no
+Sanity (test point 0): ||keras - numpy||_2 = 7.692e-06, argmax keras=9 numpy=9
+Loaded L matrix shape: (10, 10)
+{"suite": "cex_fashion_mnist_float32_numpy", "n_pairs": 30, "n_nonrepresentable": 0, "n_verified_float32": 30, "eps_min": 7.941730158501381e-08, "eps_max": 9.432825927621002e-07, "dist_nat_median": 1.2800338228112706, "dist_nat_min": 0.15766575823327691, "dist_nat_max": 2.725695633269701}
+SUMMARY {"suite": "cex_fashion_mnist_float32_numpy", "n_pairs": 30, "n_nonrepresentable": 0, "n_verified_float32": 30, "eps_min": 7.941730158501381e-08, "eps_max": 9.432825927621002e-07, "dist_nat_median": 1.2800338228112706, "dist_nat_min": 0.15766575823327691, "dist_nat_max": 2.725695633269701}
+##### reverify cex_cifar10_float32_numpy (Thu  5 Nov 2026 21:01:07 AEDT)
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/art/estimators/certification/__init__.py:30: UserWarning: PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality
+  warnings.warn("PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality")
+Counter-example search runs against compliant numpy at: float32
+No bias amplification (set FP_BIAS=1e6 to amplify FP errors)
+Built compliant numpy model: 9 layers, dtype float32, biases: no
+Sanity (test point 0): ||keras - numpy||_2 = 5.535e-06, argmax keras=3 numpy=3
+Loaded L matrix shape: (10, 10)
+{"suite": "cex_cifar10_float32_numpy", "n_pairs": 30, "n_nonrepresentable": 0, "n_verified_float32": 30, "eps_min": 4.073816306049048e-08, "eps_max": 6.834574635488205e-07, "dist_nat_median": 0.2981535911121913, "dist_nat_min": 0.013938946348201565, "dist_nat_max": 0.8927166534145794}
+SUMMARY {"suite": "cex_cifar10_float32_numpy", "n_pairs": 30, "n_nonrepresentable": 0, "n_verified_float32": 30, "eps_min": 4.073816306049048e-08, "eps_max": 6.834574635488205e-07, "dist_nat_median": 0.2981535911121913, "dist_nat_min": 0.013938946348201565, "dist_nat_max": 0.8927166534145794}
+##### reverify cex_mnist_float16_numpy (Thu  5 Nov 2026 21:01:11 AEDT)
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/art/estimators/certification/__init__.py:30: UserWarning: PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality
+  warnings.warn("PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality")
+Counter-example search runs against compliant numpy at: float16
+No bias amplification (set FP_BIAS=1e6 to amplify FP errors)
+Built compliant numpy model: 9 layers, dtype float16, biases: no
+Sanity (test point 0): ||keras - numpy||_2 = 3.897e-02, argmax keras=7 numpy=7
+Loaded L matrix shape: (10, 10)
+{"suite": "cex_mnist_float16_numpy", "n_pairs": 30, "n_nonrepresentable": 0, "n_verified_float32": 30, "eps_min": 0.0008939127242991489, "eps_max": 0.00870192135084102, "dist_nat_median": 1.4961944570298187, "dist_nat_min": 0.5018896325757848, "dist_nat_max": 2.509885660126212}
+SUMMARY {"suite": "cex_mnist_float16_numpy", "n_pairs": 30, "n_nonrepresentable": 0, "n_verified_float32": 30, "eps_min": 0.0008939127242991489, "eps_max": 0.00870192135084102, "dist_nat_median": 1.4961944570298187, "dist_nat_min": 0.5018896325757848, "dist_nat_max": 2.509885660126212}
+##### reverify cex_fashion_mnist_float16_numpy (Thu  5 Nov 2026 21:01:15 AEDT)
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/art/estimators/certification/__init__.py:30: UserWarning: PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality
+  warnings.warn("PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality")
+Counter-example search runs against compliant numpy at: float16
+No bias amplification (set FP_BIAS=1e6 to amplify FP errors)
+Built compliant numpy model: 13 layers, dtype float16, biases: no
+Sanity (test point 0): ||keras - numpy||_2 = 2.758e-02, argmax keras=9 numpy=9
+Loaded L matrix shape: (10, 10)
+{"suite": "cex_fashion_mnist_float16_numpy", "n_pairs": 30, "n_nonrepresentable": 0, "n_verified_float32": 30, "eps_min": 0.0006619601889653799, "eps_max": 0.007727370999907142, "dist_nat_median": 1.2807921137987388, "dist_nat_min": 0.15882641401823455, "dist_nat_max": 2.7290229893108404}
+SUMMARY {"suite": "cex_fashion_mnist_float16_numpy", "n_pairs": 30, "n_nonrepresentable": 0, "n_verified_float32": 30, "eps_min": 0.0006619601889653799, "eps_max": 0.007727370999907142, "dist_nat_median": 1.2807921137987388, "dist_nat_min": 0.15882641401823455, "dist_nat_max": 2.7290229893108404}
+##### reverify cex_cifar10_float16_numpy (Thu  5 Nov 2026 21:01:18 AEDT)
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/art/estimators/certification/__init__.py:30: UserWarning: PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality
+  warnings.warn("PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality")
+Counter-example search runs against compliant numpy at: float16
+No bias amplification (set FP_BIAS=1e6 to amplify FP errors)
+Built compliant numpy model: 9 layers, dtype float16, biases: no
+Sanity (test point 0): ||keras - numpy||_2 = 2.422e-02, argmax keras=3 numpy=3
+Loaded L matrix shape: (10, 10)
+{"suite": "cex_cifar10_float16_numpy", "n_pairs": 30, "n_nonrepresentable": 0, "n_verified_float32": 30, "eps_min": 0.00039038131851736144, "eps_max": 0.005598883541391965, "dist_nat_median": 0.30405450422491337, "dist_nat_min": 0.011957242289125347, "dist_nat_max": 0.8953526265802505}
+SUMMARY {"suite": "cex_cifar10_float16_numpy", "n_pairs": 30, "n_nonrepresentable": 0, "n_verified_float32": 30, "eps_min": 0.00039038131851736144, "eps_max": 0.005598883541391965, "dist_nat_median": 0.30405450422491337, "dist_nat_min": 0.011957242289125347, "dist_nat_max": 0.8953526265802505}
+##### reverify cex_mnist_float64_numpy (Thu  5 Nov 2026 21:01:24 AEDT)
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/art/estimators/certification/__init__.py:30: UserWarning: PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality
+  warnings.warn("PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality")
+Counter-example search runs against compliant numpy at: float64
+No bias amplification (set FP_BIAS=1e6 to amplify FP errors)
+Built compliant numpy model: 9 layers, dtype float64, biases: no
+Sanity (test point 0): ||keras - numpy||_2 = 5.318e-06, argmax keras=7 numpy=7
+Loaded L matrix shape: (10, 10)
+{"suite": "cex_mnist_float64_numpy", "n_pairs": 30, "n_nonrepresentable": 0, "n_verified_float32": 30, "eps_min": 3.529051417777988e-16, "eps_max": 3.077803150152357e-15, "dist_nat_median": 1.5271180911763174, "dist_nat_min": 0.2522078792539823, "dist_nat_max": 2.5047160143550236}
+SUMMARY {"suite": "cex_mnist_float64_numpy", "n_pairs": 30, "n_nonrepresentable": 0, "n_verified_float32": 30, "eps_min": 3.529051417777988e-16, "eps_max": 3.077803150152357e-15, "dist_nat_median": 1.5271180911763174, "dist_nat_min": 0.2522078792539823, "dist_nat_max": 2.5047160143550236}
+##### reverify cex_fashion_mnist_float64_numpy (Thu  5 Nov 2026 21:01:27 AEDT)
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/art/estimators/certification/__init__.py:30: UserWarning: PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality
+  warnings.warn("PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality")
+Counter-example search runs against compliant numpy at: float64
+No bias amplification (set FP_BIAS=1e6 to amplify FP errors)
+Built compliant numpy model: 13 layers, dtype float64, biases: no
+Sanity (test point 0): ||keras - numpy||_2 = 4.413e-06, argmax keras=9 numpy=9
+Loaded L matrix shape: (10, 10)
+{"suite": "cex_fashion_mnist_float64_numpy", "n_pairs": 30, "n_nonrepresentable": 0, "n_verified_float32": 30, "eps_min": 3.0523292096679376e-16, "eps_max": 5.270999769859415e-15, "dist_nat_median": 0.8278798569783195, "dist_nat_min": 0.023540177367435872, "dist_nat_max": 2.1751259115259685}
+SUMMARY {"suite": "cex_fashion_mnist_float64_numpy", "n_pairs": 30, "n_nonrepresentable": 0, "n_verified_float32": 30, "eps_min": 3.0523292096679376e-16, "eps_max": 5.270999769859415e-15, "dist_nat_median": 0.8278798569783195, "dist_nat_min": 0.023540177367435872, "dist_nat_max": 2.1751259115259685}
+##### reverify cex_cifar10_float64_numpy (Thu  5 Nov 2026 21:01:30 AEDT)
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/tobiasm1/git/verified-certified-robustness/scripts/cav2025-artifact-venv/lib/python3.9/site-packages/art/estimators/certification/__init__.py:30: UserWarning: PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality
+  warnings.warn("PyTorch not found. Not importing DeepZ or Interval Bound Propagation functionality")
+Counter-example search runs against compliant numpy at: float64
+No bias amplification (set FP_BIAS=1e6 to amplify FP errors)
+Built compliant numpy model: 9 layers, dtype float64, biases: no
+Sanity (test point 0): ||keras - numpy||_2 = 3.327e-06, argmax keras=3 numpy=3
+Loaded L matrix shape: (10, 10)
+{"suite": "cex_cifar10_float64_numpy", "n_pairs": 30, "n_nonrepresentable": 0, "n_verified_float32": 30, "eps_min": 1.0148384522287177e-16, "eps_max": 1.5186875088600752e-15, "dist_nat_median": 0.16485700363109884, "dist_nat_min": 0.010116109383742293, "dist_nat_max": 0.7712474021123369}
+SUMMARY {"suite": "cex_cifar10_float64_numpy", "n_pairs": 30, "n_nonrepresentable": 0, "n_verified_float32": 30, "eps_min": 1.0148384522287177e-16, "eps_max": 1.5186875088600752e-15, "dist_nat_median": 0.16485700363109884, "dist_nat_min": 0.010116109383742293, "dist_nat_max": 0.7712474021123369}
+##### done (all, Thu  5 Nov 2026 21:01:34 AEDT); summary in /Users/tobiasm1/git/verified-certified-robustness/scripts/results/reverify_suites/summary.tsv
+suite	n_pairs	n_verified	eps_min	eps_max
+cex_mnist_float32_numpy	30	30	2.541492475449117e-07	2.2707529626363616e-06
+cex_fashion_mnist_float32_numpy	30	30	7.941730158501381e-08	9.432825927621002e-07
+cex_cifar10_float32_numpy	30	30	4.073816306049048e-08	6.834574635488205e-07
+cex_mnist_float16_numpy	30	30	0.0008939127242991489	0.00870192135084102
+cex_fashion_mnist_float16_numpy	30	30	0.0006619601889653799	0.007727370999907142
+cex_cifar10_float16_numpy	30	30	0.00039038131851736144	0.005598883541391965
+cex_mnist_float64_numpy	30	30	3.529051417777988e-16	3.077803150152357e-15
+cex_fashion_mnist_float64_numpy	30	30	3.0523292096679376e-16	5.270999769859415e-15
+cex_cifar10_float64_numpy	30	30	1.0148384522287177e-16	1.5186875088600752e-15

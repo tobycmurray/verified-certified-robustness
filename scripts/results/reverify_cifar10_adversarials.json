@@ -1,0 +1,26 @@
+{
+ "pgd": {
+  "n": 3148,
+  "n_distance_ok": 3148,
+  "n_in_range": 3148,
+  "n_flip": 3148,
+  "n_clean_label_matches_record": 3148,
+  "max_distance": 0.1409986596241696,
+  "max_sq_distance_exact": "5730199161747621/288230376151711744",
+  "eps": "0.141",
+  "n_unique_idx": 3148,
+  "failures": []
+ },
+ "apgd": {
+  "n": 3342,
+  "n_distance_ok": 3342,
+  "n_in_range": 3342,
+  "n_flip": 3342,
+  "n_clean_label_matches_record": 3342,
+  "max_distance": 0.14099906040779867,
+  "max_sq_distance_exact": "44767435449725/2251799813685248",
+  "eps": "0.141",
+  "n_unique_idx": 3342,
+  "failures": []
+ }
+}
