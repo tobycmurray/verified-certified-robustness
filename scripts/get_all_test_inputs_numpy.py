@@ -168,5 +168,13 @@ class NumpyEncoder(json.JSONEncoder):
             return obj.tolist()
         return super().default(obj)
 
+# Provenance record first: the platform whose execution produced these y1 (the certifier's hybrid
+# modes refuse instances whose y1 the host's execution does not reproduce; einsum's summation order
+# differs between numpy's x86_64 and arm64 builds, so sets are provisioned per platform --
+# python-certifier/models/provision_platform_inputs.py). A record without x1_file; every reader skips it.
+provenance = dict(compliant_forward.execution_platform())
+provenance.update(execution=f"compliant_forward {fmt}" + (" with biases" if _bs is not None else ""),
+                  generator="verified-certified-robustness/scripts/get_all_test_inputs_numpy.py")
+res = [{"_metadata": {"provenance": provenance}}] + res
 with open(output_json, 'w') as f:
     f.write(json.dumps(res, cls=NumpyEncoder, indent=2))

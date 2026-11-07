@@ -663,12 +663,19 @@ def main():
         os.remove(log_file)
     with open(log_file, "w", buffering=1) as f:  # line-buffered mode
         f.write("[\n")
-        if bias_metadata is not None:
-            f.write(json.dumps({"_metadata": bias_metadata}, indent=2) + "\n")
+        # The suite's leading _metadata record: the bias construction (biased models) and the
+        # provenance of every y0/y1 -- the platform whose compliant execution produced them
+        # (the certifier's hybrid modes refuse instances whose y1 the host does not reproduce;
+        # python-certifier/models/provision_platform_inputs.py provisions per-platform variants).
+        metadata = dict(bias_metadata or {})
+        metadata["provenance"] = dict(compliant_forward.execution_platform(),
+                                      execution=f"compliant_forward {fmt}" + (" with biases" if bias_metadata is not None else ""),
+                                      generator="verified-certified-robustness/scripts/attack_verified_certifier_nat_numpy.py")
+        f.write(json.dumps({"_metadata": metadata}, indent=2) + "\n")
         f.flush()
     # num_cexs_written counts only actual cexs and drives the max_cex stop, so the
     # _metadata record never eats a cex slot. A separating comma is written before
-    # any element that something already precedes (the metadata record or a prior cex).
+    # every cex (the metadata record always precedes).
     num_cexs_written = 0
     for idx in range(total):
         x_nat0 = x_test[idx]
@@ -833,8 +840,7 @@ def main():
 
         # log to file
         with open(log_file, "a", buffering=1) as f:  # line-buffered mode
-            if bias_metadata is not None or num_cexs_written > 0:
-                f.write(",\n")
+            f.write(",\n")
             f.write(json.dumps(summary, indent=2, cls=NumpyEncoder) + "\n")
             f.flush()
             num_cexs_written += 1
