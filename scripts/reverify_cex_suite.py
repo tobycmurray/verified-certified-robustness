@@ -16,7 +16,8 @@ those casts, and the suite's own float64 distance is reported alongside. The JSO
 keys keep their "f32cast"/"float32" names for every format: they mean "cast to the
 suite's format".
 Writes results/natural_grid_cex/reverify_<suite>.json (per-record verdicts + summary);
-REVERIFY_OUT_DIR overrides the directory.
+REVERIFY_OUT_DIR overrides the directory. The summary's eps range is over every stored pair; the
+verified count and the natural-image distances are this host's (see main).
 CLI: the attack script's positional args plus --suite DIR, e.g.
   PYTHONPATH=. PYTHON_CERTIFIER=~/git/python-certifier cav2025-artifact-venv/bin/python \
     reverify_cex_suite.py float32 mnist "[128,...]" CSV_DIR 28 L.json --suite ~/git/python-certifier/tests/cex_mnist_float32_numpy
@@ -101,12 +102,15 @@ def main():
             bad += 1
             print(f"index {r['index']}: {'ok as float32 vectors' if ok else 'NOT VERIFIED'} {det}")
     good = [o for o in out if o["verified_float32"]]
-    eps = sorted(float(o["eps"]) for o in good)
+    # The radii are a property of the stored suite (every pair); the distances to the natural image are
+    # summarised over the pairs this host verifies, which can be none: the labels of points this close
+    # to the decision boundary depend on the host's float32 summation order.
+    eps = sorted(float(o["eps"]) for o in out)
     dn = sorted(o["dist_nat"] for o in good)
     summary = {"suite": os.path.basename(SUITE), "n_pairs": len(recs), "n_nonrepresentable": n_nonrepr,
-               "n_verified_float32": len(good), "eps_min": eps[0], "eps_max": eps[-1],
-               "dist_nat_median": dn[len(dn) // 2] if len(dn) % 2 else (dn[len(dn) // 2 - 1] + dn[len(dn) // 2]) / 2,
-               "dist_nat_min": dn[0], "dist_nat_max": dn[-1]}
+               "n_verified_float32": len(good), "eps_min": eps[0] if eps else None, "eps_max": eps[-1] if eps else None,
+               "dist_nat_median": (None if not dn else dn[len(dn) // 2] if len(dn) % 2 else (dn[len(dn) // 2 - 1] + dn[len(dn) // 2]) / 2),
+               "dist_nat_min": dn[0] if dn else None, "dist_nat_max": dn[-1] if dn else None}
     print(json.dumps(summary))
     os.makedirs(OUT_DIR, exist_ok=True)
     with open(os.path.join(OUT_DIR, f"reverify_{os.path.basename(SUITE)}.json"), "w") as f:
