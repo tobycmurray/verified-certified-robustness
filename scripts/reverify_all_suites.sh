@@ -15,6 +15,8 @@
 # python-certifier/models/registry.tsv (registry.sh; REGISTRY overrides the path).
 # Usage:  bash reverify_all_suites.sh [float32|float16|float64|all]     (default all)
 #   OUT_DIR   where the per-suite JSONs go (default results/reverify_suites/)
+#   SUITES_ROOT  where the cex_<model>_<fmt>_numpy suites are (default python-certifier/tests; a
+#             regeneration run points it at CEX_OUT_DIR of generate_numpy_cexs.sh)
 #   PYTHON_CERTIFIER, PY, REGISTRY as in generate_numpy_cexs.sh
 # Writes OUT_DIR/reverify_<suite>.json per suite (summary + per-pair verdicts) and
 # OUT_DIR/summary.tsv (suite, n_pairs, n_verified, eps_min, eps_max); exits non-zero if any
@@ -29,7 +31,12 @@ REFS="$PC/models/precomputed"
 PY="${PY:-$SCRIPTS/cav2025-artifact-venv/bin/python}"
 OUT_DIR="${OUT_DIR:-$SCRIPTS/results/reverify_suites}"
 WHICH="${1:-all}"
+# SUITES_ROOT: the directory holding the cex_<model>_<fmt>_numpy suites (default: the shipped ones in
+# python-certifier/tests). A regeneration run (artifact run 3-cex-regen, CEX_OUT_DIR of
+# generate_numpy_cexs.sh) points it at its own output; a suite absent there is skipped.
+SUITES_ROOT="${SUITES_ROOT:-$TESTS}"
 F16_CIFAR_SUITE="$SCRIPTS/results/natural_grid_cex/f16f64_suites_regen/cex_cifar10_float16_numpy"
+[ "$SUITES_ROOT" = "$TESTS" ] || F16_CIFAR_SUITE="$SUITES_ROOT/cex_cifar10_float16_numpy"
 export OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1
 source "$SCRIPTS/registry.sh"
 mkdir -p "$OUT_DIR"
@@ -42,6 +49,7 @@ reverify () {  # fmt key suite_dir
   dataset=$(reg "$key" dataset); layers=$(reg "$key" layers); csv="$VCRS_ROOT/$(reg "$key" weights_csv)"
   isize=$(reg "$key" isize); lip="$REFS/$(reg "$key" ref_rq1)"
   name=$(basename "$suite")
+  if [ ! -s "$suite/counter_examples.json" ]; then echo "##### $name absent under $SUITES_ROOT, skip"; return 0; fi
   echo "##### reverify $name ($(date))"
   ( cd "$SCRIPTS" && env PYTHONPATH="$SCRIPTS" PYTHON_CERTIFIER="$PC" REVERIFY_OUT_DIR="$OUT_DIR" \
       "$PY" reverify_cex_suite.py "$fmt" "$dataset" "$layers" "$csv" "$isize" "$lip" --suite "$suite" ) \
@@ -58,19 +66,19 @@ PYEOF
 
 want () { [ "$WHICH" = all ] || [ "$WHICH" = "$1" ]; }
 if want float32; then
-  reverify float32 mnist         "$TESTS/cex_mnist_float32_numpy"
-  reverify float32 fashion_mnist "$TESTS/cex_fashion_mnist_float32_numpy"
-  reverify float32 cifar10       "$TESTS/cex_cifar10_float32_numpy"
+  reverify float32 mnist         "$SUITES_ROOT/cex_mnist_float32_numpy"
+  reverify float32 fashion_mnist "$SUITES_ROOT/cex_fashion_mnist_float32_numpy"
+  reverify float32 cifar10       "$SUITES_ROOT/cex_cifar10_float32_numpy"
 fi
 if want float16; then
-  reverify float16 mnist         "$TESTS/cex_mnist_float16_numpy"
-  reverify float16 fashion_mnist "$TESTS/cex_fashion_mnist_float16_numpy"
+  reverify float16 mnist         "$SUITES_ROOT/cex_mnist_float16_numpy"
+  reverify float16 fashion_mnist "$SUITES_ROOT/cex_fashion_mnist_float16_numpy"
   reverify float16 cifar10       "$F16_CIFAR_SUITE"
 fi
 if want float64; then
-  reverify float64 mnist         "$TESTS/cex_mnist_float64_numpy"
-  reverify float64 fashion_mnist "$TESTS/cex_fashion_mnist_float64_numpy"
-  reverify float64 cifar10       "$TESTS/cex_cifar10_float64_numpy"
+  reverify float64 mnist         "$SUITES_ROOT/cex_mnist_float64_numpy"
+  reverify float64 fashion_mnist "$SUITES_ROOT/cex_fashion_mnist_float64_numpy"
+  reverify float64 cifar10       "$SUITES_ROOT/cex_cifar10_float64_numpy"
 fi
 case "$WHICH" in float32|float16|float64|all) ;; *) echo "unknown selection: $WHICH" >&2; exit 2 ;; esac
 echo "##### done ($WHICH, $(date)); summary in $SUMMARY"
