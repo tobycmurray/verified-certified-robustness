@@ -39,6 +39,23 @@ OUT_DIR = os.environ.get("REVERIFY_OUT_DIR") or os.path.join(   # the runner rev
     os.path.dirname(os.path.abspath(__file__)), "results", "natural_grid_cex")
 import attack_verified_certifier_nat_numpy as A  # noqa: E402  (parses argv, builds models)
 
+# An adversarially biased suite (cex_<model>_float32_biased_<B>_<pos>_numpy) carries the bias vectors its
+# search used (biases.txt, the attack script's BIAS_OUTPUT). The attack module rebuilds the biased model
+# from FP_BIAS / FP_BIAS_POS at import (deterministic given the weights: a flat bias B and its float64
+# compensation, cast to float32) and writes the rebuilt vectors to BIAS_OUTPUT; they must equal the suite's
+# for this run to re-verify the suite's own model. Recorded in the summary (biases_match_suite; None for a
+# natural suite); the runner reverify_all_suites.sh sets the three variables from the registry.
+_SUITE_BIASES = os.path.join(SUITE, "biases.txt")
+_FP_BIAS = float(os.environ.get("FP_BIAS", "0")) > 0
+if os.path.exists(_SUITE_BIASES) != _FP_BIAS:
+    sys.exit(f"{SUITE}: {'has' if not _FP_BIAS else 'has no'} biases.txt but FP_BIAS is {'un' if not _FP_BIAS else ''}set"
+             " (a biased suite is re-verified with FP_BIAS, FP_BIAS_POS and BIAS_OUTPUT set, as the runner does)")
+BIASES_MATCH = None
+if _FP_BIAS:
+    BIASES_MATCH = open(_SUITE_BIASES).read() == open(os.environ["BIAS_OUTPUT"]).read()
+    print(f"bias vectors rebuilt from FP_BIAS={os.environ['FP_BIAS']} {os.environ.get('FP_BIAS_POS')}: "
+          f"{'equal to' if BIASES_MATCH else 'DIFFER FROM'} the suite's biases.txt")
+
 
 def load_L_exact(path):
     with open(path) as f:
@@ -110,7 +127,8 @@ def main():
     summary = {"suite": os.path.basename(SUITE), "n_pairs": len(recs), "n_nonrepresentable": n_nonrepr,
                "n_verified_float32": len(good), "eps_min": eps[0] if eps else None, "eps_max": eps[-1] if eps else None,
                "dist_nat_median": (None if not dn else dn[len(dn) // 2] if len(dn) % 2 else (dn[len(dn) // 2 - 1] + dn[len(dn) // 2]) / 2),
-               "dist_nat_min": dn[0] if dn else None, "dist_nat_max": dn[-1] if dn else None}
+               "dist_nat_min": dn[0] if dn else None, "dist_nat_max": dn[-1] if dn else None,
+               "biases_match_suite": BIASES_MATCH}
     print(json.dumps(summary))
     os.makedirs(OUT_DIR, exist_ok=True)
     with open(os.path.join(OUT_DIR, f"reverify_{os.path.basename(SUITE)}.json"), "w") as f:
