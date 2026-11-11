@@ -21,7 +21,7 @@ CIFAR_L="[512,256,128,128,128,128,128,128]"
 OUT=results/quantised_cex
 SFX=${SUFFIX:-}
 EXTRA=("$@")
-S=${BIAS_DIR:-/private/tmp/claude-502/-Users-tobiasm1-git-float-conservatism-paper/ddf998f9-1707-420c-b03a-1e27b49e17e8/scratchpad}
+S=${BIAS_DIR:-$OUT/bias_vectors}   # rebuilt bias vectors of the biased models (BIAS_OUTPUT)
 mkdir -p "$OUT" "$S"
 
 echo "### biased MNIST float32 (1e6)"
